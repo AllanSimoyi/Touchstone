@@ -1,0 +1,302 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Accountant {
+  id Int @id @default(autoincrement())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  accountantName         String @db.VarChar(20)
+  accountantEmailAddress String @db.VarChar(100)
+  createdAt              BigInt
+  updatedAt              BigInt
+
+  @@map("accountants")
+}
+
+model Account {
+  id            Int    @id @default(autoincrement())
+  accountNumber String @db.VarChar(20)
+  companyName   String @db.VarChar(200)
+  tradingAs     String @db.VarChar(200)
+  formerly      String @db.VarChar(200)
+
+  groupId Int
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  areaId Int
+  area   Area @relation(fields: [areaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  sectorId Int
+  sector   Sector @relation(fields: [sectorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  vatNumber           Int
+  otherNamesOnCheques String @db.VarChar(200)
+  description         String @db.VarChar(500)
+  actual              Int
+  reason              String @db.VarChar(500)
+
+  statusId Int
+  status   Status @relation(fields: [statusId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  contractNumber String  @db.VarChar(30)
+  dateOfContract BigInt?
+
+  licenseId Int
+  license   License @relation(fields: [licenseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  licenseDetailId Int
+  licenseDetail   LicenseDetail @relation(fields: [licenseDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  addedPercentage Int
+  gross           Int
+  net             Int
+  vat             Int
+  comment         String @db.VarChar(500)
+  createdAt       BigInt
+  updatedAt       BigInt
+
+  accountant      Accountant[]
+  Box             Box[]
+  Ceo             Ceo[]
+  Contact         Contact[]
+  Database        Database[]
+  DeliveryAddress DeliveryAddress[]
+  Operator        Operator[]
+
+  @@map("accounts")
+}
+
+model Area {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(100)
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  account Account[]
+
+  @@map("areas")
+}
+
+model Box {
+  id Int @id @default(autoincrement())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  boxCityId Int
+  boxCity   City @relation(fields: [boxCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  boxNumber String @db.VarChar(200)
+  boxArea   String @db.VarChar(200)
+  createdAt BigInt
+  updatedAt BigInt
+
+  @@map("boxes")
+}
+
+model Ceo {
+  id Int @id @default(autoincrement())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  ceoName         String @db.VarChar(50)
+  ceoEmailAddress String @db.VarChar(50)
+  ceoPhoneNumber  String @db.VarChar(40)
+  ceoFaxNumber    String @db.VarChar(20)
+  createdAt       BigInt
+  updatedAt       BigInt
+
+  @@map("ceos")
+}
+
+model City {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(100)
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  boxes           Box[]
+  DeliveryAddress DeliveryAddress[]
+
+  @@map("cities")
+}
+
+model Contact {
+  id Int @id @default(autoincrement())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  physicalAddress String @db.VarChar(500)
+  telephoneNumber String @db.VarChar(40)
+  faxNumber       String @db.VarChar(40)
+  cellphoneNumber String @db.VarChar(40)
+  createdAt       BigInt
+  updatedAt       BigInt
+
+  @@map("contacts")
+}
+
+model Database {
+  id Int @id @default(autoincrement())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  databaseName String @db.VarChar(50)
+  createdAt    BigInt
+  updatedAt    BigInt
+
+  license   License? @relation(fields: [licenseId], references: [id])
+  licenseId Int?
+
+  @@map("databasez")
+}
+
+model DeliveryAddress {
+  id Int @id @default(autoincrement())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  deliveryCityId Int
+  deliveryCity   City @relation(fields: [deliveryCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  deliveryAddress String @db.VarChar(300)
+  deliverySuburb  String @db.VarChar(100)
+  createdAt       BigInt
+  updatedAt       BigInt
+
+  @@map("deliveryaddresses")
+}
+
+model Event {
+  id        Int    @id @default(autoincrement())
+  kind      String @db.VarChar(20)
+  tableName String @db.VarChar(30)
+
+  recordId Int
+
+  details String @db.Text
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  username  String @db.VarChar(200)
+  createdAt BigInt
+  updatedAt BigInt
+
+  @@map("eventz")
+}
+
+model Group {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(100)
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  accounts Account[]
+
+  @@map("groupz")
+}
+
+model LicenseDetail {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(500)
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  accounts Account[]
+
+  @@map("licensedetails")
+}
+
+model License {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(100)
+  basicUsd   Int
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  accounts  Account[]
+  databases Database[]
+
+  @@map("licenses")
+}
+
+model Operator {
+  id Int @id @default(autoincrement())
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  operatorName         String @db.VarChar(30)
+  operatorEmailAddress String @db.VarChar(50)
+  createdAt            BigInt
+  updatedAt            BigInt
+
+  @@map("operatorz")
+}
+
+model Role {
+  id          Int    @id @default(autoincrement())
+  accessLevel String @db.VarChar(15)
+  feature     String @db.VarChar(20)
+  createdAt   BigInt
+  updatedAt   BigInt
+
+  @@map("roles")
+}
+
+model Sector {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(100)
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  accounts Account[]
+
+  @@map("sectors")
+}
+
+model Status {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(100)
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  accounts Account[]
+
+  @@map("statuses")
+}
+
+model Title {
+  id         Int    @id @default(autoincrement())
+  identifier String @db.VarChar(100)
+  createdAt  BigInt
+  updatedAt  BigInt
+
+  @@map("titlez")
+}
+
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @db.VarChar(40)
+  password    String @db.Text
+  accessLevel String @db.VarChar(15)
+  createdAt   BigInt
+  updatedAt   BigInt
+
+  events Event[]
+
+  @@map("users")
+}

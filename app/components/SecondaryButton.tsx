@@ -1,0 +1,65 @@
+import type { RemixLinkProps } from '@remix-run/react/dist/components';
+import type { ComponentProps } from 'react';
+
+import { Link } from '@remix-run/react';
+import { twMerge } from 'tailwind-merge';
+
+interface GetClassNameProps {
+  className: string | undefined;
+  disabled: boolean | undefined;
+}
+function getClassName(props: GetClassNameProps) {
+  const { className: inputClassName, disabled } = props;
+  const className = twMerge(
+    'rounded-md transition-all duration-300 text-center p-3',
+    'bg-indigo-200 text-indigo-600 hover:bg-indigo-300 focus:bg-indigo-200 focus:outline-green-100',
+    disabled &&
+      'text-indigo-400/40 cursor-not-allowed bg-indigo-200/50 hover:bg-indigo-200/50',
+    inputClassName || ''
+  );
+  return className;
+}
+
+interface Props extends ComponentProps<'button'> {}
+export function SecondaryButton(props: Props) {
+  const {
+    className,
+    children,
+    type = 'button',
+    disabled,
+    ...restOfProps
+  } = props;
+  return (
+    <button
+      type={type}
+      className={getClassName({ className, disabled })}
+      children={children}
+      disabled={disabled}
+      {...restOfProps}
+    />
+  );
+}
+
+interface ButtonLinkProps extends ComponentProps<typeof Link>, RemixLinkProps {}
+export function SecondaryButtonLink(props: ButtonLinkProps) {
+  const { children, className, ...restOfProps } = props;
+  return (
+    <Link
+      className={getClassName({ className, disabled: false })}
+      children={children}
+      {...restOfProps}
+    />
+  );
+}
+
+interface ExternalLinkProps extends ComponentProps<'a'> {}
+export function SecondaryButtonExternalLink(props: ExternalLinkProps) {
+  const { children, className, ...restOfProps } = props;
+  return (
+    <a
+      className={getClassName({ className, disabled: false })}
+      children={children}
+      {...restOfProps}
+    />
+  );
+}
