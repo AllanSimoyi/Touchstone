@@ -13,10 +13,10 @@ model Accountant {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  accountantName         String @db.VarChar(20)
-  accountantEmailAddress String @db.VarChar(100)
-  createdAt              BigInt
-  updatedAt              BigInt
+  accountantName  String   @db.VarChar(20)
+  accountantEmail String   @db.VarChar(100)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("accountants")
 }
@@ -37,17 +37,17 @@ model Account {
   sectorId Int
   sector   Sector @relation(fields: [sectorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  vatNumber           Int
-  otherNamesOnCheques String @db.VarChar(200)
-  description         String @db.VarChar(500)
-  actual              Int
-  reason              String @db.VarChar(500)
+  vatNumber   String @db.VarChar(200)
+  otherNames  String @db.VarChar(200)
+  description String @db.VarChar(1600)
+  actual      Int
+  reason      String @db.VarChar(500)
 
   statusId Int
   status   Status @relation(fields: [statusId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  contractNumber String  @db.VarChar(30)
-  dateOfContract BigInt?
+  contractNumber String    @db.VarChar(30)
+  dateOfContract DateTime?
 
   licenseId Int
   license   License @relation(fields: [licenseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -56,29 +56,29 @@ model Account {
   licenseDetail   LicenseDetail @relation(fields: [licenseDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   addedPercentage Int
-  gross           Int
-  net             Int
-  vat             Int
-  comment         String @db.VarChar(500)
-  createdAt       BigInt
-  updatedAt       BigInt
+  gross           Decimal  @db.Decimal(19, 2)
+  net             Decimal  @db.Decimal(19, 2)
+  vat             Decimal  @db.Decimal(19, 2)
+  comment         String   @db.VarChar(1600)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  accountant      Accountant[]
-  Box             Box[]
-  Ceo             Ceo[]
-  Contact         Contact[]
-  Database        Database[]
-  DeliveryAddress DeliveryAddress[]
-  Operator        Operator[]
+  accountants       Accountant[]
+  boxes             Box[]
+  ceos              Ceo[]
+  contacts          Contact[]
+  databases         Database[]
+  operators         Operator[]
+  deliveryAddresses DeliveryAddress[]
 
   @@map("accounts")
 }
 
 model Area {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(100)
-  createdAt  BigInt
-  updatedAt  BigInt
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   account Account[]
 
@@ -94,10 +94,10 @@ model Box {
   boxCityId Int
   boxCity   City @relation(fields: [boxCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  boxNumber String @db.VarChar(200)
-  boxArea   String @db.VarChar(200)
-  createdAt BigInt
-  updatedAt BigInt
+  boxNumber String   @db.VarChar(200)
+  boxArea   String   @db.VarChar(200)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("boxes")
 }
@@ -108,24 +108,24 @@ model Ceo {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  ceoName         String @db.VarChar(50)
-  ceoEmailAddress String @db.VarChar(50)
-  ceoPhoneNumber  String @db.VarChar(40)
-  ceoFaxNumber    String @db.VarChar(20)
-  createdAt       BigInt
-  updatedAt       BigInt
+  ceoName   String   @db.VarChar(50)
+  ceoEmail  String   @db.VarChar(50)
+  ceoPhone  String   @db.VarChar(40)
+  ceoFax    String   @db.VarChar(20)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("ceos")
 }
 
 model City {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(100)
-  createdAt  BigInt
-  updatedAt  BigInt
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  boxes           Box[]
-  DeliveryAddress DeliveryAddress[]
+  boxes             Box[]
+  deliveryAddresses DeliveryAddress[]
 
   @@map("cities")
 }
@@ -136,12 +136,12 @@ model Contact {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  physicalAddress String @db.VarChar(500)
-  telephoneNumber String @db.VarChar(40)
-  faxNumber       String @db.VarChar(40)
-  cellphoneNumber String @db.VarChar(40)
-  createdAt       BigInt
-  updatedAt       BigInt
+  physicalAddress String   @db.VarChar(500)
+  telephoneNumber String   @db.VarChar(40)
+  faxNumber       String   @db.VarChar(40)
+  cellphoneNumber String   @db.VarChar(40)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("contacts")
 }
@@ -152,12 +152,9 @@ model Database {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  databaseName String @db.VarChar(50)
-  createdAt    BigInt
-  updatedAt    BigInt
-
-  license   License? @relation(fields: [licenseId], references: [id])
-  licenseId Int?
+  databaseName String   @db.VarChar(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("databasez")
 }
@@ -171,10 +168,10 @@ model DeliveryAddress {
   deliveryCityId Int
   deliveryCity   City @relation(fields: [deliveryCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  deliveryAddress String @db.VarChar(300)
-  deliverySuburb  String @db.VarChar(100)
-  createdAt       BigInt
-  updatedAt       BigInt
+  deliveryAddress String   @db.VarChar(300)
+  deliverySuburb  String   @db.VarChar(100)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("deliveryaddresses")
 }
@@ -191,18 +188,18 @@ model Event {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  username  String @db.VarChar(200)
-  createdAt BigInt
-  updatedAt BigInt
+  username  String   @db.VarChar(200)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("eventz")
 }
 
 model Group {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(100)
-  createdAt  BigInt
-  updatedAt  BigInt
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   accounts Account[]
 
@@ -210,10 +207,10 @@ model Group {
 }
 
 model LicenseDetail {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(500)
-  createdAt  BigInt
-  updatedAt  BigInt
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(500)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   accounts Account[]
 
@@ -221,14 +218,13 @@ model LicenseDetail {
 }
 
 model License {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(100)
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(100)
   basicUsd   Int
-  createdAt  BigInt
-  updatedAt  BigInt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  accounts  Account[]
-  databases Database[]
+  accounts Account[]
 
   @@map("licenses")
 }
@@ -239,29 +235,19 @@ model Operator {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  operatorName         String @db.VarChar(30)
-  operatorEmailAddress String @db.VarChar(50)
-  createdAt            BigInt
-  updatedAt            BigInt
+  operatorName  String   @db.VarChar(30)
+  operatorEmail String   @db.VarChar(50)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("operatorz")
 }
 
-model Role {
-  id          Int    @id @default(autoincrement())
-  accessLevel String @db.VarChar(15)
-  feature     String @db.VarChar(20)
-  createdAt   BigInt
-  updatedAt   BigInt
-
-  @@map("roles")
-}
-
 model Sector {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(100)
-  createdAt  BigInt
-  updatedAt  BigInt
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   accounts Account[]
 
@@ -269,32 +255,37 @@ model Sector {
 }
 
 model Status {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(100)
-  createdAt  BigInt
-  updatedAt  BigInt
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(100)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   accounts Account[]
 
   @@map("statuses")
 }
 
-model Title {
-  id         Int    @id @default(autoincrement())
-  identifier String @db.VarChar(100)
-  createdAt  BigInt
-  updatedAt  BigInt
+model Role {
+  id          Int      @id @default(autoincrement())
+  accessLevel String   @db.VarChar(15)
+  feature     String   @db.VarChar(20)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("titlez")
+  users User[]
+
+  @@map("roles")
 }
 
 model User {
-  id          Int    @id @default(autoincrement())
-  username    String @db.VarChar(40)
-  password    String @db.Text
-  accessLevel String @db.VarChar(15)
-  createdAt   BigInt
-  updatedAt   BigInt
+  id        Int      @id @default(autoincrement())
+  username  String   @db.VarChar(40)
+  password  String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   events Event[]
 

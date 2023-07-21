@@ -1,20 +1,22 @@
 import { z } from 'zod';
 
-export type CustomFormFields<SchemaType = any> = {
-  [T in keyof SchemaType]: string | File;
+export type CustomFormFields<FieldNames extends string> = {
+  [K in FieldNames]: string | File;
 };
-export type CustomFieldErrors<SchemaType = any> = {
-  [T in keyof SchemaType]: string[] | undefined;
+export type FormFields = {
+  [index: string]: string | File;
+};
+export type CustomFieldErrors<FieldNames extends string> = {
+  [K in FieldNames]: string[] | undefined;
+};
+export type FieldErrors = {
+  [index: string]: string[] | undefined;
 };
 
 export interface BaseActionData {
   formError?: string;
-  fields?: {
-    [index: string]: string | File;
-  };
-  fieldErrors?: {
-    [index: string]: string[] | undefined;
-  };
+  fields?: FormFields;
+  fieldErrors?: FieldErrors;
 }
 
 const ResponseRecordedSchema = z.object({

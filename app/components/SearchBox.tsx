@@ -1,11 +1,15 @@
+import type { ComponentProps } from 'react';
+
 import { twMerge } from 'tailwind-merge';
 
-export function SearchBox(props: React.InputHTMLAttributes<HTMLInputElement>) {
+export function SearchBox(props: ComponentProps<'input'>) {
+  const { className, disabled, ...restOfProps } = props;
   return (
     <div
       className={twMerge(
-        'm-[2px] flex grow flex-row items-center rounded-md focus-within:ring-2 focus-within:ring-indigo-50',
-        'bg-indigo-100 transition-all duration-200 hover:bg-indigo-200 focus:bg-indigo-100'
+        'flex flex-row items-center focus-within:ring-1 focus-within:ring-zinc-400',
+        'rounded-md border border-zinc-200 bg-zinc-50 shadow-inner outline-none',
+        'transition-all duration-200'
       )}
     >
       <div className="pointer-events-none flex items-center pl-2">
@@ -27,8 +31,14 @@ export function SearchBox(props: React.InputHTMLAttributes<HTMLInputElement>) {
       </div>
       <input
         type="text"
-        className={`max-w-96 text-md grow rounded-none bg-transparent px-2 py-2 font-thin focus:outline-none`}
-        {...props}
+        disabled={disabled}
+        className={twMerge(
+          'w-full bg-transparent p-2 text-sm font-light outline-none transition-all duration-300',
+          disabled &&
+            'cursor-not-allowed bg-zinc-200 text-zinc-600 shadow-none',
+          className
+        )}
+        {...restOfProps}
       />
     </div>
   );

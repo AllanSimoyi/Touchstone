@@ -1,15 +1,15 @@
-import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { Toolbar } from "~/components/Toolbar";
+import type { LoaderArgs } from '@remix-run/node';
 
-import { useUser } from "~/utils";
+import { json } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
 
-import { CenteredView } from "~/components/CenteredView";
-import { DashboardCard } from "~/components/DashboardCard";
-import { Footer } from "~/components/Footer";
-import { AppLinks } from "~/models/links";
-import { requireUserId } from "~/session.server";
+import { CenteredView } from '~/components/CenteredView';
+import { DashboardCard } from '~/components/DashboardCard';
+import { Footer } from '~/components/Footer';
+import { Toolbar } from '~/components/Toolbar';
+import { AppLinks } from '~/models/links';
+import { requireUserId } from '~/session.server';
+import { useUser } from '~/utils';
 
 export async function loader({ request }: LoaderArgs) {
   await requireUserId(request);
@@ -43,7 +43,7 @@ export default function Index() {
             <DashboardCard
               title="Migration"
               links={[
-                { caption: 'Import Recods', to: AppLinks.Import },
+                { caption: 'Import Records', to: AppLinks.Import },
                 { caption: 'Export Records', to: AppLinks.Backup },
               ]}
             />
@@ -51,7 +51,10 @@ export default function Index() {
               title="Audit Trail"
               links={[
                 { caption: 'View Timeline', to: AppLinks.AuditTrail },
-                { caption: "Today's Activity", to: `${AppLinks.AuditTrail}?minDate=${new Date().getTime()}` },
+                {
+                  caption: "Today's Activity",
+                  to: `${AppLinks.AuditTrail}?minDate=${new Date().getTime()}`,
+                },
               ]}
             />
           </div>

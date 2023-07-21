@@ -1,11 +1,19 @@
+import { twMerge } from 'tailwind-merge';
+
 interface Props {
   children: React.ReactNode | string | string[];
+  className?: string;
 }
 
 export function InlineAlert(props: Props) {
-  const { children } = props;
+  const { children, className } = props;
   return (
-    <div className="flex flex-row items-center justify-start space-x-4 rounded-md border-l-2 border-l-red-600 bg-red-400/10 p-3">
+    <div
+      className={twMerge(
+        'flex flex-row items-center justify-start space-x-4 rounded-md border-l-2 border-l-red-600 bg-red-400/10 p-3 backdrop-blur-lg',
+        className
+      )}
+    >
       {typeof children === 'string' && (
         <span className="font-light text-red-500">{children}</span>
       )}

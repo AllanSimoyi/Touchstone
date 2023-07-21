@@ -6,10 +6,10 @@ import {
 import { useCallback } from 'react';
 import { AlertTriangle } from 'tabler-icons-react';
 
-import { getErrorMessage } from '~/lib/errors';
-import { AppLinks } from '~/lib/links';
+import { getErrorMessage } from '~/models/errors';
+import { AppLinks } from '~/models/links';
 
-import { SecondaryButton, SecondaryButtonLink } from './SecondaryButton';
+import { PrimaryButton, PrimaryButtonLink } from './PrimaryButton';
 
 interface BoundaryErrorProps {
   title: string;
@@ -19,7 +19,7 @@ interface BoundaryErrorProps {
 function ContactSupport({ preFilledMessage }: { preFilledMessage: string }) {
   return (
     <a
-      className="text-white underline"
+      className="text-indigo-600 underline"
       href={`mailto:allansimoyi@gmail.com?subject=I've encountered a problem&body=${preFilledMessage}`}
       target="_blank"
       rel="noopener noreferrer"
@@ -36,12 +36,12 @@ function createPrefilledMessage(message: string) {
 function BoundaryError(props: BoundaryErrorProps) {
   const { title, children } = props;
   return (
-    <div className="flex flex-col items-stretch justify-center space-y-6 rounded-md bg-white/10 p-6">
-      <div className="flex flex-col items-center justify-center space-y-4">
+    <div className="flex flex-col items-stretch justify-center gap-6 rounded-md bg-white p-6 shadow">
+      <div className="flex flex-col items-center justify-center gap-4">
         <AlertTriangle size={40} color="red" />
-        <h1 className="text-2xl font-semibold text-white">{title}</h1>
+        <h1 className="text-2xl font-semibold text-zinc-600">{title}</h1>
       </div>
-      <div className="flex flex-col items-stretch justify-center space-y-6 text-center">
+      <div className="flex flex-col items-stretch justify-center gap-6 text-center">
         {children}
       </div>
     </div>
@@ -71,10 +71,12 @@ function RouteCatchBoundary(props: RouterCatchBoundaryProps) {
       return (
         <BoundaryError title="Error 400 - Bad Request">
           {errorMessage && (
-            <span className="text-center text-white/50">"{errorMessage}"</span>
+            <span className="text-center font-light text-zinc-600">
+              "{errorMessage}"
+            </span>
           )}
-          <span className="text-center leading-8 text-white/50">
-            We received a malformed or invalid request. <br />
+          <span className="text-center font-light leading-8 text-zinc-600">
+            The system received a malformed or invalid request. <br />
             Please review your input and ensure it is valid. <br />
             If the issue persists,&nbsp;
             <ContactSupport
@@ -83,7 +85,7 @@ function RouteCatchBoundary(props: RouterCatchBoundaryProps) {
               )}
             />
           </span>
-          <SecondaryButton onClick={reload}>Reload</SecondaryButton>
+          <PrimaryButton onClick={reload}>Reload</PrimaryButton>
         </BoundaryError>
       );
     }
@@ -91,9 +93,11 @@ function RouteCatchBoundary(props: RouterCatchBoundaryProps) {
       return (
         <BoundaryError title="Error 401 - Unauthorised">
           {errorMessage && (
-            <span className="text-center text-white/50">"{errorMessage}"</span>
+            <span className="text-center font-light text-zinc-600">
+              "{errorMessage}"
+            </span>
           )}
-          <span className="text-center leading-8 text-white/50">
+          <span className="text-center font-light leading-8 text-zinc-600">
             You're not authorised to access this resource. <br />
             Please ensure you're logged in before requesting for this resource.{' '}
             <br />
@@ -104,9 +108,9 @@ function RouteCatchBoundary(props: RouterCatchBoundaryProps) {
               )}
             />
           </span>
-          <SecondaryButtonLink to={AppLinks.Login}>
+          <PrimaryButtonLink to={AppLinks.Login}>
             Open Login Page
-          </SecondaryButtonLink>
+          </PrimaryButtonLink>
         </BoundaryError>
       );
     }
@@ -114,9 +118,11 @@ function RouteCatchBoundary(props: RouterCatchBoundaryProps) {
       return (
         <BoundaryError title="Error 403 - Forbidden">
           {errorMessage && (
-            <span className="text-center text-white/50">"{errorMessage}"</span>
+            <span className="text-center font-light text-zinc-600">
+              "{errorMessage}"
+            </span>
           )}
-          <span className="text-center leading-8 text-white/50">
+          <span className="text-center font-light leading-8 text-zinc-600">
             You don't have permission to access this resource. <br />
             If the issue persists,&nbsp;
             <ContactSupport
@@ -125,30 +131,30 @@ function RouteCatchBoundary(props: RouterCatchBoundaryProps) {
               )}
             />
           </span>
-          <SecondaryButtonLink to={AppLinks.Login}>
+          <PrimaryButtonLink to={AppLinks.Login}>
             Open Login Page
-          </SecondaryButtonLink>
+          </PrimaryButtonLink>
         </BoundaryError>
       );
     }
     case 404: {
       return (
         <BoundaryError title="Error 404 - Resource Not Found">
-          <div className="flex flex-col items-stretch justify-start space-y-4 px-6">
+          <div className="flex flex-col items-stretch justify-start gap-4 px-6">
             {errorMessage && (
               <div className="flex flex-col items-center justify-center">
-                <span className="text-center text-white/50">
+                <span className="text-center font-light text-zinc-600">
                   "{errorMessage}"
                 </span>
               </div>
             )}
-            <div className="flex flex-col items-stretch space-y-2 pb-6 text-white/50">
+            <div className="flex flex-col items-stretch gap-2 pb-6 font-light text-zinc-600">
               <div className="flex flex-col items-center justify-center">
                 <span className="text-center">
-                  We couldn't find that resource. <br />
+                  The system couldn't find that resource. <br />
                 </span>
               </div>
-              <div className="flex flex-col items-start justify-start space-y-4 py-2">
+              <div className="flex flex-col items-start justify-start gap-4 py-2">
                 <span className="text-base">
                   This could've been because of any of the following:
                 </span>
@@ -198,23 +204,23 @@ export function ErrorBoundary() {
 
   return (
     <BoundaryError title="Error 500 - Internal Server Error">
-      <span className="text-center leading-8 text-white/50">
-        We encountered an unexpected error. <br />
+      <span className="text-center leading-8 text-zinc-600/50">
+        The system encountered an unexpected error. <br />
         We're already working on fixing it. <br />
       </span>
       {errorMessage && (
-        <span className="text-center font-bold text-white/50">
+        <span className="text-center font-bold text-zinc-600/50">
           "{errorMessage}" <br />
         </span>
       )}
-      <span className="text-center leading-8 text-white/50">
+      <span className="text-center leading-8 text-zinc-600/50">
         Please try reloading the page. <br />
         If the issue persists,&nbsp;
         <ContactSupport
           preFilledMessage={createPrefilledMessage(errorMessage)}
         />
       </span>
-      <SecondaryButton onClick={reload}>Reload</SecondaryButton>
+      <PrimaryButton onClick={reload}>Reload</PrimaryButton>
     </BoundaryError>
   );
 }

@@ -39,11 +39,6 @@ export const StringNumber = z
   })
   .regex(/\d+/, { message: 'Enter a valid number' })
   .transform(Number);
-export const PerhapsEmptyRecordIdSchema = z
-  .string({
-    invalid_type_error: 'Provide a valid record ID',
-  })
-  .max(50, { message: 'Use less than 51 characters for the record ID' });
 export const PresentStringSchema = z
   .string({
     invalid_type_error: 'Provide a valid string',
@@ -88,22 +83,44 @@ export const PositiveIntSchema = z
   .or(StringNumber)
   .refine((n) => n > 0);
 
-export const RecordIdSchema = z
-  .string({
+export const OptionalRecordIdSchema = z
+  .number({
     invalid_type_error: 'Provide a valid record ID',
     required_error: 'Provide a record ID',
   })
+  .int({ message: 'Provide an valid record ID' })
+  .or(StringNumber)
+  .refine((n) => n === 0 || n > 0);
+
+export const RecordIdSchema = z
+  .number({
+    invalid_type_error: 'Provide a valid record ID',
+    required_error: 'Provide a record ID',
+  })
+  .int({ message: 'Provide an valid record ID' })
   .min(1, { message: 'Provide a valid record ID' })
-  .max(50, { message: 'Please use less than 50 characters for the record ID' });
+  .or(StringNumber)
+  .refine((n) => n > 0);
+
+export function ComposeOptionalRecordIdSchema(identifier: string) {
+  return z
+    .number({
+      invalid_type_error: `Select a valid ${identifier}`,
+      required_error: `Select a ${identifier}`,
+    })
+    .int({ message: `Select a valid ${identifier}` })
+    .or(StringNumber)
+    .refine((n) => n === 0 || n > 0);
+}
 
 export function ComposeRecordIdSchema(identifier: string) {
   return z
     .number({
-      invalid_type_error: `Provide a valid ${identifier} ID`,
-      required_error: `Provide a ${identifier} ID`,
+      invalid_type_error: `Select a valid ${identifier}`,
+      required_error: `Select a ${identifier}`,
     })
-    .int({ message: `Provide a valid ${identifier} ID` })
-    .min(1, { message: `Provide a valid ${identifier} ID` })
+    .int({ message: `Select a valid ${identifier}` })
+    .min(1, { message: `Select a valid ${identifier}` })
     .or(StringNumber)
     .refine((n) => n > 0);
 }

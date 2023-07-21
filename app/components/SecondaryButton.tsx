@@ -11,11 +11,11 @@ interface GetClassNameProps {
 function getClassName(props: GetClassNameProps) {
   const { className: inputClassName, disabled } = props;
   const className = twMerge(
-    'rounded-md transition-all duration-300 text-center p-3',
-    'bg-indigo-200 text-indigo-600 hover:bg-indigo-300 focus:bg-indigo-200 focus:outline-green-100',
+    'rounded-md transition-all duration-300 text-sm text-center py-2 px-4',
+    'bg-zinc-100 text-indigo-600 hover:bg-zinc-200 focus:bg-zinc-200 focus:outline-green-100',
     disabled &&
-      'text-indigo-400/40 cursor-not-allowed bg-indigo-200/50 hover:bg-indigo-200/50',
-    inputClassName || ''
+      'text-zinc-400/40 cursor-not-allowed bg-zinc-200/50 hover:bg-zinc-200/50',
+    inputClassName
   );
   return className;
 }

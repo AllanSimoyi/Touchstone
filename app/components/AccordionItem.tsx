@@ -8,25 +8,26 @@ interface Props {
   header: string | React.ReactNode;
   className?: string;
   children: React.ReactNode;
+  defaultOpen?: boolean;
 }
 
 export function AccordionItem(props: Props) {
-  const { header, className, children } = props;
+  const { header, className, children, defaultOpen = true } = props;
 
   return (
     <div className="flex flex-col items-stretch">
-      <Disclosure>
+      <Disclosure defaultOpen={defaultOpen}>
         {({ open }) => (
           <>
             {typeof header === 'string' && (
               <Disclosure.Button
                 as="button"
                 className={twMerge(
-                  'flex flex-row items-stretch rounded border-b border-b-zinc-200 p-6',
+                  'flex flex-row items-stretch rounded border-b border-b-zinc-200 p-2',
                   className
                 )}
               >
-                <div className="flex flex-col items-start">
+                <div className="flex flex-col items-start justify-center">
                   <span className="text-base text-slate-800">{header}</span>
                 </div>
                 <div className="grow" />
@@ -40,7 +41,7 @@ export function AccordionItem(props: Props) {
                 </div>
               </Disclosure.Button>
             )}
-            {header !== 'string' && (
+            {typeof header !== 'string' && (
               <Disclosure.Button
                 as="button"
                 className="flex flex-col items-stretch"

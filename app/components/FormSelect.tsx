@@ -1,46 +1,26 @@
 import type { ComponentProps } from 'react';
 
-import { twMerge } from 'tailwind-merge';
-
 import { useField, useIsSubmitting } from './ActionContextProvider';
+import { Select } from './Select';
 
-type Props<SchemaType extends Record<string, any>> = ComponentProps<'select'> & {
+type Props = ComponentProps<'select'> & {
   customRef?: ComponentProps<'select'>['ref'];
-  name: keyof SchemaType;
+  name: string;
   label?: string | undefined;
 };
-export function FormSelect<SchemaType extends Record<string, any>>(
-  props: Props<SchemaType>
-) {
-  const { customRef, name, label, className, ...restOfProps } = props;
+export function FormSelect(props: Props) {
+  const { name, defaultValue, disabled, ...restOfProps } = props;
 
-  const { value, error } = useField<SchemaType>(name);
+  const { value, error: errors } = useField(name);
   const isSubmitting = useIsSubmitting();
 
   return (
-    <div className="flex flex-col items-stretch justify-center gap-1">
-      {label && <span className="font-thin text-indigo-400">{label}</span>}
-      <select
-        required
-        ref={customRef}
-        name={name}
-        disabled={isSubmitting}
-        defaultValue={typeof value === 'string' ? value : undefined}
-        aria-invalid={!!error?.length}
-        aria-describedby={`${name}-error`}
-        className={twMerge(
-          'transition-all duration-300',
-          'rounded-md border border-indigo-400 p-2 font-light outline-none focus:ring-1 focus:ring-indigo-400',
-          error?.length && 'border-2 border-red-600',
-          className
-        )}
-        {...restOfProps}
-      />
-      {error?.length && (
-        <div className="text-sm text-red-500" id={`${name}-error`}>
-          {error.join(', ')}
-        </div>
-      )}
-    </div>
+    <Select
+      name={name}
+      errors={errors}
+      disabled={isSubmitting || disabled}
+      defaultValue={typeof value === 'string' ? value : defaultValue}
+      {...restOfProps}
+    />
   );
 }

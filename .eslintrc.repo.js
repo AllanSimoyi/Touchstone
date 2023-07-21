@@ -6,27 +6,27 @@ const WARN = 1;
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
   extends: [
-    "./.eslintrc.js",
-    "@remix-run/eslint-config/internal",
-    "plugin:markdown/recommended",
+    './.eslintrc.js',
+    '@remix-run/eslint-config/internal',
+    'plugin:markdown/recommended',
   ],
-  plugins: ["markdown"],
+  plugins: ['markdown'],
   settings: {
-    "import/internal-regex": "^~/",
+    'import/internal-regex': '^~/',
   },
   rules: {
-    "prefer-let/prefer-let": OFF,
-    "prefer-const": WARN,
+    'prefer-let/prefer-let': OFF,
+    'prefer-const': WARN,
 
-    "import/order": [
+    'import/order': [
       WARN,
       {
-        alphabetize: { caseInsensitive: true, order: "asc" },
-        groups: ["builtin", "external", "internal", "parent", "sibling"],
-        "newlines-between": "always",
+        alphabetize: { caseInsensitive: true, order: 'asc' },
+        groups: ['builtin', 'external', 'internal', 'parent', 'sibling'],
+        'newlines-between': 'always',
       },
     ],
 
-    "react/jsx-no-leaked-render": [WARN, { validStrategies: ["ternary"] }],
+    'react/jsx-no-leaked-render': [WARN, { validStrategies: ['ternary'] }],
   },
 };

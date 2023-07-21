@@ -1,30 +1,44 @@
-import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
-import { z } from "zod";
-import { ActionContextProvider } from "~/components/ActionContextProvider";
-import { AppTitle } from "~/components/AppTitle";
-import { Footer } from "~/components/Footer";
-import { FormTextField } from "~/components/FormTextField";
-import { InlineAlert } from "~/components/InlineAlert";
-import { PrimaryButton } from "~/components/PrimaryButton";
-import { badRequest, processBadRequest } from "~/models/core.validations";
-import { getRawFormFields, hasFormError } from "~/models/forms";
-import { AppLinks } from "~/models/links";
+import type { ActionArgs, LoaderArgs, V2_MetaFunction } from '@remix-run/node';
 
-import { verifyLogin } from "~/models/user.server";
-import { createUserSession, getUserId } from "~/session.server";
-import { safeRedirect } from "~/utils";
+import { json, redirect } from '@remix-run/node';
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from '@remix-run/react';
+import { z } from 'zod';
+
+import { ActionContextProvider } from '~/components/ActionContextProvider';
+import { AppTitle } from '~/components/AppTitle';
+import { RouteErrorBoundary } from '~/components/Boundaries';
+import { Footer } from '~/components/Footer';
+import { FormTextField } from '~/components/FormTextField';
+import { InlineAlert } from '~/components/InlineAlert';
+import { PrimaryButton } from '~/components/PrimaryButton';
+import { badRequest, processBadRequest } from '~/models/core.validations';
+import { getRawFormFields, hasFormError } from '~/models/forms';
+import { AppLinks } from '~/models/links';
+import { verifyLogin } from '~/models/user.server';
+import { createUserSession, getUserId } from '~/session.server';
+import { safeRedirect } from '~/utils';
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  if (userId) return redirect('/');
   return json({});
 };
 
 const Schema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
+  username: z
+    .string()
+    .min(1, 'Please enter your username')
+    .max(50, 'Please use less than 50 characters for your username'),
+  password: z
+    .string()
+    .min(1, 'Please enter your password')
+    .max(50, 'Please use less than 50 characters for your password'),
 });
 export const action = async ({ request }: ActionArgs) => {
   const fields = await getRawFormFields(request);
@@ -48,7 +62,7 @@ export const action = async ({ request }: ActionArgs) => {
   });
 };
 
-export const meta: V2_MetaFunction = () => [{ title: "Login" }];
+export const meta: V2_MetaFunction = () => [{ title: 'Login' }];
 
 export default function LoginPage() {
   useLoaderData<typeof loader>();
@@ -64,12 +78,12 @@ export default function LoginPage() {
         <div className="grow" />
         <Form
           method="post"
-          className="flex w-full flex-col items-stretch justify-center gap-12 p-4 sm:w-[80%] md:w-[60%] lg:w-[40%]"
+          className="flex w-full flex-col items-stretch justify-center gap-12 bg-white p-4 shadow-md sm:w-[80%] md:w-[60%] lg:w-[40%]"
         >
           <ActionContextProvider {...actionData} isSubmitting={isProcessing}>
             <div className="flex flex-col items-center justify-center">
               <Link to={AppLinks.Home}>
-                <AppTitle />
+                <AppTitle large />
               </Link>
             </div>
             <div className="flex flex-col items-stretch gap-4">
@@ -91,4 +105,8 @@ export default function LoginPage() {
       <Footer />
     </div>
   );
+}
+
+export function ErrorBoundary() {
+  return <RouteErrorBoundary />;
 }

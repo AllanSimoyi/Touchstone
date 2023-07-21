@@ -38,14 +38,14 @@ export function parseRedirectUrl(url: string) {
 }
 
 export type CurrentUser = {
-  id: string;
-  email: string;
+  id: number;
+  username: string;
 };
 
 export function userToCurrentUser(user: User) {
   const currentUser: CurrentUser = {
     id: user.id,
-    email: user.email,
+    username: user.username,
   };
   return currentUser;
 }
