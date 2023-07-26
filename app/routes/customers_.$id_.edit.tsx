@@ -1,8 +1,9 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 
-import { json, redirect } from '@remix-run/node';
+import { Response, json, redirect } from '@remix-run/node';
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import dayjs from 'dayjs';
+import { useMemo } from 'react';
 import { z } from 'zod';
 
 import {
@@ -25,21 +26,94 @@ import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
 import {
   ComposeOptionalRecordIdSchema,
+  RecordIdSchema,
+  StatusCode,
   badRequest,
+  getValidatedId,
   processBadRequest,
 } from '~/models/core.validations';
 import { calcGross, calcNet, calcVat } from '~/models/customers';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { getErrorMessage } from '~/models/errors';
-import { getRawFormFields, hasFormError } from '~/models/forms';
+import {
+  fieldErrorsToArr,
+  getFieldErrors,
+  getRawFormFields,
+  hasFields,
+  hasFormError,
+} from '~/models/forms';
 import { AppLinks } from '~/models/links';
+import { logSchemaParseErr } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, params }: LoaderArgs) {
   await requireUserId(request);
 
+  const id = getValidatedId(params.id);
+
   const records = await Promise.all([
+    prisma.account
+      .findUnique({
+        where: { id },
+        select: {
+          id: true,
+          companyName: true,
+          accountNumber: true,
+          tradingAs: true,
+          formerly: true,
+          groupId: true,
+          areaId: true,
+          sectorId: true,
+          vat: true,
+          otherNames: true,
+          actual: true,
+          reason: true,
+          statusId: true,
+          boxNumber: true,
+          boxArea: true,
+          boxCityId: true,
+          deliveryCityId: true,
+          deliveryAddress: true,
+          deliverySuburb: true,
+          description: true,
+          comment: true,
+          contractNumber: true,
+          dateOfContract: true,
+          licenseId: true,
+          licenseDetailId: true,
+          addedPercentage: true,
+          gross: true,
+          net: true,
+          vatNumber: true,
+          accountantName: true,
+          accountantEmail: true,
+          physicalAddress: true,
+          telephoneNumber: true,
+          faxNumber: true,
+          cellphoneNumber: true,
+          ceoName: true,
+          ceoEmail: true,
+          ceoPhone: true,
+          ceoFax: true,
+          databases: { select: { id: true, databaseName: true } },
+          operators: {
+            select: { id: true, operatorName: true, operatorEmail: true },
+          },
+        },
+      })
+      .then((customer) => {
+        if (!customer) {
+          return null;
+        }
+        const { dateOfContract, ...restOfCustomer } = customer;
+        return {
+          ...restOfCustomer,
+          dateOfContract: dateOfContract
+            ? dayjs(dateOfContract).format(DATE_INPUT_FORMAT)
+            : undefined,
+        };
+      }),
     prisma.city.findMany({
       select: { id: true, identifier: true },
     }),
@@ -62,10 +136,25 @@ export async function loader({ request }: LoaderArgs) {
       select: { id: true, identifier: true },
     }),
   ]);
-  const [cities, statuses, groups, areas, sectors, licenses, licenseDetails] =
-    records;
+  const [
+    account,
+    cities,
+    statuses,
+    groups,
+    areas,
+    sectors,
+    licenses,
+    licenseDetails,
+  ] = records;
+
+  if (!account) {
+    throw new Response('Account record not found', {
+      status: StatusCode.NotFound,
+    });
+  }
 
   return json({
+    account,
     cities,
     statuses,
     groups,
@@ -77,6 +166,7 @@ export async function loader({ request }: LoaderArgs) {
 }
 
 const Schema = z.object({
+  id: RecordIdSchema,
   companyName: z
     .string()
     .min(1, "Enter the company's name")
@@ -119,9 +209,7 @@ const Schema = z.object({
   contractNumber: z
     .string()
     .max(30, 'Use less than 30 characters for the contract number'),
-  dateOfContract: z.coerce
-    .date()
-    .or(z.literal('').transform((arg) => undefined)),
+  dateOfContract: z.coerce.date().or(z.literal('').transform((_) => undefined)),
   accountantName: z
     .string()
     .max(20, "Use less than 20 characters for the accountant's name"),
@@ -198,10 +286,17 @@ export const action = async ({ request }: ActionArgs) => {
     const fields = await getRawFormFields(request);
     const result = Schema.safeParse(fields);
     if (!result.success) {
+      logSchemaParseErr(request, result.error, fields);
       return processBadRequest(result.error, fields);
     }
-    const { accountNumber, contractNumber, companyName, tradingAs, formerly } =
-      result.data;
+    const {
+      id,
+      accountNumber,
+      contractNumber,
+      companyName,
+      tradingAs,
+      formerly,
+    } = result.data;
     const { groupId, areaId, sectorId, vatNumber, otherNames } = result.data;
     const { description, actual, reason, statusId } = result.data;
     const { dateOfContract, licenseId, licenseDetailId } = result.data;
@@ -215,10 +310,10 @@ export const action = async ({ request }: ActionArgs) => {
 
     const [accNumDuplicates, contractNumDuplicates] = await Promise.all([
       prisma.account.count({
-        where: { accountNumber },
+        where: { accountNumber, id: { not: id } },
       }),
       contractNumber
-        ? prisma.account.count({ where: { contractNumber } })
+        ? prisma.account.count({ where: { contractNumber, id: { not: id } } })
         : undefined,
     ]);
     if (accNumDuplicates) {
@@ -255,8 +350,9 @@ export const action = async ({ request }: ActionArgs) => {
       numDatabases: databases.length,
     });
 
-    const creationResult = await prisma.account
-      .create({
+    await prisma.$transaction([
+      prisma.account.update({
+        where: { id },
         select: { id: true },
         data: {
           accountNumber,
@@ -297,107 +393,119 @@ export const action = async ({ request }: ActionArgs) => {
           deliveryAddress,
           deliverySuburb,
           deliveryCityId,
-          databases: {
-            create: databases.map((databaseName) => ({
-              databaseName,
-            })),
-          },
-          operators: {
-            create: operators.map((operator) => ({
-              operatorName: operator.name,
-              operatorEmail: operator.email,
-            })),
-          },
         },
-      })
-      .catch((error) => {
-        return {
-          formError:
-            getErrorMessage(error) ||
-            'Something went wrong recording the account',
-        };
-      });
-    if (hasFormError(creationResult)) {
-      return badRequest({ formError: creationResult.formError });
-    }
+      }),
+      prisma.database.deleteMany({
+        where: { accountId: id },
+      }),
+      prisma.database.createMany({
+        data: databases.map((databaseName) => ({
+          accountId: id,
+          databaseName,
+        })),
+      }),
+      prisma.operator.deleteMany({
+        where: { accountId: id },
+      }),
+      prisma.operator.createMany({
+        data: operators.map(({ name, email }) => ({
+          accountId: id,
+          operatorName: name,
+          operatorEmail: email,
+        })),
+      }),
+    ]);
 
-    return redirect(AppLinks.Customer(creationResult.id));
+    return redirect(AppLinks.Customer(id));
   } catch (error) {
     const formError =
       getErrorMessage(error) ||
-      'Something went wrong recording customer, please try again';
+      'Something went wrong updating customer, please try again';
     return badRequest({ formError });
   }
 };
 
-export default function CreateCustomerPage() {
+export default function EditCustomerPage() {
   const user = useUser();
-  const { cities, statuses, groups, areas, sectors, licenses, licenseDetails } =
-    useLoaderData<typeof loader>();
+  const {
+    account,
+    cities,
+    statuses,
+    groups,
+    areas,
+    sectors,
+    licenses,
+    licenseDetails,
+  } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
   const { getNameProp, isProcessing } =
     useForm<keyof z.infer<typeof Schema>>(actionData);
 
-  const defaultValues = {
-    companyName: 'Allan',
-    accountNumber: '1234567',
-    tradingAs: 'Allan',
-    formerly: 'Allan',
-    ceoName: 'Allan Simoyi',
-    ceoEmail: 'bach@gmail.com',
-    ceoPhone: '+263779528194',
-    ceoFax: '12345',
-    addr: '123 Place, Bigger Place',
-    tel: '+263779528194',
-    fax: '12345',
-    cell: '+263779528194',
-    licenseId: licenses[0].id.toString(),
-    licenseDetailId: licenseDetails[0].id.toString(),
-    addedPercentage: '15',
-    contractNumber: '12345',
-    dateOfContract: dayjs().format(DATE_INPUT_FORMAT),
-    accountantName: 'Tatenda',
-    accountantEmail: 'tatenda@gmail.com',
-    groupId: groups[0].id.toString(),
-    areaId: areas[0].id.toString(),
-    sectorId: sectors[0].id.toString(),
-    vatNumber: '12345',
-    otherNames: 'Bach',
-    description: 'Description goes here...',
-    actual: '1',
-    reason: 'Reason goes here...',
-    statusId: statuses[0].id.toString(),
-    comment: 'Comment goes here...',
-    boxCityId: cities[0].id.toString(),
-    boxNumber: '12345',
-    boxArea: 'Area23',
-    deliveryCityId: cities[0].id.toString(),
-    deliverySuburb: 'Plce',
-    deliveryAddress: '123 Another Place, Bigger Place',
-    databases: '["Database one", "Database two"]',
-    operators:
-      '[{"name": "Allan", "email": "allan@gmail.com"}, {"name": "Tatenda", "email": "tatenda@gmail.com"}]',
+  const defaultValues: Record<keyof z.infer<typeof Schema>, string> = {
+    id: account.id.toString(),
+    companyName: account.companyName,
+    accountNumber: account.accountNumber,
+    tradingAs: account.tradingAs,
+    formerly: account.formerly,
+    ceoName: account.ceoName || '',
+    ceoEmail: account.ceoEmail || '',
+    ceoPhone: account.ceoPhone || '',
+    ceoFax: account.ceoFax || '',
+    addr: account.physicalAddress || '',
+    tel: account.telephoneNumber || '',
+    fax: account.faxNumber || '',
+    cell: account.cellphoneNumber || '',
+    licenseId: account.licenseId.toString(),
+    licenseDetailId: account.licenseDetailId.toString(),
+    addedPercentage: account.addedPercentage.toFixed(),
+    contractNumber: account.contractNumber,
+    dateOfContract: dayjs(account.dateOfContract).format(DATE_INPUT_FORMAT),
+    accountantName: account.accountantName || '',
+    accountantEmail: account.accountantEmail || '',
+    groupId: account.groupId.toString(),
+    areaId: account.areaId.toString(),
+    sectorId: account.sectorId.toString(),
+    vatNumber: account.vatNumber,
+    otherNames: account.otherNames,
+    description: account.description,
+    actual: account.actual.toString(),
+    reason: account.reason,
+    statusId: account.statusId.toString(),
+    comment: account.comment,
+    boxCityId: account.boxCityId.toString() || '',
+    boxNumber: account.boxNumber || '',
+    boxArea: account.boxArea || '',
+    deliveryCityId: account.deliveryCityId.toString() || '',
+    deliverySuburb: account.deliverySuburb || '',
+    deliveryAddress: account.deliveryAddress || '',
+    databases: JSON.stringify(
+      account.databases.map((database) => database.databaseName)
+    ),
+    operators: JSON.stringify(
+      account.operators.map((operator) => ({
+        name: operator.operatorName,
+        email: operator.operatorEmail,
+      }))
+    ),
   };
+
+  const fieldErrors = useMemo(() => getFieldErrors(actionData), [actionData]);
 
   return (
     <div className="flex min-h-full flex-col items-stretch">
       <Toolbar currentUserName={user.username} />
-      {hasFormError(actionData) && (
-        <div className="fixed bottom-0 left-0 flex flex-col items-center justify-center p-2">
-          <InlineAlert>{actionData.formError}</InlineAlert>
-        </div>
-      )}
       <Form method="post" className="flex grow flex-col items-stretch py-6">
         <ActionContextProvider
           {...actionData}
-          fields={defaultValues}
+          fields={hasFields(actionData) ? actionData.fields : defaultValues}
           isSubmitting={isProcessing}
         >
           <CenteredView className="w-full gap-4 px-2">
+            <input type="hidden" name="id" value={account.id} />
             <div className="flex flex-col items-start justify-center pt-2">
               <span className="text-base font-semibold">
-                Record New Customer
+                Update Customer Details
               </span>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -630,11 +738,17 @@ export default function CreateCustomerPage() {
                 </Card>
               </div>
             </div>
+            <div className="flex flex-row items-start gap-4">
+              {hasFormError(actionData) && (
+                <InlineAlert>{actionData.formError}</InlineAlert>
+              )}
+              {!!fieldErrors && (
+                <InlineAlert>{fieldErrorsToArr(fieldErrors)}</InlineAlert>
+              )}
+            </div>
             <div className="flex flex-col items-center justify-center py-6">
               <PrimaryButton type="submit" disabled={isProcessing}>
-                {isProcessing
-                  ? 'Recording New Customer...'
-                  : 'Record New Customer'}
+                {isProcessing ? 'Updating Customer...' : 'Update Customer'}
               </PrimaryButton>
             </div>
           </CenteredView>

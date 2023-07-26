@@ -43,7 +43,7 @@ export function TextArea<SchemaType extends Record<string, any>>(
           errors?.length && 'border-2 border-red-600',
           className
         )}
-        rows={rows || 2}
+        rows={rows || 4}
         {...restOfProps}
       />
       {errors?.length && (

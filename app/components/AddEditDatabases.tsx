@@ -8,6 +8,7 @@ import { stringifyZodError } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 
 import { useField } from './ActionContextProvider';
+import { Chip } from './Chip';
 import { GhostButton } from './GhostButton';
 import { InlineAlert } from './InlineAlert';
 import { SecondaryButton } from './SecondaryButton';
@@ -88,10 +89,7 @@ export function AddEditDatabases(props: Props) {
       <input type="hidden" name={name} value={JSON.stringify(databases)} />
       <div className="flex flex-col items-stretch gap-2 p-2">
         {databases.map((database, index) => (
-          <div
-            key={index}
-            className="flex flex-row items-center justify-start gap-2 rounded-md bg-zinc-100 p-2"
-          >
+          <Chip key={index} className="gap-2">
             <span className="text-sm font-light text-zinc-500">{database}</span>
             <div className="grow" />
             <GhostButton
@@ -101,7 +99,7 @@ export function AddEditDatabases(props: Props) {
             >
               <X className="text-red-600" />
             </GhostButton>
-          </div>
+          </Chip>
         ))}
         <div className="flex flex-row items-stretch gap-2">
           <div className="flex grow flex-col items-stretch">

@@ -1,3 +1,4 @@
+import type { AccessLevel } from './user.validations';
 import type { User } from '@prisma/client';
 
 import bcrypt from 'bcryptjs';
@@ -15,16 +16,16 @@ export async function getUserById(id: User['id']) {
 interface CreateUserProps {
   username: string;
   password: string;
-  roleId: number;
+  role: AccessLevel;
 }
 export async function createUser(props: CreateUserProps) {
-  const { username, password, roleId } = props;
+  const { username, password, role } = props;
 
   return prisma.user.create({
     data: {
       username,
       password: await createPasswordHash(password),
-      roleId,
+      role,
     },
   });
 }

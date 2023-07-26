@@ -45,12 +45,17 @@ function CustomersLayout(props: Props) {
         return customers;
       }
       return customers.filter((customer) => {
+        const preppedSearchTerms = searchTerms.toLowerCase();
         const conditions: boolean[] = [
-          customer.accountNumber.includes(searchTerms),
-          customer.companyName.includes(searchTerms),
-          customer.license.identifier.includes(searchTerms),
-          customer.accountant?.name.includes(searchTerms) || false,
-          customer.accountant?.email.includes(searchTerms) || false,
+          customer.accountNumber.toLowerCase().includes(preppedSearchTerms),
+          customer.companyName.toLowerCase().includes(preppedSearchTerms),
+          customer.license.identifier
+            .toLowerCase()
+            .includes(preppedSearchTerms),
+          customer.accountantName.toLowerCase().includes(preppedSearchTerms) ||
+            false,
+          customer.accountantEmail.toLowerCase().includes(preppedSearchTerms) ||
+            false,
         ];
         return conditions.some((condition) => condition);
       });

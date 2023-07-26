@@ -74,11 +74,11 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-full flex-col items-stretch justify-center">
-      <div className="flex h-full flex-col items-center justify-center">
+      <div className="flex h-full flex-col items-center justify-center p-2">
         <div className="grow" />
         <Form
           method="post"
-          className="flex w-full flex-col items-stretch justify-center gap-12 bg-white p-4 shadow-md sm:w-[80%] md:w-[60%] lg:w-[40%]"
+          className="flex w-full flex-col items-stretch justify-center gap-12 bg-white p-4 shadow-md sm:w-[80%] md:w-[60%] lg:w-[30%]"
         >
           <ActionContextProvider {...actionData} isSubmitting={isProcessing}>
             <div className="flex flex-col items-center justify-center">

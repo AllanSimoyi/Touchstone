@@ -15,7 +15,7 @@ export function CustomerListCard(props: Props) {
 
   return (
     <Card>
-      <div className="flex flex-row items-center justify-start border-b border-zinc-100 p-4">
+      <div className="flex flex-row items-center justify-start p-4">
         <h2 className="text-lg font-semibold">{title}</h2>
         <div className="grow" />
         <PrimaryButtonLink to={AppLinks.AddCustomer}>

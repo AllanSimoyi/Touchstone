@@ -4,7 +4,7 @@ export const layoutOptions = ['Alphabetical Order', 'Group By Area'] as const;
 export const LayoutOptionSchema = z.enum(layoutOptions);
 export type LayoutOption = z.infer<typeof LayoutOptionSchema>;
 
-export const sortByOptions = ['Account #', 'Company Name', 'License'] as const;
+export const sortByOptions = ['Company Name', 'Account #', 'License'] as const;
 export const SortByOptionSchema = z.enum(sortByOptions);
 export type SortByOption = z.infer<typeof SortByOptionSchema>;
 

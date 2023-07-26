@@ -1,9 +1,4 @@
-import type {
-  CustomFieldErrors,
-  CustomFormFields,
-  FieldErrors,
-  FormFields,
-} from '../models/forms';
+import type { FieldErrors, FormFields } from '../models/forms';
 
 import { useNavigation } from '@remix-run/react';
 import { createContext, useCallback, useContext, useMemo } from 'react';
@@ -64,16 +59,16 @@ export function useIsSubmitting() {
   return isSubmitting;
 }
 
-export function useForm<FieldNames extends string>(actionData: unknown) {
+export function useForm<FieldName extends string>(actionData: unknown) {
   const { state: navigationState } = useNavigation();
 
-  const getNameProp = useCallback((name: FieldNames) => {
+  const getNameProp = useCallback((name: FieldName) => {
     return { name };
   }, []);
 
   const fieldErrors = useMemo(() => {
     if (hasFieldErrors(actionData)) {
-      return actionData.fieldErrors as CustomFieldErrors<FieldNames>;
+      return actionData.fieldErrors as FieldErrors<FieldName>;
     }
   }, [actionData]);
 
@@ -85,7 +80,7 @@ export function useForm<FieldNames extends string>(actionData: unknown) {
 
   const fields = useMemo(() => {
     if (hasFields(actionData)) {
-      return actionData.fields as CustomFormFields<FieldNames>;
+      return actionData.fields as FormFields<FieldName>;
     }
   }, [actionData]);
 

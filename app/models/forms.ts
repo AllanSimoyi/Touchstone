@@ -1,31 +1,15 @@
 import { z } from 'zod';
 
-export type CustomFormFields<FieldNames extends string> = {
-  [K in FieldNames]: string | File;
-};
-export type FormFields = {
-  [index: string]: string | File;
-};
-export type CustomFieldErrors<FieldNames extends string> = {
-  [K in FieldNames]: string[] | undefined;
-};
-export type FieldErrors = {
-  [index: string]: string[] | undefined;
-};
+export type FormFields<F extends string = string> = Record<F, string | File>;
+export type FieldErrors<F extends string = string> = Record<
+  F,
+  string[] | undefined
+>;
 
-export interface BaseActionData {
+export interface ActionData {
   formError?: string;
   fields?: FormFields;
   fieldErrors?: FieldErrors;
-}
-
-const ResponseRecordedSchema = z.object({
-  responseRecorded: z.boolean(),
-});
-export function hasResponseRecorded(
-  data: unknown
-): data is z.infer<typeof ResponseRecordedSchema> {
-  return ResponseRecordedSchema.safeParse(data).success;
 }
 
 const FormErrorSchema = z.object({
@@ -46,6 +30,19 @@ export function hasFieldErrors(
   return FieldErrorsSchema.safeParse(data).success;
 }
 
+export function getFieldErrors(data: unknown) {
+  if (!hasFieldErrors(data)) {
+    return undefined;
+  }
+  const allFalsy = Object.keys(data.fieldErrors)
+    .map((key) => data.fieldErrors[key])
+    .filter((error) => !error || !error.length);
+  if (allFalsy) {
+    return undefined;
+  }
+  return data.fieldErrors;
+}
+
 const FieldsSchema = z.object({
   fields: z.record(z.string()),
 });
@@ -62,9 +59,7 @@ export function hasErrorMessage(
   return WithErrMsgSchema.safeParse(data).success;
 }
 
-export function convertFieldErrorsToArray(
-  fieldErrors: BaseActionData['fieldErrors']
-) {
+export function fieldErrorsToArr(fieldErrors: FieldErrors) {
   if (!fieldErrors) {
     return undefined;
   }
@@ -74,7 +69,7 @@ export function convertFieldErrorsToArray(
       if (!errors) {
         return undefined;
       }
-      return errors.join(', ');
+      return `${key}: ${errors.join(', ')}`;
     })
     .filter(Boolean);
 }

@@ -7,22 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Accountant {
-  id Int @id @default(autoincrement())
-
-  accountId Int
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  accountantName  String   @db.VarChar(20)
-  accountantEmail String   @db.VarChar(100)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@map("accountants")
-}
-
 model Account {
-  id            Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   accountNumber String @db.VarChar(20)
   companyName   String @db.VarChar(200)
   tradingAs     String @db.VarChar(200)
@@ -56,20 +45,36 @@ model Account {
   licenseDetail   LicenseDetail @relation(fields: [licenseDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   addedPercentage Int
-  gross           Decimal  @db.Decimal(19, 2)
-  net             Decimal  @db.Decimal(19, 2)
-  vat             Decimal  @db.Decimal(19, 2)
-  comment         String   @db.VarChar(1600)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  gross           Decimal @db.Decimal(19, 2)
+  net             Decimal @db.Decimal(19, 2)
+  vat             Decimal @db.Decimal(19, 2)
+  comment         String  @db.VarChar(1600)
 
-  accountants       Accountant[]
-  boxes             Box[]
-  ceos              Ceo[]
-  contacts          Contact[]
-  databases         Database[]
-  operators         Operator[]
-  deliveryAddresses DeliveryAddress[]
+  ceoName  String @db.VarChar(50)
+  ceoEmail String @db.VarChar(50)
+  ceoPhone String @db.VarChar(40)
+  ceoFax   String @db.VarChar(20)
+
+  physicalAddress String @db.VarChar(500)
+  telephoneNumber String @db.VarChar(40)
+  faxNumber       String @db.VarChar(40)
+  cellphoneNumber String @db.VarChar(40)
+
+  accountantName  String @db.VarChar(100)
+  accountantEmail String @db.VarChar(100)
+
+  boxCityId Int
+  boxCity   City   @relation("boxCity", fields: [boxCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  boxNumber String @db.VarChar(200)
+  boxArea   String @db.VarChar(200)
+
+  deliveryCityId  Int
+  deliveryCity    City   @relation("deliveryCity", fields: [deliveryCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  deliveryAddress String @db.VarChar(300)
+  deliverySuburb  String @db.VarChar(100)
+
+  databases Database[]
+  operators Operator[]
 
   @@map("accounts")
 }
@@ -85,65 +90,15 @@ model Area {
   @@map("areas")
 }
 
-model Box {
-  id Int @id @default(autoincrement())
-
-  accountId Int
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  boxCityId Int
-  boxCity   City @relation(fields: [boxCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  boxNumber String   @db.VarChar(200)
-  boxArea   String   @db.VarChar(200)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("boxes")
-}
-
-model Ceo {
-  id Int @id @default(autoincrement())
-
-  accountId Int
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  ceoName   String   @db.VarChar(50)
-  ceoEmail  String   @db.VarChar(50)
-  ceoPhone  String   @db.VarChar(40)
-  ceoFax    String   @db.VarChar(20)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("ceos")
-}
-
 model City {
-  id         Int      @id @default(autoincrement())
-  identifier String   @db.VarChar(100)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  boxes             Box[]
-  deliveryAddresses DeliveryAddress[]
+  id            Int       @id @default(autoincrement())
+  identifier    String    @db.VarChar(100)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accountCities Account[] @relation("deliveryCity")
+  boxCities     Account[] @relation("boxCity")
 
   @@map("cities")
-}
-
-model Contact {
-  id Int @id @default(autoincrement())
-
-  accountId Int
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  physicalAddress String   @db.VarChar(500)
-  telephoneNumber String   @db.VarChar(40)
-  faxNumber       String   @db.VarChar(40)
-  cellphoneNumber String   @db.VarChar(40)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@map("contacts")
 }
 
 model Database {
@@ -157,23 +112,6 @@ model Database {
   updatedAt    DateTime @updatedAt
 
   @@map("databasez")
-}
-
-model DeliveryAddress {
-  id Int @id @default(autoincrement())
-
-  accountId Int
-  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  deliveryCityId Int
-  deliveryCity   City @relation(fields: [deliveryCityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  deliveryAddress String   @db.VarChar(300)
-  deliverySuburb  String   @db.VarChar(100)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@map("deliveryaddresses")
 }
 
 model Event {
@@ -265,27 +203,13 @@ model Status {
   @@map("statuses")
 }
 
-model Role {
-  id          Int      @id @default(autoincrement())
-  accessLevel String   @db.VarChar(15)
-  feature     String   @db.VarChar(20)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  users User[]
-
-  @@map("roles")
-}
-
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @db.VarChar(40)
   password  String   @db.Text
+  role      String   @db.VarChar(40)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  roleId Int
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   events Event[]
 

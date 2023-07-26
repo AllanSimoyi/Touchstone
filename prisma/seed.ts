@@ -4,16 +4,13 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+const PHONE_NUMBER_FORMAT = '+263#########';
+
 async function seed() {
-  await prisma.accountant.deleteMany();
   await prisma.account.deleteMany();
   await prisma.area.deleteMany();
-  await prisma.box.deleteMany();
-  await prisma.ceo.deleteMany();
   await prisma.city.deleteMany();
-  await prisma.contact.deleteMany();
   await prisma.database.deleteMany();
-  await prisma.deliveryAddress.deleteMany();
   await prisma.event.deleteMany();
   await prisma.group.deleteMany();
   await prisma.licenseDetail.deleteMany();
@@ -21,7 +18,6 @@ async function seed() {
   await prisma.operator.deleteMany();
   await prisma.sector.deleteMany();
   await prisma.status.deleteMany();
-  await prisma.role.deleteMany();
   await prisma.user.deleteMany();
 
   const hashedPassword = await bcrypt.hash('default@8901', 10);
@@ -128,45 +124,25 @@ async function seed() {
         net: faker.finance.amount({ min: 1, max: 500_000, dec: 2 }),
         vat: faker.number.int(50),
         comment: faker.lorem.paragraph(2),
-        ceos: {
-          create: {
-            ceoName: faker.person.fullName(),
-            ceoEmail: faker.internet.email(),
-            ceoPhone: faker.phone.number(),
-            ceoFax: faker.finance.accountNumber(),
-          },
-        },
-        accountants: {
-          create: {
-            accountantName: faker.person.fullName(),
-            accountantEmail: faker.internet.email(),
-          },
-        },
-        boxes: {
-          create: {
-            boxCityId: cityId,
-            boxNumber: faker.finance.accountNumber(),
-            boxArea: faker.location.county(),
-          },
-        },
-        contacts: {
-          create: {
-            physicalAddress: faker.location.streetAddress(),
-            telephoneNumber: faker.phone.number(),
-            faxNumber: faker.finance.accountNumber(),
-            cellphoneNumber: faker.phone.number(),
-          },
-        },
+        ceoName: faker.person.fullName(),
+        ceoEmail: faker.internet.email(),
+        ceoPhone: faker.phone.number(PHONE_NUMBER_FORMAT),
+        ceoFax: faker.finance.accountNumber(),
+        accountantName: faker.person.fullName(),
+        accountantEmail: faker.internet.email(),
+        boxCityId: cityId,
+        boxNumber: faker.finance.accountNumber(),
+        boxArea: faker.location.county(),
+        physicalAddress: faker.location.streetAddress(),
+        telephoneNumber: faker.phone.number(PHONE_NUMBER_FORMAT),
+        faxNumber: faker.finance.accountNumber(),
+        cellphoneNumber: faker.phone.number(PHONE_NUMBER_FORMAT),
+        deliveryCityId: cityId,
+        deliveryAddress: faker.location.streetAddress(),
+        deliverySuburb: faker.location.county(),
         databases: {
           create: {
             databaseName: faker.lorem.word(),
-          },
-        },
-        deliveryAddresses: {
-          create: {
-            deliveryCityId: cityId,
-            deliveryAddress: faker.location.streetAddress(),
-            deliverySuburb: faker.location.county(),
           },
         },
         operators: {
@@ -179,34 +155,15 @@ async function seed() {
     });
   }, Promise.resolve());
 
-  const roles = await Promise.all(
-    (
-      [
-        ['Level 1', 'Administrator'],
-        ['Level 2', 'Update'],
-        ['Level 3', 'Update'],
-        ['Level 4', 'Read Only'],
-        ['Level 5', 'Read Only'],
-      ] as const
-    ).map(async ([accessLevel, feature]) => {
-      const { id } = await prisma.role.create({
-        data: {
-          accessLevel,
-          feature,
-        },
-        select: { id: true, accessLevel: true, feature: true },
-      });
-      return [id, accessLevel, feature] as const;
-    })
-  );
+  const roles = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'];
 
   await Promise.all(
-    roles.map(([roleId, level, feature]) => {
+    roles.map((role) => {
       return prisma.user.create({
         data: {
-          username: level,
+          username: role,
           password: hashedPassword,
-          roleId,
+          role,
         },
       });
     })

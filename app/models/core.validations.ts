@@ -1,10 +1,10 @@
-import type { BaseActionData } from './forms';
+import type { ActionData } from './forms';
 import type { ZodError } from 'zod';
 
 import { json } from '@remix-run/server-runtime';
 import { z } from 'zod';
 
-import { convertFieldErrorsToArray } from './forms';
+import { fieldErrorsToArr } from './forms';
 
 export enum ResponseMessage {
   Unauthorised = "You're not authorised to access this resource",
@@ -159,10 +159,7 @@ export type Result<Ok, Err> =
 
 export function stringifyZodError(zodError: ZodError) {
   const { fieldErrors, formErrors } = zodError.flatten();
-  const allErrors = [
-    ...(convertFieldErrorsToArray(fieldErrors) || []),
-    ...formErrors,
-  ];
+  const allErrors = [...(fieldErrorsToArr(fieldErrors) || []), ...formErrors];
   return allErrors.join(', ');
 }
 
@@ -176,7 +173,7 @@ export function getValidatedId(rawId: any) {
   return result.data;
 }
 
-export function badRequest(data: BaseActionData) {
+export function badRequest(data: ActionData) {
   return json(data, { status: 400 });
 }
 

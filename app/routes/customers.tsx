@@ -36,33 +36,17 @@ export const loader = async ({ request }: LoaderArgs) => {
   await requireUserId(request);
 
   const [customers, areas] = await Promise.all([
-    prisma.account
-      .findMany({
-        select: {
-          id: true,
-          accountNumber: true,
-          companyName: true,
-          license: { select: { identifier: true } },
-          area: { select: { id: true, identifier: true } },
-          accountants: {
-            select: { accountantName: true, accountantEmail: true },
-          },
-        },
-      })
-      .then((customers) =>
-        customers.map(({ accountants, ...customer }) => ({
-          ...customer,
-          accountant: (() => {
-            if (!accountants.length) {
-              return undefined;
-            }
-            return {
-              name: accountants[0].accountantName,
-              email: accountants[0].accountantEmail,
-            };
-          })(),
-        }))
-      ),
+    prisma.account.findMany({
+      select: {
+        id: true,
+        accountNumber: true,
+        companyName: true,
+        accountantName: true,
+        accountantEmail: true,
+        license: { select: { identifier: true } },
+        area: { select: { id: true, identifier: true } },
+      },
+    }),
     prisma.area.findMany({
       select: { id: true, identifier: true },
     }),

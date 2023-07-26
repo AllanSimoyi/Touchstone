@@ -45,9 +45,9 @@ export function TextField(props: Props) {
         {...restOfProps}
       />
       {errors?.length && (
-        <div className="text-sm font-light text-red-500" id={`${name}-error`}>
+        <span className="text-sm font-light text-red-500" id={`${name}-error`}>
           {errors.join(', ')}
-        </div>
+        </span>
       )}
     </div>
   );

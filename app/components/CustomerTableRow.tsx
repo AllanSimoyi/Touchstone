@@ -6,16 +6,25 @@ import { AppLinks } from '~/models/links';
 
 import { ConfirmDelete } from './ConfirmDelete';
 import { CustomerTableDropDownMenu } from './CustomerTableDropDownMenu';
+import { UnderLineOnHover } from './UnderLineOnHover';
 
 interface Props {
   id: number;
   accountNumber: string;
   companyName: string;
+  accountantName: string;
+  accountantEmail: string;
   license: { identifier: string };
-  accountant?: { name: string; email: string } | undefined;
 }
 export function CustomerTableRow(props: Props) {
-  const { id, accountNumber, companyName, license, accountant } = props;
+  const {
+    id,
+    accountNumber,
+    companyName,
+    license,
+    accountantName,
+    accountantEmail,
+  } = props;
   const { submit, state } = useFetcher();
 
   const { isOpen, askForConfirmation, closeModal, onConfirmed } = useDelete({
@@ -47,17 +56,26 @@ export function CustomerTableRow(props: Props) {
           <span className="font-light text-zinc-600">{accountNumber}</span>
         </td>
         <td className="p-2">
-          <Link
-            to={AppLinks.Customer(id)}
-            className="font-semibold text-zinc-600 hover:underline"
-          >
-            {companyName}
+          <Link to={AppLinks.Customer(id)}>
+            {/* <div className="flex flex-col items-start">
+              <div className="group bg-purple-400 p-2 font-semibold text-zinc-600">
+                {companyName}
+                <span className="block h-0.5 max-w-0 bg-zinc-600 transition-all duration-300 group-hover:max-w-full" />
+              </div>
+            </div> */}
+            <div className="flex flex-col items-start">
+              <UnderLineOnHover>
+                <span className="font-semibold text-zinc-600">
+                  {companyName}
+                </span>
+              </UnderLineOnHover>
+            </div>
           </Link>
         </td>
         <td className="p-2">
           <span className="font-light text-zinc-600">
-            {accountant
-              ? [accountant.name, accountant.email].filter(Boolean).join(' - ')
+            {!!accountantName || !!accountantEmail
+              ? [accountantName, accountantEmail].filter(Boolean).join(' - ')
               : '-'}
           </span>
         </td>
