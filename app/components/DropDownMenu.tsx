@@ -22,8 +22,9 @@ export function DropDownMenu(props: Props) {
     }
     return [
       [AppLinks.MyAccount, 'My Account'],
+      [AppLinks.Users, 'Users'],
       [AppLinks.Customers, 'Customers'],
-      [AppLinks.Customers, 'Pick Lists'],
+      [AppLinks.PickLists, 'Pick Lists'],
       [AppLinks.Customers, 'Import From Excel'],
       [AppLinks.Customers, 'Export To Excel'],
       [AppLinks.Customers, 'Audit Trail'],

@@ -3,11 +3,9 @@ import type { ComponentProps } from 'react';
 import { useField, useIsSubmitting } from './ActionContextProvider';
 import { TextField } from './TextField';
 
-type Props = ComponentProps<'input'> & {
-  customRef?: ComponentProps<'input'>['ref'];
+interface Props extends ComponentProps<typeof TextField> {
   name: string;
-  label?: string | undefined;
-};
+}
 export function FormTextField(props: Props) {
   const { name, defaultValue, disabled, ...restOfProps } = props;
 

@@ -15,14 +15,14 @@ export function CustomerListCard(props: Props) {
 
   return (
     <Card>
-      <div className="flex flex-row items-center justify-start p-4">
+      <div className="flex flex-row items-center justify-start border-b border-b-zinc-200 px-4 py-2">
         <h2 className="text-lg font-semibold">{title}</h2>
         <div className="grow" />
         <PrimaryButtonLink to={AppLinks.AddCustomer}>
           New Customer
         </PrimaryButtonLink>
       </div>
-      <div className="flex flex-col items-stretch justify-center px-2">
+      <div className="flex flex-col items-stretch justify-center p-2">
         {!!customers.length && (
           <table className="table-auto border-collapse text-left">
             <thead className="divide-y">

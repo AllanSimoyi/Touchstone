@@ -20,7 +20,7 @@ export function MiscDetails2(props: Props) {
 
   const entries = (
     [
-      ['Other Names on Cheques', otherNames],
+      ['Other Names On Cheques', otherNames],
       ['Actual', actual],
       ['Reason', reason],
       ['Status', status],

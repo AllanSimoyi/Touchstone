@@ -158,7 +158,7 @@ model LicenseDetail {
 model License {
   id         Int      @id @default(autoincrement())
   identifier String   @db.VarChar(100)
-  basicUsd   Int
+  basicUsd   Decimal  @db.Decimal(19, 2)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -204,12 +204,12 @@ model Status {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @db.VarChar(40)
-  password  String   @db.Text
-  role      String   @db.VarChar(40)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  username    String   @db.VarChar(40)
+  password    String   @db.Text
+  accessLevel String   @db.VarChar(40)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   events Event[]
 

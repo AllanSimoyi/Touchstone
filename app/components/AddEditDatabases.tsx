@@ -1,23 +1,20 @@
 import type { KeyboardEvent } from 'react';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Plus, X } from 'tabler-icons-react';
+import { useCallback, useRef } from 'react';
 import { z } from 'zod';
 
-import { stringifyZodError } from '~/models/core.validations';
-import { getErrorMessage } from '~/models/errors';
+import { useLister } from '~/hooks/useLister';
 
-import { useField } from './ActionContextProvider';
-import { Chip } from './Chip';
-import { GhostButton } from './GhostButton';
-import { InlineAlert } from './InlineAlert';
-import { SecondaryButton } from './SecondaryButton';
+import { AddEditListItems } from './AddEditListItems';
 import { TextField } from './TextField';
 
 const Schema = z
-  .string()
-  .min(1, 'Please enter the database first')
-  .max(200, 'Please use less than 200 characters for the database');
+  .string({
+    required_error: "Please enter the database's name",
+    invalid_type_error: "Please provide valid input for the database's name",
+  })
+  .min(1, "Please enter the database's name first")
+  .max(200, "Please use less than 200 characters for the database's name");
 
 interface Props {
   name: string;
@@ -26,96 +23,48 @@ export function AddEditDatabases(props: Props) {
   const { name } = props;
   const newDatabaseRef = useRef<HTMLInputElement>(null);
 
-  const { value, error: errorsFromServer } = useField(name);
-
-  const [databases, setDatabases] = useState<string[]>([]);
-  const [error, setErrors] = useState(errorsFromServer?.join(', ') || '');
-
-  useEffect(() => {
-    try {
-      if (typeof value !== 'string') {
-        return;
-      }
-      const result = Schema.array().safeParse(JSON.parse(value));
-      if (!result.success) {
-        throw new Error(result.error.message);
-      }
-      setDatabases(result.data);
-    } catch (error) {
-      console.error(getErrorMessage(error));
-      setErrors(
-        'Received invalid values from server, please contact the developer'
-      );
-    }
-  }, [value]);
-
-  const removeDatabase = useCallback((database: string) => {
-    setDatabases((prevState) => prevState.filter((el) => el !== database));
-  }, []);
-
-  const addDatabase = useCallback(() => {
-    if (!newDatabaseRef.current) {
-      return;
-    }
-    const result = Schema.safeParse(newDatabaseRef.current.value);
-    if (!result.success) {
-      return window.alert(stringifyZodError(result.error));
-    }
-    const newDatabase = result.data;
-    setDatabases((prevState) => {
-      if (prevState.some((el) => el === newDatabase)) {
-        return prevState;
-      }
-      return [...prevState, newDatabase];
-    });
-    newDatabaseRef.current.value = '';
-  }, []);
-
-  const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.defaultPrevented) {
-        return;
-      }
-      if (event.key && event.key === 'Enter') {
-        addDatabase();
-        event.preventDefault();
+  const { addItem, onKeyDown, ...lister } = useLister({
+    name,
+    Schema,
+    isSameItem: (first, second) => first === second,
+    clearInput: () => {
+      if (newDatabaseRef.current) {
+        newDatabaseRef.current.value = '';
       }
     },
-    [addDatabase]
+  });
+
+  const addDatabase = useCallback(() => {
+    if (newDatabaseRef.current) {
+      addItem(newDatabaseRef.current.value);
+    }
+  }, [addItem]);
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (newDatabaseRef.current) {
+        onKeyDown(event, newDatabaseRef.current.value);
+      }
+    },
+    [onKeyDown]
   );
 
   return (
-    <>
-      <input type="hidden" name={name} value={JSON.stringify(databases)} />
-      <div className="flex flex-col items-stretch gap-2 p-2">
-        {databases.map((database, index) => (
-          <Chip key={index} className="gap-2">
-            <span className="text-sm font-light text-zinc-500">{database}</span>
-            <div className="grow" />
-            <GhostButton
-              onClick={() => removeDatabase(database)}
-              className="p-0"
-              title="Remove database from list"
-            >
-              <X className="text-red-600" />
-            </GhostButton>
-          </Chip>
-        ))}
-        <div className="flex flex-row items-stretch gap-2">
-          <div className="flex grow flex-col items-stretch">
-            <TextField
-              customRef={newDatabaseRef}
-              name="newDatabase"
-              placeholder="Enter new database"
-              onKeyDown={onKeyDown}
-            />
-          </div>
-          <SecondaryButton onClick={addDatabase}>
-            <Plus className="text-zinc-600" />
-          </SecondaryButton>
+    <AddEditListItems
+      {...lister}
+      name={name}
+      getDisplayedText={(item) => item}
+      addItem={addDatabase}
+      InputControls={
+        <div className="flex grow flex-col items-stretch">
+          <TextField
+            customRef={newDatabaseRef}
+            name="newDatabase"
+            placeholder="Enter new database"
+            onKeyDown={handleKeyDown}
+          />
         </div>
-        {!!error && <InlineAlert>{error}</InlineAlert>}
-      </div>
-    </>
+      }
+    />
   );
 }

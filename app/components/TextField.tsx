@@ -8,6 +8,7 @@ type Props = ComponentProps<'input'> & {
   label?: string | undefined;
   errors?: string[];
   required?: boolean;
+  camouflage?: boolean;
 };
 export function TextField(props: Props) {
   const {
@@ -18,6 +19,7 @@ export function TextField(props: Props) {
     errors,
     required,
     disabled,
+    camouflage,
     ...restOfProps
   } = props;
 
@@ -36,7 +38,9 @@ export function TextField(props: Props) {
         disabled={disabled}
         className={twMerge(
           'w-full transition-all duration-300',
-          'rounded-md border border-zinc-200 bg-zinc-50 p-2 text-sm font-light shadow-inner outline-none focus:ring-1 focus:ring-zinc-400',
+          'rounded-md border border-zinc-200 bg-white p-2 text-sm font-light outline-none focus:ring-1 focus:ring-zinc-400',
+          camouflage &&
+            'border-none bg-transparent hover:border hover:bg-white focus:border focus:bg-white',
           disabled &&
             'cursor-not-allowed bg-zinc-200 text-zinc-600 shadow-none',
           errors?.length && 'border-2 border-red-600',
@@ -45,7 +49,7 @@ export function TextField(props: Props) {
         {...restOfProps}
       />
       {errors?.length && (
-        <span className="text-sm font-light text-red-500" id={`${name}-error`}>
+        <span className="text-xs font-light text-red-500" id={`${name}-error`}>
           {errors.join(', ')}
         </span>
       )}

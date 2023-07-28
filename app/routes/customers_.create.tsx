@@ -55,9 +55,16 @@ export async function loader({ request }: LoaderArgs) {
     prisma.sector.findMany({
       select: { id: true, identifier: true },
     }),
-    prisma.license.findMany({
-      select: { id: true, identifier: true, basicUsd: true },
-    }),
+    prisma.license
+      .findMany({
+        select: { id: true, identifier: true, basicUsd: true },
+      })
+      .then((licenses) =>
+        licenses.map((license) => ({
+          ...license,
+          basicUsd: license.basicUsd.toNumber(),
+        }))
+      ),
     prisma.licenseDetail.findMany({
       select: { id: true, identifier: true },
     }),
@@ -245,12 +252,12 @@ export const action = async ({ request }: ActionArgs) => {
     if (!license) {
       return badRequest({
         formError:
-          "Couldn't find the license record you selected, please contact the developer",
+          "Couldn't find the license record you selected, please contact the system maintainers",
       });
     }
 
     const gross = calcGross({
-      basicUsd: license.basicUsd,
+      basicUsd: license.basicUsd.toNumber(),
       addedPercentage,
       numDatabases: databases.length,
     });
@@ -632,9 +639,7 @@ export default function CreateCustomerPage() {
             </div>
             <div className="flex flex-col items-center justify-center py-6">
               <PrimaryButton type="submit" disabled={isProcessing}>
-                {isProcessing
-                  ? 'Recording New Customer...'
-                  : 'Record New Customer'}
+                {isProcessing ? 'Recording New Customer...' : 'Submit'}
               </PrimaryButton>
             </div>
           </CenteredView>

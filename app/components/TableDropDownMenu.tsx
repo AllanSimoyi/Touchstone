@@ -2,17 +2,16 @@ import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { Dots } from 'tabler-icons-react';
 
-import { AppLinks } from '~/models/links';
-
 import { DropDownMenuItem } from './DropDownMenuItem';
 
 interface Props {
-  customerId: number;
+  identifier: string;
+  linkToEdit: string;
   handleDelete: () => void;
 }
 
-export function CustomerTableDropDownMenu(props: Props) {
-  const { customerId, handleDelete } = props;
+export function TableDropDownMenu(props: Props) {
+  const { handleDelete, identifier, linkToEdit } = props;
 
   return (
     <div className="relative">
@@ -34,16 +33,12 @@ export function CustomerTableDropDownMenu(props: Props) {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="px-1 py-1">
               <Menu.Item>
                 {({ active }) => (
-                  <DropDownMenuItem
-                    mode="link"
-                    active={active}
-                    to={AppLinks.EditCustomer(customerId)}
-                  >
-                    Edit Customer
+                  <DropDownMenuItem mode="link" active={active} to={linkToEdit}>
+                    Edit {identifier}
                   </DropDownMenuItem>
                 )}
               </Menu.Item>
@@ -55,7 +50,7 @@ export function CustomerTableDropDownMenu(props: Props) {
                     onClick={handleDelete}
                     danger
                   >
-                    <span className="text-red-600">Delete Customer</span>
+                    <span className="text-red-600">Delete {identifier}</span>
                   </DropDownMenuItem>
                 )}
               </Menu.Item>

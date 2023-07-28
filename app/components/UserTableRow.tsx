@@ -1,7 +1,8 @@
 import type { z } from 'zod';
 import type { DeleteRecordSchema } from '~/models/core.validations';
+import type { AccessLevel } from '~/models/user.validations';
 
-import { Link, useFetcher } from '@remix-run/react';
+import { useFetcher } from '@remix-run/react';
 import { twMerge } from 'tailwind-merge';
 
 import { useDelete } from '~/hooks/useDelete';
@@ -9,32 +10,21 @@ import { AppLinks } from '~/models/links';
 
 import { ConfirmDelete } from './ConfirmDelete';
 import { TableDropDownMenu } from './TableDropDownMenu';
-import { UnderLineOnHover } from './UnderLineOnHover';
 
 interface Props {
   id: number;
-  accountNumber: string;
-  companyName: string;
-  accountantName: string;
-  accountantEmail: string;
-  license: { identifier: string };
+  accessLevel: AccessLevel;
+  username: string;
 }
-export function CustomerTableRow(props: Props) {
-  const {
-    id,
-    accountNumber,
-    companyName,
-    license,
-    accountantName,
-    accountantEmail,
-  } = props;
+export function UserTableRow(props: Props) {
+  const { id, accessLevel, username } = props;
   const { submit, state } = useFetcher();
 
   const { isOpen, askForConfirmation, closeModal, onConfirmed } = useDelete({
     handleDelete: () => {
       const data: z.infer<typeof DeleteRecordSchema> = {
         id,
-        recordType: 'Account',
+        recordType: 'User',
       };
       return submit(data, { action: AppLinks.DeleteRecord, method: 'post' });
     },
@@ -57,34 +47,16 @@ export function CustomerTableRow(props: Props) {
         )}
       >
         <td className="p-2">
-          <span className="font-light text-zinc-600">{accountNumber}</span>
+          <span className="font-light text-zinc-600">{accessLevel}</span>
         </td>
         <td className="p-2">
-          <Link to={AppLinks.Customer(id)}>
-            <div className="flex flex-col items-start">
-              <UnderLineOnHover>
-                <span className="font-semibold text-zinc-600">
-                  {companyName}
-                </span>
-              </UnderLineOnHover>
-            </div>
-          </Link>
-        </td>
-        <td className="p-2">
-          <span className="font-light text-zinc-600">
-            {!!accountantName || !!accountantEmail
-              ? [accountantName, accountantEmail].filter(Boolean).join(' - ')
-              : '-'}
-          </span>
-        </td>
-        <td className="p-2">
-          <span className="font-light text-zinc-600">{license.identifier}</span>
+          <span className="font-light text-zinc-600">{username}</span>
         </td>
         <td className="flex flex-col items-end p-2">
           {!isDeleting && (
             <TableDropDownMenu
-              linkToEdit={AppLinks.EditCustomer(id)}
-              identifier="Customer"
+              identifier="User"
+              linkToEdit={AppLinks.EditUser(id)}
               handleDelete={askForConfirmation}
             />
           )}

@@ -1,31 +1,41 @@
-import type { AccessLevel } from './user.validations';
 import type { User } from '@prisma/client';
-
-import bcrypt from 'bcryptjs';
 
 import { prisma } from '~/db.server';
 
-import { createPasswordHash } from './auth.server';
+import { createPasswordHash, isValidPassword } from './auth.server';
+import {
+  INVALID_ACCESS_LEVEL_ERR_MESSAGE,
+  getValidatedAccessLevel,
+  type AccessLevel,
+} from './user.validations';
 
 export type { User } from '@prisma/client';
 
 export async function getUserById(id: User['id']) {
-  return prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) {
+    return null;
+  }
+  const accessLevel = getValidatedAccessLevel(user.accessLevel);
+  if (!accessLevel) {
+    throw new Error(INVALID_ACCESS_LEVEL_ERR_MESSAGE);
+  }
+  return { ...user, accessLevel };
 }
 
 interface CreateUserProps {
   username: string;
   password: string;
-  role: AccessLevel;
+  accessLevel: AccessLevel;
 }
 export async function createUser(props: CreateUserProps) {
-  const { username, password, role } = props;
+  const { username, password, accessLevel } = props;
 
   return prisma.user.create({
     data: {
       username,
       password: await createPasswordHash(password),
-      role,
+      accessLevel,
     },
   });
 }
@@ -41,7 +51,7 @@ export async function verifyLogin(
     return null;
   }
 
-  const isValid = await bcrypt.compare(password, userWithPassword.password);
+  const isValid = await isValidPassword(password, userWithPassword.password);
   if (!isValid) {
     return null;
   }

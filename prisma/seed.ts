@@ -155,15 +155,15 @@ async function seed() {
     });
   }, Promise.resolve());
 
-  const roles = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'];
+  const accessLevels = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'];
 
   await Promise.all(
-    roles.map((role) => {
+    accessLevels.map((accessLevel) => {
       return prisma.user.create({
         data: {
-          username: role,
+          username: accessLevel,
           password: hashedPassword,
-          role,
+          accessLevel,
         },
       });
     })

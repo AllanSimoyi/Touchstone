@@ -1,4 +1,6 @@
 import type { LoaderArgs } from '@remix-run/node';
+import type { z } from 'zod';
+import type { DeleteRecordSchema } from '~/models/core.validations';
 
 import { Response, json } from '@remix-run/node';
 import { Link, useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
@@ -115,10 +117,11 @@ export default function CustomerPage() {
 
   const { isOpen, askForConfirmation, closeModal, onConfirmed } = useDelete({
     handleDelete: () => {
-      return submit(
-        { id: customer.id },
-        { action: AppLinks.DeleteCustomer, method: 'post' }
-      );
+      const data: z.infer<typeof DeleteRecordSchema> = {
+        id: customer.id,
+        recordType: 'Account',
+      };
+      return submit(data, { action: AppLinks.DeleteRecord, method: 'post' });
     },
   });
 

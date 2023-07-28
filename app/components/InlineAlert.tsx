@@ -11,7 +11,7 @@ export function InlineAlert(props: Props) {
     <div
       className={twMerge(
         'flex flex-row items-center justify-start space-x-4 rounded-md',
-        'border-l-2 border-l-red-600 bg-red-400/10 p-3 backdrop-blur-lg',
+        'bg-red-400/10 p-3 backdrop-blur-lg',
         className
       )}
     >

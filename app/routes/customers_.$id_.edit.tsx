@@ -43,7 +43,7 @@ import {
   hasFormError,
 } from '~/models/forms';
 import { AppLinks } from '~/models/links';
-import { logSchemaParseErr } from '~/models/logger.server';
+import { logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
@@ -286,7 +286,7 @@ export const action = async ({ request }: ActionArgs) => {
     const fields = await getRawFormFields(request);
     const result = Schema.safeParse(fields);
     if (!result.success) {
-      logSchemaParseErr(request, result.error, fields);
+      logParseError(request, result.error, fields);
       return processBadRequest(result.error, fields);
     }
     const {
@@ -340,7 +340,7 @@ export const action = async ({ request }: ActionArgs) => {
     if (!license) {
       return badRequest({
         formError:
-          "Couldn't find the license record you selected, please contact the developer",
+          "Couldn't find the license record you selected, please contact the system maintainers",
       });
     }
 
@@ -748,7 +748,7 @@ export default function EditCustomerPage() {
             </div>
             <div className="flex flex-col items-center justify-center py-6">
               <PrimaryButton type="submit" disabled={isProcessing}>
-                {isProcessing ? 'Updating Customer...' : 'Update Customer'}
+                {isProcessing ? 'Updating Customer Details...' : 'Submit'}
               </PrimaryButton>
             </div>
           </CenteredView>

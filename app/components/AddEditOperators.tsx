@@ -1,29 +1,28 @@
 import type { KeyboardEvent } from 'react';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Plus, X } from 'tabler-icons-react';
+import { useCallback, useRef } from 'react';
 import { z } from 'zod';
 
-import { stringifyZodError } from '~/models/core.validations';
-import { getErrorMessage } from '~/models/errors';
+import { useLister } from '~/hooks/useLister';
 
-import { useField } from './ActionContextProvider';
-import { Chip } from './Chip';
-import { GhostButton } from './GhostButton';
-import { InlineAlert } from './InlineAlert';
-import { SecondaryButton } from './SecondaryButton';
+import { AddEditListItems } from './AddEditListItems';
 import { TextField } from './TextField';
 
 const Schema = z.object({
   name: z
-    .string()
+    .string({
+      required_error: "Please enter the operator's name",
+      invalid_type_error: "Enter valid input for the operator's name",
+    })
     .min(1, "Please enter the operator's name")
     .max(200, "Please use less than 200 characters for the operator's name"),
   email: z
-    .string({ required_error: "Please enter the operators' email" })
+    .string({
+      required_error: "Please enter the operators' email",
+      invalid_type_error: "Enter valid input for the operator's email",
+    })
     .email('Please enter a valid email for the operator'),
 });
-type Operator = z.infer<typeof Schema>;
 
 interface Props {
   name: string;
@@ -34,97 +33,56 @@ export function AddEditOperators(props: Props) {
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
 
-  const { value, error: errors } = useField(name);
-
-  const [operators, setOperators] = useState<Operator[]>([]);
-  const [error, setErrors] = useState(errors?.join(', ') || '');
-
-  useEffect(() => {
-    if (typeof value !== 'string') {
-      return;
-    }
-    try {
-      const result = Schema.array().safeParse(JSON.parse(value));
-      if (!result.success) {
-        throw new Error(result.error.message);
+  const { addItem, onKeyDown, ...lister } = useLister({
+    name,
+    Schema,
+    isSameItem: (first, second) => first.name === second.name,
+    clearInput: () => {
+      if (nameRef.current && emailRef.current) {
+        nameRef.current.value = '';
+        emailRef.current.value = '';
+        nameRef.current.focus();
       }
-      setOperators(result.data);
-    } catch (error) {
-      console.error(getErrorMessage(error));
-      setErrors(
-        'Received invalid inputs from server, please contact the developer'
-      );
-    }
-  }, [value]);
-
-  const removeOperator = useCallback((operatorName: string) => {
-    setOperators((prevState) =>
-      prevState.filter((el) => el.name !== operatorName)
-    );
-  }, []);
+    },
+  });
 
   const addOperator = useCallback(() => {
     if (!nameRef.current || !emailRef.current) {
       return;
     }
-    const result = Schema.safeParse({
+    addItem({
       name: nameRef.current.value,
       email: emailRef.current.value,
     });
-    if (!result.success) {
-      return window.alert(stringifyZodError(result.error));
-    }
-    const newOperator = result.data;
-    setOperators((prevState) => {
-      if (prevState.some((el) => el.name === newOperator.name)) {
-        return prevState;
-      }
-      return [...prevState, newOperator];
-    });
-    nameRef.current.value = '';
-    emailRef.current.value = '';
-    nameRef.current.focus();
-  }, []);
+  }, [addItem]);
 
-  const onKeyDown = useCallback(
+  const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.defaultPrevented) {
+      if (!nameRef.current || !emailRef.current) {
         return;
       }
-      if (event.key && event.key === 'Enter') {
-        addOperator();
-        event.preventDefault();
-      }
+      onKeyDown(event, {
+        name: nameRef.current.value,
+        email: emailRef.current.value,
+      });
     },
-    [addOperator]
+    [onKeyDown]
   );
 
   return (
-    <>
-      <input type="hidden" name={name} value={JSON.stringify(operators)} />
-      <div className="flex flex-col items-stretch gap-2 p-2">
-        {operators.map((operator) => (
-          <Chip key={operator.name} className="gap-2">
-            <span className="text-sm font-light text-zinc-500">
-              {operator.name} - {operator.email}
-            </span>
-            <div className="grow" />
-            <GhostButton
-              onClick={() => removeOperator(operator.name)}
-              className="p-0"
-              title="Remove operator from list"
-            >
-              <X className="text-red-600" />
-            </GhostButton>
-          </Chip>
-        ))}
-        <div className="flex flex-row items-stretch gap-2">
+    <AddEditListItems
+      {...lister}
+      name={name}
+      getDisplayedText={(item) => `${item.name} - ${item.email}`}
+      addItem={addOperator}
+      InputControls={
+        <>
           <div className="flex grow flex-col items-stretch">
             <TextField
               customRef={nameRef}
               name="operatorName"
               placeholder="Operator's name"
-              onKeyDown={onKeyDown}
+              onKeyDown={handleKeyDown}
             />
           </div>
           <div className="flex grow flex-col items-stretch">
@@ -133,15 +91,11 @@ export function AddEditOperators(props: Props) {
               customRef={emailRef}
               name="operatorEmail"
               placeholder="Operator's email"
-              onKeyDown={onKeyDown}
+              onKeyDown={handleKeyDown}
             />
           </div>
-          <SecondaryButton onClick={addOperator}>
-            <Plus className="text-zinc-600" />
-          </SecondaryButton>
-        </div>
-        {!!error && <InlineAlert>{error}</InlineAlert>}
-      </div>
-    </>
+        </>
+      }
+    />
   );
 }

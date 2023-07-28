@@ -10,7 +10,7 @@ export function Card(props: CardProps) {
   return (
     <div
       className={twMerge(
-        'flex flex-col items-stretch rounded-md bg-white shadow',
+        'flex flex-col items-stretch rounded-md bg-white shadow-md',
         className
       )}
       {...restOfProps}

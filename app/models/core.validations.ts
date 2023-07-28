@@ -21,6 +21,9 @@ export enum StatusCode {
   NotFound = 404,
 }
 
+export const INVALID_VALUES_FROM_SERVER =
+  'Received invalid values from server, please contact the system maintainers';
+
 export function containsNumbers(str: string) {
   return Boolean(str.match(/\d/));
 }
@@ -199,3 +202,119 @@ export function getQueryParams<T extends string>(url: string, params: T[]) {
     {} as Record<T, string | undefined>
   );
 }
+
+export const RECORD_TYPES = [
+  'Account',
+  'Area',
+  'City',
+  'Database',
+  'Event',
+  'Group',
+  'LicenseDetail',
+  'License',
+  'Operator',
+  'Sector',
+  'Status',
+  'User',
+] as const;
+
+const NameSchema = z
+  .string({
+    required_error: "Please enter the area's name",
+    invalid_type_error: "Please provide valid input for the area's name",
+  })
+  .min(1, "Please enter the area's name first")
+  .max(100, "Please use less than 200 characters for the area's name");
+
+const BasicUsdSchema = z.coerce
+  .number({
+    required_error: 'Enter the basic USD for the license',
+    invalid_type_error: 'Provide valid input for the license basic USD',
+  })
+  .min(0, 'Enter a minimum of 0 for the license basic USD')
+  .transform((arg) => arg.toFixed(2))
+  .transform((arg) => Number(arg));
+
+export const AddAreaSchema = z.object({
+  recordType: z.literal('Area'),
+  name: NameSchema,
+});
+
+export const AddRecordSchema = z.discriminatedUnion('recordType', [
+  AddAreaSchema,
+  z.object({
+    recordType: z.literal('City'),
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('Group'),
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('LicenseDetail'),
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('License'),
+    name: NameSchema,
+    basicUsd: BasicUsdSchema,
+  }),
+  z.object({
+    recordType: z.literal('Sector'),
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('Status'),
+    name: NameSchema,
+  }),
+]);
+
+export const UpdateAreaSchema = z.object({
+  recordType: z.literal('Area'),
+  id: RecordIdSchema,
+  name: NameSchema,
+});
+
+export const UpdateRecordSchema = z.discriminatedUnion('recordType', [
+  UpdateAreaSchema,
+  z.object({
+    recordType: z.literal('City'),
+    id: RecordIdSchema,
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('Group'),
+    id: RecordIdSchema,
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('LicenseDetail'),
+    id: RecordIdSchema,
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('License'),
+    id: RecordIdSchema,
+    name: NameSchema,
+    basicUsd: BasicUsdSchema,
+  }),
+  z.object({
+    recordType: z.literal('Sector'),
+    id: RecordIdSchema,
+    name: NameSchema,
+  }),
+  z.object({
+    recordType: z.literal('Status'),
+    id: RecordIdSchema,
+    name: NameSchema,
+  }),
+]);
+
+export const DeleteRecordSchema = z.object({
+  id: RecordIdSchema,
+  recordType: z.enum(RECORD_TYPES, {
+    errorMap: (_) => ({
+      message: 'Specify the type of record you wish to delete',
+    }),
+  }),
+});
