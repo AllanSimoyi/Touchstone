@@ -5,7 +5,7 @@ import { useDeleteRecord } from '~/hooks/useDeleteRecord';
 import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import { useFormData } from '~/hooks/useFormData';
 import { useUpdateRecord } from '~/hooks/useUpdateRecord';
-import { AddAreaSchema, UpdateAreaSchema } from '~/models/core.validations';
+import { AddCitySchema, UpdateCitySchema } from '~/models/core.validations';
 
 import { AddPickListName } from './AddPickListName';
 import { Card } from './Card';
@@ -19,46 +19,46 @@ import { UpdatePickListName } from './UpdatePickListName';
 interface Props {
   items: { id: number; name: string }[];
 }
-export function AddEditAreas(props: Props) {
+export function AddEditCities(props: Props) {
   const { items } = props;
-  const newAreaRef = useRef<HTMLInputElement>(null);
+  const newCityRef = useRef<HTMLInputElement>(null);
 
   const addFetcher = useFetcher();
 
   const optimisticItem = useFormData(
     addFetcher.submission?.formData,
-    AddAreaSchema,
+    AddCitySchema,
     ['name']
   );
-  useFieldClearOnSuccess(addFetcher.data, AddAreaSchema, [
-    ['name', newAreaRef],
+  useFieldClearOnSuccess(addFetcher.data, AddCitySchema, [
+    ['name', newCityRef],
   ]);
 
   return (
     <Card className="flex flex-col items-stretch gap-2">
-      <CardHeader>Areas</CardHeader>
+      <CardHeader>Cities</CardHeader>
       <div className="flex flex-col items-stretch gap-2 p-2">
         <AddPickListName
           fetcher={addFetcher}
-          recordType="Area"
-          customRef={newAreaRef}
+          recordType="City"
+          customRef={newCityRef}
         />
         {!!optimisticItem?.name && (
           <OptimisticChip>{optimisticItem.name}</OptimisticChip>
         )}
         {items.map((item, index) => (
-          <AreaChip key={index} {...item} />
+          <CityChip key={index} {...item} />
         ))}
       </div>
     </Card>
   );
 }
 
-function AreaChip(item: { id: number; name: string }) {
-  const updateRecordProps = useUpdateRecord(UpdateAreaSchema);
+function CityChip(item: { id: number; name: string }) {
+  const updateRecordProps = useUpdateRecord(UpdateCitySchema);
   const { updateFetcher, updateErrors, isUpdating } = updateRecordProps;
 
-  const deleteRecordProps = useDeleteRecord(item.id, 'Area');
+  const deleteRecordProps = useDeleteRecord(item.id, 'City');
   const { handleDelete, deleteErrors, deleteState, deleteFetcher } =
     deleteRecordProps;
 
@@ -73,12 +73,12 @@ function AreaChip(item: { id: number; name: string }) {
           fetcher={updateFetcher}
           id={item.id}
           name={item.name}
-          recordType="Area"
+          recordType="City"
         />
         <DeletePickListItem
           {...deleteRecordProps}
           id={item.id}
-          recordType="Area"
+          recordType="City"
           fetcher={deleteFetcher}
           isUpdating={isUpdating}
           handleDelete={handleDelete}

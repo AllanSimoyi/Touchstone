@@ -343,8 +343,7 @@ export default function CreateCustomerPage() {
     useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const { getNameProp, isProcessing } =
-    useForm<keyof z.infer<typeof Schema>>(actionData);
+  const { getNameProp, isProcessing } = useForm(actionData, Schema);
 
   const defaultValues = {
     companyName: 'Allan',

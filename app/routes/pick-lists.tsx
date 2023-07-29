@@ -4,6 +4,12 @@ import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 
 import { AddEditAreas } from '~/components/AddEditAreas';
+import { AddEditCities } from '~/components/AddEditCities';
+import { AddEditGroups } from '~/components/AddEditGroups';
+import { AddEditLicenses } from '~/components/AddEditLicense';
+import { AddEditLicenseDetails } from '~/components/AddEditLicenseDetail';
+import { AddEditSectors } from '~/components/AddEditSectors';
+import { AddEditStatuses } from '~/components/AddEditStatuses';
 import { RouteErrorBoundary } from '~/components/Boundaries';
 import { CenteredView } from '~/components/CenteredView';
 import { Footer } from '~/components/Footer';
@@ -65,7 +71,8 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function PickListsPage() {
   const user = useUser();
-  const { areas } = useLoaderData<typeof loader>();
+  const { areas, groups, cities, licenses, licenseDetails, sectors, statuses } =
+    useLoaderData<typeof loader>();
 
   return (
     <div className="flex min-h-full flex-col items-stretch">
@@ -79,6 +86,34 @@ export default function PickListsPage() {
             <AddEditAreas
               items={areas.map((area) => ({ ...area, name: area.identifier }))}
             />
+            <AddEditGroups
+              items={groups.map((group) => ({
+                ...group,
+                name: group.identifier,
+              }))}
+            />
+            <AddEditCities
+              items={cities.map((city) => ({
+                ...city,
+                name: city.identifier,
+              }))}
+            />
+            <AddEditLicenses items={licenses} />
+            <AddEditSectors
+              items={sectors.map((sector) => ({
+                ...sector,
+                name: sector.identifier,
+              }))}
+            />
+            <AddEditStatuses
+              items={statuses.map((status) => ({
+                ...status,
+                name: status.identifier,
+              }))}
+            />
+            <div className="col-span-3 flex flex-col items-stretch">
+              <AddEditLicenseDetails className="grow" items={licenseDetails} />
+            </div>
           </div>
         </CenteredView>
       </div>

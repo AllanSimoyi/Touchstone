@@ -8,7 +8,7 @@ import {
 } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 import { getRawFormFields } from '~/models/forms';
-import { customServerLog } from '~/models/logger.server';
+import { customServerLog, logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 
 export async function action({ request }: ActionArgs) {
@@ -17,6 +17,7 @@ export async function action({ request }: ActionArgs) {
     const fields = await getRawFormFields(request);
     const result = AddRecordSchema.safeParse(fields);
     if (!result.success) {
+      logParseError(request, result.error, fields);
       return processBadRequest(result.error, fields);
     }
 
@@ -31,9 +32,11 @@ export async function action({ request }: ActionArgs) {
             fieldErrors: { name: [`${name} already entered`] },
           });
         }
-        return prisma.area.create({
+        const addResult = await prisma.area.create({
           data: { identifier: name },
         });
+        customServerLog('info', 'Added area', result.data, request);
+        return addResult;
       }
       if (result.data.recordType === 'City') {
         const { name } = result.data;
@@ -45,9 +48,11 @@ export async function action({ request }: ActionArgs) {
             fieldErrors: { name: [`${name} already entered`] },
           });
         }
-        return prisma.city.create({
+        const addResult = await prisma.city.create({
           data: { identifier: name },
         });
+        customServerLog('info', 'Added city', result.data, request);
+        return addResult;
       }
       if (result.data.recordType === 'Group') {
         const { name } = result.data;
@@ -59,9 +64,11 @@ export async function action({ request }: ActionArgs) {
             fieldErrors: { name: [`${name} already entered`] },
           });
         }
-        return prisma.group.create({
+        const addResult = await prisma.group.create({
           data: { identifier: name },
         });
+        customServerLog('info', 'Added group', result.data, request);
+        return addResult;
       }
       if (result.data.recordType === 'LicenseDetail') {
         const { name } = result.data;
@@ -73,15 +80,19 @@ export async function action({ request }: ActionArgs) {
             fieldErrors: { name: [`${name} already entered`] },
           });
         }
-        return prisma.licenseDetail.create({
+        const addResult = await prisma.licenseDetail.create({
           data: { identifier: name },
         });
+        customServerLog('info', 'Added licenseDetail', result.data, request);
+        return addResult;
       }
       if (result.data.recordType === 'License') {
         const { name, basicUsd } = result.data;
-        return prisma.license.create({
+        const addResult = await prisma.license.create({
           data: { identifier: name, basicUsd },
         });
+        customServerLog('info', 'Added license', result.data, request);
+        return addResult;
       }
       if (result.data.recordType === 'Sector') {
         const { name } = result.data;
@@ -93,9 +104,11 @@ export async function action({ request }: ActionArgs) {
             fieldErrors: { name: [`${name} already entered`] },
           });
         }
-        return prisma.sector.create({
+        const addResult = await prisma.sector.create({
           data: { identifier: name },
         });
+        customServerLog('info', 'Added sector', result.data, request);
+        return addResult;
       }
       if (result.data.recordType === 'Status') {
         const { name } = result.data;
@@ -107,9 +120,11 @@ export async function action({ request }: ActionArgs) {
             fieldErrors: { name: [`${name} already entered`] },
           });
         }
-        return prisma.status.create({
+        const addResult = await prisma.status.create({
           data: { identifier: name },
         });
+        customServerLog('info', 'Added status', result.data, request);
+        return addResult;
       }
     })();
 

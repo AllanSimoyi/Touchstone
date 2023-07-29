@@ -1,7 +1,10 @@
 import { z } from 'zod';
 
-export type FormFields<F extends string = string> = Record<F, string | File>;
-export type FieldErrors<F extends string = string> = Record<
+export type FormFields<F extends string | number | symbol = string> = Record<
+  F,
+  string | File
+>;
+export type FieldErrors<F extends string | number | symbol = string> = Record<
   F,
   string[] | undefined
 >;

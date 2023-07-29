@@ -1,5 +1,4 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
-import type { ChangePasswordSchema } from '~/models/user.validations';
 
 import { Response, json, redirect } from '@remix-run/node';
 import {
@@ -44,6 +43,7 @@ import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import { logActionData, logParseError } from '~/models/logger.server';
 import {
+  ChangePasswordSchema,
   AccessLevelSchema,
   INVALID_ACCESS_LEVEL_ERR_MESSAGE,
   accessLevels,
@@ -139,10 +139,11 @@ export default function EditUserPage() {
   const actionData = useActionData<typeof action>();
   const changePasswordFetcher = useFetcher();
 
-  const updateDetailsFormProps = useForm<SchemaKeys>(actionData);
-  const changePasswordFormProps = useForm<
-    keyof z.infer<typeof ChangePasswordSchema>
-  >(changePasswordFetcher.data);
+  const updateDetailsFormProps = useForm(actionData, Schema);
+  const changePasswordFormProps = useForm(
+    changePasswordFetcher.data,
+    ChangePasswordSchema
+  );
 
   const defaultValues: Record<SchemaKeys, string> = {
     accessLevel: user.accessLevel,

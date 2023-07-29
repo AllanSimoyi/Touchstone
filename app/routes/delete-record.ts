@@ -8,7 +8,7 @@ import {
 } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 import { getRawFormFields } from '~/models/forms';
-import { customServerLog } from '~/models/logger.server';
+import { customServerLog, logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 
 export async function action({ request }: ActionArgs) {
@@ -17,9 +17,11 @@ export async function action({ request }: ActionArgs) {
     const fields = await getRawFormFields(request);
     const result = DeleteRecordSchema.safeParse(fields);
     if (!result.success) {
+      logParseError(request, result.error, fields);
       return processBadRequest(result.error, fields);
     }
     const { id, recordType } = result.data;
+    customServerLog('info', 'Input', result.data, request);
 
     const mapping: Record<typeof recordType, () => Promise<any>> = {
       Account: () => prisma.account.delete({ where: { id } }),
@@ -35,8 +37,13 @@ export async function action({ request }: ActionArgs) {
       Status: () => prisma.status.delete({ where: { id } }),
       User: () => prisma.user.delete({ where: { id } }),
     };
-
     await mapping[recordType]?.();
+    customServerLog(
+      'info',
+      `Deleted ${recordType.toLowerCase()}`,
+      { id },
+      request
+    );
 
     return json({ success: true });
   } catch (error) {

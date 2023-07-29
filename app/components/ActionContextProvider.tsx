@@ -1,4 +1,5 @@
 import type { FieldErrors, FormFields } from '../models/forms';
+import type { ZodTypeAny, z } from 'zod';
 
 import { useNavigation } from '@remix-run/react';
 import { createContext, useCallback, useContext, useMemo } from 'react';
@@ -59,16 +60,18 @@ export function useIsSubmitting() {
   return isSubmitting;
 }
 
-export function useForm<FieldName extends string>(actionData: unknown) {
+export function useForm<T extends ZodTypeAny>(actionData: unknown, Schema: T) {
   const { state: navigationState } = useNavigation();
 
-  const getNameProp = useCallback((name: FieldName) => {
+  type SchemaKeys = keyof z.infer<typeof Schema>;
+
+  const getNameProp = useCallback((name: SchemaKeys) => {
     return { name };
   }, []);
 
   const fieldErrors = useMemo(() => {
     if (hasFieldErrors(actionData)) {
-      return actionData.fieldErrors as FieldErrors<FieldName>;
+      return actionData.fieldErrors as FieldErrors<SchemaKeys>;
     }
   }, [actionData]);
 
@@ -80,7 +83,7 @@ export function useForm<FieldName extends string>(actionData: unknown) {
 
   const fields = useMemo(() => {
     if (hasFields(actionData)) {
-      return actionData.fields as FormFields<FieldName>;
+      return actionData.fields as FormFields<SchemaKeys>;
     }
   }, [actionData]);
 

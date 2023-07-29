@@ -106,8 +106,7 @@ export default function CreateUserPage() {
   useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const { getNameProp, isProcessing } =
-    useForm<keyof z.infer<typeof Schema>>(actionData);
+  const { getNameProp, isProcessing } = useForm(actionData, Schema);
 
   // const defaultValues: Record<keyof z.infer<typeof Schema>, string> = {
   //   accessLevel: accessLevels[0],

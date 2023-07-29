@@ -3,7 +3,7 @@ import { CardHeader } from './CardHeader';
 import { Chip } from './Chip';
 
 interface Props {
-  license: { identifier: string; basicUsd: number };
+  license: { identifier: string; basicUsd: string };
   licenseDetail: string;
   addedPercentage: number;
   gross: number;

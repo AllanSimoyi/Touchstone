@@ -129,9 +129,16 @@ export async function loader({ request, params }: LoaderArgs) {
     prisma.sector.findMany({
       select: { id: true, identifier: true },
     }),
-    prisma.license.findMany({
-      select: { id: true, identifier: true, basicUsd: true },
-    }),
+    prisma.license
+      .findMany({
+        select: { id: true, identifier: true, basicUsd: true },
+      })
+      .then((licenses) =>
+        licenses.map((license) => ({
+          ...license,
+          basicUsd: license.basicUsd.toNumber().toFixed(2),
+        }))
+      ),
     prisma.licenseDetail.findMany({
       select: { id: true, identifier: true },
     }),
@@ -345,7 +352,7 @@ export const action = async ({ request }: ActionArgs) => {
     }
 
     const gross = calcGross({
-      basicUsd: license.basicUsd,
+      basicUsd: license.basicUsd.toNumber(),
       addedPercentage,
       numDatabases: databases.length,
     });
@@ -439,8 +446,7 @@ export default function EditCustomerPage() {
   } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
 
-  const { getNameProp, isProcessing } =
-    useForm<keyof z.infer<typeof Schema>>(actionData);
+  const { getNameProp, isProcessing } = useForm(actionData, Schema);
 
   const defaultValues: Record<keyof z.infer<typeof Schema>, string> = {
     id: account.id.toString(),
@@ -577,8 +583,7 @@ export default function EditCustomerPage() {
                       <option value="">NONE</option>
                       {licenses.map((license) => (
                         <option key={license.id} value={license.id}>
-                          {license.identifier} - USD{' '}
-                          {license.basicUsd.toFixed(2)}
+                          {license.identifier} - USD {license.basicUsd}
                         </option>
                       ))}
                     </FormSelect>

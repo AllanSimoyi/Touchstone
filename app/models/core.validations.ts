@@ -240,33 +240,44 @@ export const AddAreaSchema = z.object({
   name: NameSchema,
 });
 
+export const AddGroupSchema = z.object({
+  recordType: z.literal('Group'),
+  name: NameSchema,
+});
+
+export const AddCitySchema = z.object({
+  recordType: z.literal('City'),
+  name: NameSchema,
+});
+
+export const AddLicenseSchema = z.object({
+  recordType: z.literal('License'),
+  name: NameSchema,
+  basicUsd: BasicUsdSchema,
+});
+
+export const AddLicenseDetailSchema = z.object({
+  recordType: z.literal('LicenseDetail'),
+  name: NameSchema,
+});
+
+export const AddSectorSchema = z.object({
+  recordType: z.literal('Sector'),
+  name: NameSchema,
+});
+export const AddStatusSchema = z.object({
+  recordType: z.literal('Status'),
+  name: NameSchema,
+});
+
 export const AddRecordSchema = z.discriminatedUnion('recordType', [
   AddAreaSchema,
-  z.object({
-    recordType: z.literal('City'),
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('Group'),
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('LicenseDetail'),
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('License'),
-    name: NameSchema,
-    basicUsd: BasicUsdSchema,
-  }),
-  z.object({
-    recordType: z.literal('Sector'),
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('Status'),
-    name: NameSchema,
-  }),
+  AddCitySchema,
+  AddGroupSchema,
+  AddLicenseDetailSchema,
+  AddLicenseSchema,
+  AddSectorSchema,
+  AddStatusSchema,
 ]);
 
 export const UpdateAreaSchema = z.object({
@@ -275,39 +286,50 @@ export const UpdateAreaSchema = z.object({
   name: NameSchema,
 });
 
+export const UpdateCitySchema = z.object({
+  recordType: z.literal('City'),
+  id: RecordIdSchema,
+  name: NameSchema,
+});
+
+export const UpdateGroupSchema = z.object({
+  recordType: z.literal('Group'),
+  id: RecordIdSchema,
+  name: NameSchema,
+});
+
+export const UpdateLicenseSchema = z.object({
+  recordType: z.literal('License'),
+  id: RecordIdSchema,
+  name: NameSchema,
+  basicUsd: BasicUsdSchema,
+});
+
+export const UpdateLicenseDetailSchema = z.object({
+  recordType: z.literal('LicenseDetail'),
+  id: RecordIdSchema,
+  name: NameSchema,
+});
+
+export const UpdateSectorSchema = z.object({
+  recordType: z.literal('Sector'),
+  id: RecordIdSchema,
+  name: NameSchema,
+});
+export const UpdateStatusSchema = z.object({
+  recordType: z.literal('Status'),
+  id: RecordIdSchema,
+  name: NameSchema,
+});
+
 export const UpdateRecordSchema = z.discriminatedUnion('recordType', [
   UpdateAreaSchema,
-  z.object({
-    recordType: z.literal('City'),
-    id: RecordIdSchema,
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('Group'),
-    id: RecordIdSchema,
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('LicenseDetail'),
-    id: RecordIdSchema,
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('License'),
-    id: RecordIdSchema,
-    name: NameSchema,
-    basicUsd: BasicUsdSchema,
-  }),
-  z.object({
-    recordType: z.literal('Sector'),
-    id: RecordIdSchema,
-    name: NameSchema,
-  }),
-  z.object({
-    recordType: z.literal('Status'),
-    id: RecordIdSchema,
-    name: NameSchema,
-  }),
+  UpdateCitySchema,
+  UpdateGroupSchema,
+  UpdateLicenseDetailSchema,
+  UpdateLicenseSchema,
+  UpdateSectorSchema,
+  UpdateStatusSchema,
 ]);
 
 export const DeleteRecordSchema = z.object({

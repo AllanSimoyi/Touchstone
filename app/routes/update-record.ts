@@ -8,7 +8,7 @@ import {
 } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 import { getRawFormFields } from '~/models/forms';
-import { customServerLog } from '~/models/logger.server';
+import { customServerLog, logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 
 export async function action({ request }: ActionArgs) {
@@ -17,57 +17,73 @@ export async function action({ request }: ActionArgs) {
     const fields = await getRawFormFields(request);
     const result = UpdateRecordSchema.safeParse(fields);
     if (!result.success) {
+      logParseError(request, result.error, fields);
       return processBadRequest(result.error, fields);
     }
+    customServerLog('info', 'Input', result.data, request);
 
     if (result.data.recordType === 'Area') {
       const { id, name } = result.data;
-      return prisma.area.update({
+      const updateResult = await prisma.area.update({
         where: { id },
         data: { identifier: name },
       });
+      customServerLog('info', 'Updated area', result.data, request);
+      return updateResult;
     }
     if (result.data.recordType === 'City') {
       const { id, name } = result.data;
-      return prisma.city.update({
+      const updateResult = await prisma.city.update({
         where: { id },
         data: { identifier: name },
       });
+      customServerLog('info', 'Updated city', result.data, request);
+      return updateResult;
     }
     if (result.data.recordType === 'Group') {
       const { id, name } = result.data;
-      return prisma.group.update({
+      const updateResult = await prisma.group.update({
         where: { id },
         data: { identifier: name },
       });
+      customServerLog('info', 'Updated group', result.data, request);
+      return updateResult;
     }
     if (result.data.recordType === 'LicenseDetail') {
       const { id, name } = result.data;
-      return prisma.licenseDetail.update({
+      const updateResult = await prisma.licenseDetail.update({
         where: { id },
         data: { identifier: name },
       });
+      customServerLog('info', 'Updated licenseDetail', result.data, request);
+      return updateResult;
     }
     if (result.data.recordType === 'License') {
       const { id, name, basicUsd } = result.data;
-      return prisma.license.update({
+      const updateResult = await prisma.license.update({
         where: { id },
         data: { identifier: name, basicUsd },
       });
+      customServerLog('info', 'Updated license', result.data, request);
+      return updateResult;
     }
     if (result.data.recordType === 'Sector') {
       const { id, name } = result.data;
-      return prisma.sector.update({
+      const updateResult = await prisma.sector.update({
         where: { id },
         data: { identifier: name },
       });
+      customServerLog('info', 'Updated sector', result.data, request);
+      return updateResult;
     }
     if (result.data.recordType === 'Status') {
       const { id, name } = result.data;
-      return prisma.status.update({
+      const updateResult = await prisma.status.update({
         where: { id },
         data: { identifier: name },
       });
+      customServerLog('info', 'Updated status', result.data, request);
+      return updateResult;
     }
 
     return json({ success: true });

@@ -1,5 +1,4 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
-import type { ChangeOwnPasswordSchema } from '~/models/user.validations';
 
 import { json } from '@remix-run/node';
 import {
@@ -38,7 +37,11 @@ import {
 import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import { logActionData, logParseError } from '~/models/logger.server';
-import { AccessLevelSchema, accessLevels } from '~/models/user.validations';
+import {
+  ChangeOwnPasswordSchema,
+  AccessLevelSchema,
+  accessLevels,
+} from '~/models/user.validations';
 import {
   createUserSession,
   requireUser,
@@ -118,10 +121,11 @@ export default function MyAccountPage() {
   const actionData = useActionData<typeof action>();
   const changePasswordFetcher = useFetcher();
 
-  const updateDetailsFormProps = useForm<SchemaKeys>(actionData);
-  const changePasswordFormProps = useForm<
-    keyof z.infer<typeof ChangeOwnPasswordSchema>
-  >(changePasswordFetcher.data);
+  const updateDetailsFormProps = useForm(actionData, Schema);
+  const changePasswordFormProps = useForm(
+    changePasswordFetcher.data,
+    ChangeOwnPasswordSchema
+  );
 
   const defaultValues: Record<SchemaKeys, string> = {
     accessLevel: currentUser.accessLevel,

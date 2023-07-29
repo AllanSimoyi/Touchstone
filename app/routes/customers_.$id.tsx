@@ -94,9 +94,13 @@ export const loader = async ({ params, request }: LoaderArgs) => {
       if (!customer) {
         return null;
       }
-      const { dateOfContract, ...restOfCustomer } = customer;
+      const { dateOfContract, license, ...restOfCustomer } = customer;
       return {
         ...restOfCustomer,
+        license: {
+          ...license,
+          basicUsd: license.basicUsd.toNumber().toFixed(2),
+        },
         dateOfContract: dateOfContract
           ? dayjs(dateOfContract).format(DATE_INPUT_FORMAT)
           : undefined,
