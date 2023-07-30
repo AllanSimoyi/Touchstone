@@ -75,8 +75,26 @@ model Account {
 
   databases Database[]
   operators Operator[]
+  events    AccountEvent[]
 
   @@map("accounts")
+}
+
+model AccountEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accountId Int
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("account_event")
 }
 
 model Area {
@@ -86,19 +104,55 @@ model Area {
   updatedAt  DateTime @updatedAt
 
   account Account[]
+  events  AreaEvent[]
 
   @@map("areas")
 }
 
+model AreaEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  areaId Int
+  area   Area @relation(fields: [areaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("area_event")
+}
+
 model City {
-  id            Int       @id @default(autoincrement())
-  identifier    String    @db.VarChar(100)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  accountCities Account[] @relation("deliveryCity")
-  boxCities     Account[] @relation("boxCity")
+  id            Int         @id @default(autoincrement())
+  identifier    String      @db.VarChar(100)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  accountCities Account[]   @relation("deliveryCity")
+  boxCities     Account[]   @relation("boxCity")
+  events        CityEvent[]
 
   @@map("cities")
+}
+
+model CityEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cityId Int
+  city   City @relation(fields: [cityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("city_event")
 }
 
 model Database {
@@ -107,30 +161,29 @@ model Database {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  databaseName String   @db.VarChar(50)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  databaseName String          @db.VarChar(50)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  events       DatabaseEvent[]
 
   @@map("databasez")
 }
 
-model Event {
-  id        Int    @id @default(autoincrement())
-  kind      String @db.VarChar(20)
-  tableName String @db.VarChar(30)
+model DatabaseEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  recordId Int
-
-  details String @db.Text
+  databaseId Int
+  database   Database @relation(fields: [databaseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  username  String   @db.VarChar(200)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  details String @db.Text
+  kind    String @db.VarChar(20)
 
-  @@map("eventz")
+  @@map("database_event")
 }
 
 model Group {
@@ -140,8 +193,26 @@ model Group {
   updatedAt  DateTime @updatedAt
 
   accounts Account[]
+  events   GroupEvent[]
 
   @@map("groupz")
+}
+
+model GroupEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groupId Int
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("group_event")
 }
 
 model LicenseDetail {
@@ -151,8 +222,26 @@ model LicenseDetail {
   updatedAt  DateTime @updatedAt
 
   accounts Account[]
+  events   LicenseDetailEvent[]
 
   @@map("licensedetails")
+}
+
+model LicenseDetailEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  licenseDetailId Int
+  licenseDetail   LicenseDetail @relation(fields: [licenseDetailId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("licensedetails_event")
 }
 
 model License {
@@ -163,8 +252,26 @@ model License {
   updatedAt  DateTime @updatedAt
 
   accounts Account[]
+  events   LicenseEvent[]
 
   @@map("licenses")
+}
+
+model LicenseEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  licenseId Int
+  license   License @relation(fields: [licenseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("license_event")
 }
 
 model Operator {
@@ -173,12 +280,30 @@ model Operator {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  operatorName  String   @db.VarChar(30)
-  operatorEmail String   @db.VarChar(50)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  operatorName  String          @db.VarChar(30)
+  operatorEmail String          @db.VarChar(50)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  events        OperatorEvent[]
 
   @@map("operatorz")
+}
+
+model OperatorEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  operatorId Int
+  operator   Operator @relation(fields: [operatorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("operator_event")
 }
 
 model Sector {
@@ -188,8 +313,26 @@ model Sector {
   updatedAt  DateTime @updatedAt
 
   accounts Account[]
+  events   SectorEvent[]
 
   @@map("sectors")
+}
+
+model SectorEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sectorId Int
+  sector   Sector @relation(fields: [sectorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("sector_event")
 }
 
 model Status {
@@ -199,8 +342,26 @@ model Status {
   updatedAt  DateTime @updatedAt
 
   accounts Account[]
+  events   StatusEvent[]
 
   @@map("statuses")
+}
+
+model StatusEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  statusId Int
+  status   Status @relation(fields: [statusId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("status_event")
 }
 
 model User {
@@ -211,7 +372,35 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  events Event[]
+  accountEvents       AccountEvent[]
+  areaEvents          AreaEvent[]
+  cityEvents          CityEvent[]
+  databaseEvents      DatabaseEvent[]
+  groupEvents         GroupEvent[]
+  licenseDetailEvents LicenseDetailEvent[]
+  licenseEvents       LicenseEvent[]
+  operatorEvents      OperatorEvent[]
+  sectorEvents        SectorEvent[]
+  statusEvents        StatusEvent[]
+  eventsImposed       UserEvent[]          @relation("record")
+  eventsAuthored      UserEvent[]          @relation("author")
 
   @@map("users")
+}
+
+model UserEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recordId Int
+  record   User @relation("record", fields: [recordId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation("author", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("user_event")
 }

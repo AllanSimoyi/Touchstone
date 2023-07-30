@@ -2,6 +2,7 @@ import type { LoaderArgs } from '@remix-run/node';
 
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
+import dayjs from 'dayjs';
 
 import { CenteredView } from '~/components/CenteredView';
 import { DashboardCard } from '~/components/DashboardCard';
@@ -53,7 +54,9 @@ export default function Index() {
                 { caption: 'View Timeline', to: AppLinks.AuditTrail },
                 {
                   caption: "Today's Activity",
-                  to: `${AppLinks.AuditTrail}?minDate=${new Date().getTime()}`,
+                  to: `${AppLinks.AuditTrail}?minDate=${dayjs().startOf(
+                    'day'
+                  )}`,
                 },
               ]}
             />

@@ -22,7 +22,7 @@ export const AppLinks = {
   EditUser: (id: number) => `/users/${id}/edit`,
 
   Import: '/customers/import',
-  Backup: '/customers/backup',
+  Backup: '/export-accounts',
 
   AuditTrail: '/audit-trail',
   ChangePassword: '/change-password',

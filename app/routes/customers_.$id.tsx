@@ -152,7 +152,7 @@ export default function CustomerPage() {
               <h2 className="flex flex-row items-stretch gap-2 text-2xl font-semibold">
                 <Link to={AppLinks.Customers}>
                   <UnderLineOnHover>
-                    <span className="text-zinc-400 transition-all duration-300 hover:text-zinc-800">
+                    <span className="text-zinc-400 transition-all duration-150 hover:text-zinc-800">
                       Customers
                     </span>
                   </UnderLineOnHover>

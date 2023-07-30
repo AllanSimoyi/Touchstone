@@ -51,7 +51,7 @@ export function DeletePickListItem(props: Props) {
           title="Remove item"
           disabled={isUpdating}
         >
-          <X className="text-red-600 transition-all duration-300 group-hover:rotate-90" />
+          <X className="text-red-600 transition-all duration-150 group-hover:rotate-90" />
         </GhostButton>
       </ActionContextProvider>
     </fetcher.Form>

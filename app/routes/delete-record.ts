@@ -28,7 +28,6 @@ export async function action({ request }: ActionArgs) {
       Area: () => prisma.area.delete({ where: { id } }),
       City: () => prisma.city.delete({ where: { id } }),
       Database: () => prisma.database.delete({ where: { id } }),
-      Event: () => prisma.event.delete({ where: { id } }),
       Group: () => prisma.group.delete({ where: { id } }),
       LicenseDetail: () => prisma.licenseDetail.delete({ where: { id } }),
       License: () => prisma.license.delete({ where: { id } }),

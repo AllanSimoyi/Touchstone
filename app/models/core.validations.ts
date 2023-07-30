@@ -208,7 +208,6 @@ export const RECORD_TYPES = [
   'Area',
   'City',
   'Database',
-  'Event',
   'Group',
   'LicenseDetail',
   'License',

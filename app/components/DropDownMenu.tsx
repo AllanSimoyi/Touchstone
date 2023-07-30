@@ -25,17 +25,24 @@ export function DropDownMenu(props: Props) {
       [AppLinks.Users, 'Users'],
       [AppLinks.Customers, 'Customers'],
       [AppLinks.PickLists, 'Pick Lists'],
-      [AppLinks.Customers, 'Import From Excel'],
-      [AppLinks.Customers, 'Export To Excel'],
-      [AppLinks.Customers, 'Audit Trail'],
+      [AppLinks.Import, 'Import From Excel'],
+      [AppLinks.Backup, 'Export To Excel'],
+      [AppLinks.AuditTrail, 'Audit Trail'],
     ];
   }, [loggedIn]);
 
   const children = useMemo(() => {
     const itemChildren = menuItems.map(([link, caption]) => {
       return function child(active: boolean) {
+        const isBackup = link === AppLinks.Backup;
         return (
-          <DropDownMenuItem mode="link" active={active} to={link}>
+          <DropDownMenuItem
+            mode="link"
+            active={active}
+            to={link}
+            target={isBackup ? '_blank' : undefined}
+            rel={isBackup ? 'noopener noreferrer' : undefined}
+          >
             {caption}
           </DropDownMenuItem>
         );
@@ -64,7 +71,7 @@ export function DropDownMenu(props: Props) {
         <div>
           <Menu.Button
             type="button"
-            className="rounded p-2 transition-all duration-300 hover:bg-zinc-100"
+            className="rounded p-2 transition-all duration-150 hover:bg-zinc-100"
           >
             <DotsVertical data-testid="menu" size={20} />
           </Menu.Button>

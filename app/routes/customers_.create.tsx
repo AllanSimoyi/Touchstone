@@ -2,7 +2,7 @@ import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 
 import { json, redirect } from '@remix-run/node';
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
 import { z } from 'zod';
 
 import {
@@ -29,7 +29,6 @@ import {
   processBadRequest,
 } from '~/models/core.validations';
 import { calcGross, calcNet, calcVat } from '~/models/customers';
-import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { getErrorMessage } from '~/models/errors';
 import { getRawFormFields, hasFormError } from '~/models/forms';
 import { AppLinks } from '~/models/links';
@@ -345,46 +344,46 @@ export default function CreateCustomerPage() {
 
   const { getNameProp, isProcessing } = useForm(actionData, Schema);
 
-  const defaultValues = {
-    companyName: 'Allan',
-    accountNumber: '1234567',
-    tradingAs: 'Allan',
-    formerly: 'Allan',
-    ceoName: 'Allan Simoyi',
-    ceoEmail: 'bach@gmail.com',
-    ceoPhone: '+263779528194',
-    ceoFax: '12345',
-    addr: '123 Place, Bigger Place',
-    tel: '+263779528194',
-    fax: '12345',
-    cell: '+263779528194',
-    licenseId: licenses[0].id.toString(),
-    licenseDetailId: licenseDetails[0].id.toString(),
-    addedPercentage: '15',
-    contractNumber: '12345',
-    dateOfContract: dayjs().format(DATE_INPUT_FORMAT),
-    accountantName: 'Tatenda',
-    accountantEmail: 'tatenda@gmail.com',
-    groupId: groups[0].id.toString(),
-    areaId: areas[0].id.toString(),
-    sectorId: sectors[0].id.toString(),
-    vatNumber: '12345',
-    otherNames: 'Bach',
-    description: 'Description goes here...',
-    actual: '1',
-    reason: 'Reason goes here...',
-    statusId: statuses[0].id.toString(),
-    comment: 'Comment goes here...',
-    boxCityId: cities[0].id.toString(),
-    boxNumber: '12345',
-    boxArea: 'Area23',
-    deliveryCityId: cities[0].id.toString(),
-    deliverySuburb: 'Plce',
-    deliveryAddress: '123 Another Place, Bigger Place',
-    databases: '["Database one", "Database two"]',
-    operators:
-      '[{"name": "Allan", "email": "allan@gmail.com"}, {"name": "Tatenda", "email": "tatenda@gmail.com"}]',
-  };
+  // const defaultValues = {
+  //   companyName: 'Allan',
+  //   accountNumber: '1234567',
+  //   tradingAs: 'Allan',
+  //   formerly: 'Allan',
+  //   ceoName: 'Allan Simoyi',
+  //   ceoEmail: 'bach@gmail.com',
+  //   ceoPhone: '+263779528194',
+  //   ceoFax: '12345',
+  //   addr: '123 Place, Bigger Place',
+  //   tel: '+263779528194',
+  //   fax: '12345',
+  //   cell: '+263779528194',
+  //   licenseId: licenses[0].id.toString(),
+  //   licenseDetailId: licenseDetails[0].id.toString(),
+  //   addedPercentage: '15',
+  //   contractNumber: '12345',
+  //   dateOfContract: dayjs().format(DATE_INPUT_FORMAT),
+  //   accountantName: 'Tatenda',
+  //   accountantEmail: 'tatenda@gmail.com',
+  //   groupId: groups[0].id.toString(),
+  //   areaId: areas[0].id.toString(),
+  //   sectorId: sectors[0].id.toString(),
+  //   vatNumber: '12345',
+  //   otherNames: 'Bach',
+  //   description: 'Description goes here...',
+  //   actual: '1',
+  //   reason: 'Reason goes here...',
+  //   statusId: statuses[0].id.toString(),
+  //   comment: 'Comment goes here...',
+  //   boxCityId: cities[0].id.toString(),
+  //   boxNumber: '12345',
+  //   boxArea: 'Area23',
+  //   deliveryCityId: cities[0].id.toString(),
+  //   deliverySuburb: 'Plce',
+  //   deliveryAddress: '123 Another Place, Bigger Place',
+  //   databases: '["Database one", "Database two"]',
+  //   operators:
+  //     '[{"name": "Allan", "email": "allan@gmail.com"}, {"name": "Tatenda", "email": "tatenda@gmail.com"}]',
+  // };
 
   return (
     <div className="flex min-h-full flex-col items-stretch">
@@ -397,7 +396,7 @@ export default function CreateCustomerPage() {
       <Form method="post" className="flex grow flex-col items-stretch py-6">
         <ActionContextProvider
           {...actionData}
-          fields={defaultValues}
+          // fields={defaultValues}
           isSubmitting={isProcessing}
         >
           <CenteredView className="w-full gap-4 px-2">
@@ -498,7 +497,7 @@ export default function CreateCustomerPage() {
                     />
                   </div>
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Contract Details</CardHeader>
                   <div className="flex flex-col items-stretch gap-2 p-2">
                     <FormTextField
@@ -512,7 +511,7 @@ export default function CreateCustomerPage() {
                     />
                   </div>
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Accountant Details</CardHeader>
                   <div className="flex flex-col items-stretch gap-2 p-2">
                     <FormTextField
@@ -527,7 +526,7 @@ export default function CreateCustomerPage() {
                 </Card>
               </div>
               <div className="flex flex-col items-stretch">
-                <Card>
+                <Card className="grow">
                   <CardHeader>Misc Details</CardHeader>
                   <div className="flex flex-col items-stretch gap-2 p-2">
                     <FormSelect {...getNameProp('groupId')} label="Group">
@@ -626,20 +625,22 @@ export default function CreateCustomerPage() {
                     />
                   </div>
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Databases</CardHeader>
                   <AddEditDatabases {...getNameProp('databases')} />
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Operators</CardHeader>
                   <AddEditOperators {...getNameProp('operators')} />
                 </Card>
               </div>
             </div>
             <div className="flex flex-col items-center justify-center py-6">
-              <PrimaryButton type="submit" disabled={isProcessing}>
-                {isProcessing ? 'Recording New Customer...' : 'Submit'}
-              </PrimaryButton>
+              <div className="flex min-w-[20%] flex-col items-stretch">
+                <PrimaryButton type="submit" disabled={isProcessing}>
+                  {isProcessing ? 'Recording New Customer...' : 'Submit'}
+                </PrimaryButton>
+              </div>
             </div>
           </CenteredView>
         </ActionContextProvider>

@@ -12,7 +12,7 @@ function getClassName(props: GetClassNameProps) {
   const { disabled, className: inputClassName } = props;
 
   const className = twMerge(
-    'rounded-md transition-all duration-300 text-center text-white py-2 px-4 text-sm shadow-md',
+    'rounded-md transition-all duration-150 text-center text-white py-2 px-4 text-sm shadow-lg',
     'bg-indigo-600 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-indigo-800',
     disabled && 'bg-indigo-600/20 cursor-not-allowed hover:bg-indigo-600/20',
     inputClassName

@@ -605,7 +605,7 @@ export default function EditCustomerPage() {
                     />
                   </div>
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Contract Details</CardHeader>
                   <div className="flex flex-col items-stretch gap-2 p-2">
                     <FormTextField
@@ -619,7 +619,7 @@ export default function EditCustomerPage() {
                     />
                   </div>
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Accountant Details</CardHeader>
                   <div className="flex flex-col items-stretch gap-2 p-2">
                     <FormTextField
@@ -634,7 +634,7 @@ export default function EditCustomerPage() {
                 </Card>
               </div>
               <div className="flex flex-col items-stretch">
-                <Card>
+                <Card className="grow">
                   <CardHeader>Misc Details</CardHeader>
                   <div className="flex flex-col items-stretch gap-2 p-2">
                     <FormSelect {...getNameProp('groupId')} label="Group">
@@ -733,11 +733,11 @@ export default function EditCustomerPage() {
                     />
                   </div>
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Databases</CardHeader>
                   <AddEditDatabases {...getNameProp('databases')} />
                 </Card>
-                <Card>
+                <Card className="grow">
                   <CardHeader>Operators</CardHeader>
                   <AddEditOperators {...getNameProp('operators')} />
                 </Card>
@@ -752,9 +752,11 @@ export default function EditCustomerPage() {
               )}
             </div>
             <div className="flex flex-col items-center justify-center py-6">
-              <PrimaryButton type="submit" disabled={isProcessing}>
-                {isProcessing ? 'Updating Customer Details...' : 'Submit'}
-              </PrimaryButton>
+              <div className="flex min-w-[20%] flex-col items-stretch">
+                <PrimaryButton type="submit" disabled={isProcessing}>
+                  {isProcessing ? 'Updating Customer Details...' : 'Submit'}
+                </PrimaryButton>
+              </div>
             </div>
           </CenteredView>
         </ActionContextProvider>

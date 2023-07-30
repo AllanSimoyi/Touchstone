@@ -33,7 +33,7 @@ export function Toolbar(props: ToolbarProps) {
             <div className="flex flex-col justify-center">
               <Link to={AppLinks.Home}>
                 <UnderLineOnHover>
-                  <AppTitle className="transition-all duration-300 hover:text-zinc-800" />
+                  <AppTitle className="transition-all duration-150 hover:text-zinc-800" />
                 </UnderLineOnHover>
               </Link>
             </div>

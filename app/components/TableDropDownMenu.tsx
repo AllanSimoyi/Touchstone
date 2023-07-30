@@ -19,7 +19,7 @@ export function TableDropDownMenu(props: Props) {
         <div>
           <Menu.Button
             type="button"
-            className="rounded p-2 transition-all duration-300 hover:bg-zinc-100"
+            className="rounded p-2 transition-all duration-150 hover:bg-zinc-100"
           >
             <Dots data-testid="menu" size={20} />
           </Menu.Button>

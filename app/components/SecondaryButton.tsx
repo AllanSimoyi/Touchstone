@@ -11,7 +11,7 @@ interface GetClassNameProps
 function getClassName(props: GetClassNameProps) {
   const { className: inputClassName, disabled, isIcon } = props;
   const className = twMerge(
-    'rounded-md transition-all duration-300 text-sm text-center py-2 px-4',
+    'rounded-md transition-all duration-150 text-sm text-center py-2 px-4 border-r border-b border-zinc-300 shadow-md',
     'bg-zinc-100 text-indigo-600 hover:bg-zinc-200 focus:bg-zinc-200 focus:outline-green-100',
     isIcon && 'px-2',
     disabled &&

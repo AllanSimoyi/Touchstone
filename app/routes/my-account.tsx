@@ -156,7 +156,7 @@ export default function MyAccountPage() {
               fields={hasFields(actionData) ? actionData.fields : defaultValues}
               isSubmitting={updateDetailsFormProps.isProcessing}
             >
-              <Card>
+              <Card className="grow">
                 <CardHeader>User Details</CardHeader>
                 <div className="flex flex-col items-stretch gap-2 p-2">
                   <FormSelect

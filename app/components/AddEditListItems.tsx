@@ -46,8 +46,8 @@ export function AddEditListItems<T>(props: Props<T>) {
         ))}
         <div className="flex flex-row items-stretch gap-2">
           {InputControls}
-          <SecondaryButton onClick={addItem}>
-            <Plus className="text-zinc-600" />
+          <SecondaryButton onClick={addItem} isIcon>
+            <Plus className="text-zinc-600" size={20} />
           </SecondaryButton>
         </div>
         {!!error && <InlineAlert>{error}</InlineAlert>}

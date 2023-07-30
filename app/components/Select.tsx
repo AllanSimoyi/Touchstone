@@ -37,8 +37,9 @@ export function Select<SchemaType extends Record<string, any>>(
         aria-describedby={`${name}-error`}
         disabled={disabled}
         className={twMerge(
-          'w-full transition-all duration-300',
-          'rounded-md border border-zinc-200 p-2 text-sm font-light outline-none focus:ring-1 focus:ring-zinc-400',
+          'w-full transition-all duration-150',
+          'rounded-md border border-zinc-200 bg-zinc-50 p-2 text-sm font-light shadow-inner outline-none focus:ring-1 focus:ring-zinc-400',
+          'hover:bg-zinc-100',
           disabled &&
             'cursor-not-allowed bg-zinc-200 text-zinc-600 shadow-none',
           errors?.length && 'border-2 border-red-600',
