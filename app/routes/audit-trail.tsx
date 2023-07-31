@@ -3,7 +3,7 @@ import type { ChangeEvent } from 'react';
 import type { EventKindDetails } from '~/models/events';
 
 import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -12,11 +12,13 @@ import { z } from 'zod';
 import { RouteErrorBoundary } from '~/components/Boundaries';
 import { Card } from '~/components/Card';
 import { CenteredView } from '~/components/CenteredView';
+import { Chip } from '~/components/Chip';
 import { EventChips } from '~/components/EventChips';
 import { Footer } from '~/components/Footer';
 import { Select } from '~/components/Select';
 import { TextField } from '~/components/TextField';
 import { Toolbar } from '~/components/Toolbar';
+import { UnderLineOnHover } from '~/components/UnderLineOnHover';
 import { prisma } from '~/db.server';
 import { getQueryParams } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
@@ -25,6 +27,7 @@ import {
   EventKind,
   EventKindDetailsSchema,
 } from '~/models/events';
+import { AppLinks } from '~/models/links';
 import { customServerLog, logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
@@ -33,6 +36,7 @@ type CustomEvent = EventKindDetails & {
   table: string;
   id: number;
   createdAt: Date;
+  account?: { id: number; companyName: string };
   user: { id: number; username: string };
 };
 
@@ -60,6 +64,7 @@ export const loader = async ({ request }: LoaderArgs) => {
           kind: true,
           details: true,
           createdAt: true,
+          account: { select: { id: true, companyName: true } },
           user: { select: { id: true, username: true } },
         },
       })
@@ -243,7 +248,8 @@ export const loader = async ({ request }: LoaderArgs) => {
               logParseError(request, result.error, event);
               return undefined;
             }
-            return { ...event, ...result.data };
+            const account = 'account' in event ? event.account : undefined;
+            return { ...event, ...result.data, account };
           } catch (error) {
             customServerLog(
               'error',
@@ -267,11 +273,9 @@ const TABLES = [
   'Account',
   'Area',
   'City',
-  'Database',
   'Group',
   'LicenseDetail',
   'License',
-  'Operator',
   'Sector',
   'Status',
   'User',
@@ -439,7 +443,7 @@ export default function AuditPage() {
             <div className="flex flex-row items-center justify-start px-4 py-2">
               <h2 className="text-lg font-semibold">Audit Trail</h2>
             </div>
-            <div className="flex flex-col items-stretch justify-center p-2">
+            <div className="flex flex-col items-stretch justify-center overflow-x-auto p-2">
               {!events.length && (
                 <div className="flex flex-col items-center justify-center px-2 py-6">
                   <span className="text-sm font-light text-zinc-400">
@@ -448,7 +452,7 @@ export default function AuditPage() {
                 </div>
               )}
               {!!events.length && (
-                <table className="table-auto border-collapse text-left">
+                <table className="table-auto border-collapse overflow-x-auto text-left">
                   <thead className="divide-y">
                     <tr className="border-b border-b-zinc-100">
                       <th className="w-[15%] p-2">
@@ -470,34 +474,51 @@ export default function AuditPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="text-sm">
+                  <tbody className="overflow-x-auto text-sm">
                     {events.map((event, index) => (
                       <tr
                         key={index}
                         className={twMerge('border-t border-t-zinc-100')}
                       >
                         <td className="px-2 py-3">
-                          <span className="font-light text-zinc-600">
+                          <span className="whitespace-nowrap font-light text-zinc-600">
                             {dayjs(event.createdAt).format('YYYY-MM-DD hh:mm')}
                           </span>
                         </td>
                         <td className="px-2 py-3">
-                          <span className="font-light text-zinc-600">
+                          <span className="whitespace-nowrap font-light text-zinc-600">
                             {event.user.username}
                           </span>
                         </td>
                         <td className="px-2 py-3">
-                          <span className="font-light text-zinc-600">
-                            {event.kind}
+                          <span className="whitespace-nowrap font-light text-zinc-600">
+                            {event.kind}d
                           </span>
                         </td>
                         <td className="px-2 py-3">
-                          <span className="font-light text-zinc-600">
-                            {event.table}
+                          <span className="whitespace-nowrap font-light text-zinc-600">
+                            {event.table} record
                           </span>
                         </td>
-                        <td className="px-2 py-3">
-                          <EventChips data={event} />
+                        <td className="overflow-x-auto px-2 py-3">
+                          <div className="flex flex-col items-start gap-2">
+                            <EventChips data={event} />
+                            {!!event.account && (
+                              <Link to={AppLinks.Customer(event.account.id)}>
+                                <Chip
+                                  className={twMerge(
+                                    'border-b border-r border-zinc-200 px-2 py-1 shadow-md hover:shadow-lg'
+                                  )}
+                                >
+                                  <UnderLineOnHover>
+                                    <span className="whitespace-no-wrap">
+                                      Account: {event.account.companyName}
+                                    </span>
+                                  </UnderLineOnHover>
+                                </Chip>
+                              </Link>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}

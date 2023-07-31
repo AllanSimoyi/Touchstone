@@ -21,7 +21,7 @@ export const AppLinks = {
   AddUser: '/users/create',
   EditUser: (id: number) => `/users/${id}/edit`,
 
-  Import: '/customers/import',
+  Import: '/import-from-excel',
   Backup: '/export-accounts',
 
   AuditTrail: '/audit-trail',

@@ -82,7 +82,7 @@ export function AddEditLicenses(props: Props) {
               </div>
             </div>
             <SecondaryButton type="submit" isIcon>
-              <Plus className="text-zinc-600" />
+              <Plus className="text-zinc-600" size={20} />
             </SecondaryButton>
           </ActionContextProvider>
         </fetcher.Form>

@@ -1,5 +1,7 @@
+import { AppLinks } from '~/models/links';
+
 import { Card } from './Card';
-import { SecondaryButtonLink } from './SecondaryButton';
+import { PrimaryButtonLink } from './PrimaryButton';
 
 interface CustomLink {
   to: string;
@@ -17,11 +19,19 @@ export function DashboardCard(props: Props) {
         <h2 className="text-lg">{title}</h2>
       </div>
       <div className="grid grid-cols-1 gap-2 p-2 sm:grid-cols-2">
-        {links.map((link, index) => (
-          <SecondaryButtonLink key={index} to={link.to}>
-            {link.caption}
-          </SecondaryButtonLink>
-        ))}
+        {links.map((link, index) => {
+          const isBackup = link.to === AppLinks.Backup;
+          return (
+            <PrimaryButtonLink
+              key={index}
+              to={link.to}
+              target={isBackup ? '_blank' : undefined}
+              rel={isBackup ? 'noopener noreferrer' : undefined}
+            >
+              {link.caption}
+            </PrimaryButtonLink>
+          );
+        })}
       </div>
     </Card>
   );

@@ -9,6 +9,7 @@ export function Chip(props: Props) {
     <div
       className={twMerge(
         'flex flex-row items-center justify-start rounded-md bg-zinc-100 p-2',
+        'transition-all duration-150',
         className
       )}
       {...restOfProps}

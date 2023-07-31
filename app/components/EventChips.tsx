@@ -52,7 +52,7 @@ export function EventChips(props: Props) {
 
   const { fromDetails, toDetails } = updateDetailsToArrs(data.details);
   return (
-    <div className="flex flex-col items-stretch gap-1">
+    <div className="flex flex-col items-stretch gap-1 overflow-x-auto">
       <Row mode={'red'} items={fromDetails} />
       <Row mode={'green'} items={toDetails} />
     </div>
@@ -66,20 +66,26 @@ interface RowProps {
 function Row(props: RowProps) {
   const { items, mode } = props;
   return (
-    <div className="flex flex-row items-stretch gap-2">
+    <div className="flex flex-row items-stretch gap-1 overflow-x-auto">
       {items.map(([key, value]) => (
         <Chip
           key={key}
           className={twMerge(
             'px-2 py-1',
-            mode === 'red' ? ' text-red-600' : ' text-green-600'
+            // mode === 'red' ? ' text-red-600' : ' text-green-600'
             // mode === 'red'
             //   ? 'bg-red-50 text-red-600'
             //   : 'bg-green-50 text-green-600'
+            mode === 'red' ? 'bg-red-200' : 'bg-green-200'
           )}
         >
-          <span className="font-light">{key}</span>:&nbsp;
-          <span className="font-semibold">{value.toString()}</span>
+          <span className="whitespace-nowrap font-light text-zinc-600">
+            {key}
+          </span>
+          :&nbsp;
+          <span className="whitespace-nowrap font-normal">
+            {value.toString()}
+          </span>
         </Chip>
       ))}
     </div>

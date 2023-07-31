@@ -8,7 +8,7 @@ export function SearchBox(props: ComponentProps<'input'>) {
     <div
       className={twMerge(
         'flex flex-row items-center focus-within:ring-1 focus-within:ring-zinc-400',
-        'rounded-md border border-zinc-200 bg-zinc-100 shadow-inner outline-none',
+        'rounded-md border border-zinc-200 bg-zinc-50 shadow-inner outline-none',
         'transition-all duration-200'
       )}
     >
