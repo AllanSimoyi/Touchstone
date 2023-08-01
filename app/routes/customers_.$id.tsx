@@ -164,7 +164,7 @@ export default function CustomerPage() {
               </h2>
               <div className="flex flex-wrap items-center gap-2">
                 <Chip className="bg-zinc-200 py-1">
-                  <span className="font-zinc-600 text-sm font-light">
+                  <span className="font-zinc-600 text-base font-light">
                     Account #{' '}
                     <span className="font-normal">
                       {customer.accountNumber}
@@ -173,7 +173,7 @@ export default function CustomerPage() {
                 </Chip>
                 {!!customer.tradingAs && (
                   <Chip className="bg-zinc-200 py-1">
-                    <span className="font-zinc-600 text-sm font-light">
+                    <span className="font-zinc-600 text-base font-light">
                       Trading as{' '}
                       <span className="font-normal">{customer.tradingAs}</span>
                     </span>
@@ -181,7 +181,7 @@ export default function CustomerPage() {
                 )}
                 {!!customer.formerly && (
                   <Chip className="bg-zinc-200 py-1">
-                    <span className="font-zinc-600 text-sm font-light">
+                    <span className="font-zinc-600 text-base font-light">
                       Formerly{' '}
                       <span className="font-normal">{customer.formerly}</span>
                     </span>

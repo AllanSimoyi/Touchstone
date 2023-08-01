@@ -4,8 +4,8 @@ interface Props {
 export function CardHeader(props: Props) {
   const { children } = props;
   return (
-    <div className="flex flex-col items-center justify-center border-b border-b-zinc-200 px-2 py-2">
-      <span className="text-base font-semibold text-zinc-800">{children}</span>
+    <div className="flex flex-col items-center justify-center border-b border-b-zinc-200 p-4">
+      <span className="text-lg font-semibold text-zinc-800">{children}</span>
     </div>
   );
 }

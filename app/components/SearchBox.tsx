@@ -33,7 +33,7 @@ export function SearchBox(props: ComponentProps<'input'>) {
         type="text"
         disabled={disabled}
         className={twMerge(
-          'w-full bg-transparent p-2 text-sm font-light outline-none transition-all duration-150',
+          'w-full bg-transparent p-2 text-base font-light outline-none transition-all duration-150',
           disabled &&
             'cursor-not-allowed bg-zinc-200 text-zinc-600 shadow-none',
           className

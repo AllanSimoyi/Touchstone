@@ -53,19 +53,19 @@ export default function UsersPage() {
                     <thead className="divide-y">
                       <tr className="border-b border-b-zinc-100">
                         <th className="p-2">
-                          <span className="text-sm font-semibold">
+                          <span className="text-lg font-semibold">
                             Access Level
                           </span>
                         </th>
                         <th className="p-2">
-                          <span className="text-sm font-semibold">
+                          <span className="text-lg font-semibold">
                             Username
                           </span>
                         </th>
                         <th></th>
                       </tr>
                     </thead>
-                    <tbody className="text-sm">
+                    <tbody className="text-base">
                       {users.map((user) => (
                         <UserTableRow key={user.id} {...user} />
                       ))}
@@ -74,7 +74,7 @@ export default function UsersPage() {
                 )}
                 {!users.length && (
                   <div className="flex flex-col items-center justify-center px-2 py-6">
-                    <span className="text-sm font-light text-zinc-400">
+                    <span className="text-base font-light text-zinc-400">
                       No users found
                     </span>
                   </div>

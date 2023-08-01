@@ -23,7 +23,7 @@ export function DropDownMenuItem(props: Props) {
   } = props;
 
   const className = twMerge(
-    'group text-sm font-light flex w-full items-center rounded p-2 text-zinc-800 transition-all duration-150',
+    'group text-base font-light flex w-full items-center rounded p-2 text-zinc-800 transition-all duration-150',
     active && (danger ? 'bg-red-50' : 'bg-zinc-200'),
     inputClassName
   );

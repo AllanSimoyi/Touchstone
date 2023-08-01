@@ -12,7 +12,7 @@ export function DangerButton(props: Props) {
       className={twMerge(
         'rounded text-center font-semibold text-white transition-all duration-150',
         'bg-red-600 hover:bg-red-700 focus:bg-red-700 focus:outline-red-600',
-        'px-4 py-2 text-sm',
+        'px-4 py-2 text-base',
         disabled && 'cursor-not-allowed bg-red-500/50',
         className
       )}

@@ -47,7 +47,7 @@ export function ConfirmDelete(props: Props) {
                   Are you sure?
                 </Dialog.Title>
                 <div className="flex flex-col items-stretch px-4 py-4">
-                  <span className="text-sm font-light text-gray-600">
+                  <span className="text-base font-light text-gray-600">
                     Please confirm you wish to delete this record.
                   </span>
                 </div>

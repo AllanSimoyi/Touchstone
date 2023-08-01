@@ -145,115 +145,144 @@ export default function MyAccountPage() {
   return (
     <div className="flex min-h-full flex-col items-stretch">
       <Toolbar currentUserName={currentUser.username} />
-      <CenteredView className="w-full gap-4 px-2">
-        <div className="flex flex-col items-start justify-center pt-6">
-          <span className="text-base font-semibold">My Account</span>
-        </div>
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
-          <Form method="post" className="flex flex-col items-stretch gap-4">
-            <ActionContextProvider
-              {...actionData}
-              fields={hasFields(actionData) ? actionData.fields : defaultValues}
-              isSubmitting={updateDetailsFormProps.isProcessing}
-            >
-              <Card className="grow">
-                <CardHeader>User Details</CardHeader>
-                <div className="flex flex-col items-stretch gap-2 p-2">
-                  <FormSelect
-                    {...updateDetailsFormProps.getNameProp('accessLevel')}
-                    label="Access Level"
-                  >
-                    {accessLevels.map((accessLevel) => (
-                      <option key={accessLevel} value={accessLevel}>
-                        {accessLevel}
-                      </option>
-                    ))}
-                  </FormSelect>
-                  <FormTextField
-                    {...updateDetailsFormProps.getNameProp('username')}
-                    label="Username"
-                  />
-                </div>
-                <div className="flex flex-row items-start gap-4">
-                  {hasFormError(actionData) && (
-                    <InlineAlert>{actionData.formError}</InlineAlert>
-                  )}
-                  {!!updateDetailsFieldErrors && (
-                    <InlineAlert>
-                      {fieldErrorsToArr(updateDetailsFieldErrors)}
-                    </InlineAlert>
-                  )}
-                </div>
-              </Card>
-              <PrimaryButton
-                type="submit"
-                disabled={updateDetailsFormProps.isProcessing}
+      <div className="flex grow flex-col items-stretch py-6">
+        <CenteredView className="w-full grow gap-4 px-2">
+          <div className="flex flex-col items-start justify-center pt-6">
+            <span className="text-lg font-semibold">My Account</span>
+          </div>
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
+            <Form method="post" className="flex flex-col items-stretch gap-4">
+              <ActionContextProvider
+                {...actionData}
+                fields={
+                  hasFields(actionData) ? actionData.fields : defaultValues
+                }
+                isSubmitting={updateDetailsFormProps.isProcessing}
               >
-                {updateDetailsFormProps.isProcessing ? 'Updating...' : 'Update'}
-              </PrimaryButton>
-            </ActionContextProvider>
-          </Form>
-          <changePasswordFetcher.Form
-            method="post"
-            action={AppLinks.ChangeOwnPassword}
-            className="flex flex-col items-stretch gap-4"
-          >
-            <input type="hidden" name="id" value={currentUser.id} />
-            <ActionContextProvider
-              {...changePasswordFetcher.data}
-              fields={
-                hasFields(changePasswordFetcher.data)
-                  ? changePasswordFetcher.data.fields
-                  : {}
-              }
-              isSubmitting={changePasswordFormProps.isProcessing}
-            >
-              <Card>
-                <CardHeader>Change Password</CardHeader>
-                <div className="flex flex-col items-stretch gap-2 p-2">
-                  <FormTextField
-                    {...changePasswordFormProps.getNameProp('currentPassword')}
-                    type="password"
-                    label="Your Current Password"
-                  />
-                  <FormTextField
-                    {...changePasswordFormProps.getNameProp('newPassword')}
-                    type="password"
-                    label="Your New Password"
-                  />
-                  <FormTextField
-                    {...changePasswordFormProps.getNameProp(
-                      'reEnteredPassword'
+                <Card className="grow">
+                  <CardHeader>User Details</CardHeader>
+                  <div className="grid grid-cols-3 gap-6 px-2 py-6 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Access Level</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect
+                        isRow={false}
+                        {...updateDetailsFormProps.getNameProp('accessLevel')}
+                      >
+                        {accessLevels.map((accessLevel) => (
+                          <option key={accessLevel} value={accessLevel}>
+                            {accessLevel}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Username</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...updateDetailsFormProps.getNameProp('username')}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-start gap-4">
+                    {hasFormError(actionData) && (
+                      <InlineAlert>{actionData.formError}</InlineAlert>
                     )}
-                    type="password"
-                    label="Re-enter Your New Password"
-                  />
-                </div>
-                <div className="flex flex-row items-start gap-4">
-                  {hasFormError(changePasswordFetcher.data) && (
-                    <InlineAlert>
-                      {changePasswordFetcher.data.formError}
-                    </InlineAlert>
-                  )}
-                  {!!changePasswordFieldErrors && (
-                    <InlineAlert>
-                      {fieldErrorsToArr(changePasswordFieldErrors)}
-                    </InlineAlert>
-                  )}
-                </div>
-              </Card>
-              <PrimaryButton
-                type="submit"
-                disabled={changePasswordFormProps.isProcessing}
+                    {!!updateDetailsFieldErrors && (
+                      <InlineAlert>
+                        {fieldErrorsToArr(updateDetailsFieldErrors)}
+                      </InlineAlert>
+                    )}
+                  </div>
+                </Card>
+                <PrimaryButton
+                  type="submit"
+                  disabled={updateDetailsFormProps.isProcessing}
+                >
+                  {updateDetailsFormProps.isProcessing
+                    ? 'Updating...'
+                    : 'Update'}
+                </PrimaryButton>
+              </ActionContextProvider>
+            </Form>
+            <changePasswordFetcher.Form
+              method="post"
+              action={AppLinks.ChangeOwnPassword}
+              className="flex flex-col items-stretch gap-4"
+            >
+              <input type="hidden" name="id" value={currentUser.id} />
+              <ActionContextProvider
+                {...changePasswordFetcher.data}
+                fields={
+                  hasFields(changePasswordFetcher.data)
+                    ? changePasswordFetcher.data.fields
+                    : {}
+                }
+                isSubmitting={changePasswordFormProps.isProcessing}
               >
-                {changePasswordFormProps.isProcessing
-                  ? 'Changing Password...'
-                  : 'Change Password'}
-              </PrimaryButton>
-            </ActionContextProvider>
-          </changePasswordFetcher.Form>
-        </div>
-      </CenteredView>
+                <Card>
+                  <CardHeader>Change Password</CardHeader>
+                  <div className="grid grid-cols-3 gap-4 px-2 py-2 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Your Current Password</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...changePasswordFormProps.getNameProp(
+                          'currentPassword'
+                        )}
+                        type="password"
+                      />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Your New Password</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...changePasswordFormProps.getNameProp('newPassword')}
+                        type="password"
+                      />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Re-enter Your New Password</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...changePasswordFormProps.getNameProp(
+                          'reEnteredPassword'
+                        )}
+                        type="password"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-start gap-4">
+                    {hasFormError(changePasswordFetcher.data) && (
+                      <InlineAlert>
+                        {changePasswordFetcher.data.formError}
+                      </InlineAlert>
+                    )}
+                    {!!changePasswordFieldErrors && (
+                      <InlineAlert>
+                        {fieldErrorsToArr(changePasswordFieldErrors)}
+                      </InlineAlert>
+                    )}
+                  </div>
+                </Card>
+                <PrimaryButton
+                  type="submit"
+                  disabled={changePasswordFormProps.isProcessing}
+                >
+                  {changePasswordFormProps.isProcessing
+                    ? 'Changing Password...'
+                    : 'Change Password'}
+                </PrimaryButton>
+              </ActionContextProvider>
+            </changePasswordFetcher.Form>
+          </div>
+        </CenteredView>
+      </div>
       <Footer />
     </div>
   );

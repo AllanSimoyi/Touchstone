@@ -7,7 +7,7 @@ export function OptimisticChip(props: Props) {
   const { children } = props;
   return (
     <Chip className="p-4">
-      <span className="text-sm font-light text-zinc-400">{children}</span>
+      <span className="text-base font-light text-zinc-400">{children}</span>
     </Chip>
   );
 }

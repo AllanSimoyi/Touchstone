@@ -31,7 +31,7 @@ export function AddEditListItems<T>(props: Props<T>) {
       <div className="flex flex-col items-stretch gap-2 p-2">
         {items.map((item, index) => (
           <Chip key={index} className="gap-2">
-            <span className="text-sm font-light text-zinc-500">
+            <span className="text-base font-light text-zinc-500">
               {getDisplayedText(item)}
             </span>
             <div className="grow" />

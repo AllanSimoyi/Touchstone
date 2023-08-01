@@ -28,21 +28,21 @@ export function CustomerListCard(props: Props) {
             <thead className="divide-y">
               <tr className="border-b border-b-zinc-100">
                 <th className="p-2">
-                  <span className="text-sm font-semibold">Account #</span>
+                  <span className="text-lg font-semibold">Account #</span>
                 </th>
                 <th className="p-2">
-                  <span className="text-sm font-semibold">Company</span>
+                  <span className="text-lg font-semibold">Company</span>
                 </th>
                 <th className="p-2">
-                  <span className="text-sm font-semibold">Accountant</span>
+                  <span className="text-lg font-semibold">Accountant</span>
                 </th>
                 <th className="p-2">
-                  <span className="text-sm font-semibold">License</span>
+                  <span className="text-lg font-semibold">License</span>
                 </th>
                 <th></th>
               </tr>
             </thead>
-            <tbody className="text-sm">
+            <tbody className="text-base">
               {customers.map((customer) => (
                 <CustomerTableRow key={customer.id} {...customer} />
               ))}
@@ -51,7 +51,7 @@ export function CustomerListCard(props: Props) {
         )}
         {!customers.length && (
           <div className="flex flex-col items-center justify-center px-2 py-6">
-            <span className="text-sm font-light text-zinc-400">
+            <span className="text-base font-light text-zinc-400">
               No customers found
             </span>
           </div>

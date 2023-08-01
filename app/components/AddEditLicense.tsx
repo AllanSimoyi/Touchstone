@@ -167,7 +167,7 @@ function LicenseChip(item: {
             </div>
             <div className="flex grow flex-row items-stretch gap-1">
               <div className="flex flex-col items-center justify-center peer-hover:bg-white">
-                <span className="text-sm font-light text-zinc-400">USD</span>
+                <span className="text-base font-light text-zinc-400">USD</span>
               </div>
               <div className="peer flex grow flex-col items-stretch">
                 <FormTextField

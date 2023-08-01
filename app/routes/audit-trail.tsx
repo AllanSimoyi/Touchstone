@@ -446,7 +446,7 @@ export default function AuditPage() {
             <div className="flex flex-col items-stretch justify-center overflow-x-auto p-2">
               {!events.length && (
                 <div className="flex flex-col items-center justify-center px-2 py-6">
-                  <span className="text-sm font-light text-zinc-400">
+                  <span className="text-base font-light text-zinc-400">
                     No events found
                   </span>
                 </div>
@@ -456,25 +456,25 @@ export default function AuditPage() {
                   <thead className="divide-y">
                     <tr className="border-b border-b-zinc-100">
                       <th className="w-[15%] p-2">
-                        <span className="text-sm font-semibold">
+                        <span className="text-lg font-semibold">
                           Date & Time
                         </span>
                       </th>
                       <th className="w-[15%] p-2">
-                        <span className="text-sm font-semibold">User</span>
+                        <span className="text-lg font-semibold">User</span>
                       </th>
                       <th className="w-[10%] p-2">
-                        <span className="text-sm font-semibold">Activity</span>
+                        <span className="text-lg font-semibold">Activity</span>
                       </th>
                       <th className="w-[10%] p-2">
-                        <span className="text-sm font-semibold">Table</span>
+                        <span className="text-lg font-semibold">Table</span>
                       </th>
                       <th className="w-[50%] p-2">
-                        <span className="text-sm font-semibold">Details</span>
+                        <span className="text-lg font-semibold">Details</span>
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="overflow-x-auto text-sm">
+                  <tbody className="overflow-x-auto text-base">
                     {events.map((event, index) => (
                       <tr
                         key={index}

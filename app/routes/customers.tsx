@@ -120,6 +120,7 @@ export default function CustomersPage() {
           <Card className="grid grid-cols-1 divide-x sm:grid-cols-2 md:grid-cols-5">
             <div className="flex flex-col items-stretch justify-center p-2">
               <Select
+                isRow={false}
                 name="layout"
                 label="Layout"
                 onChange={onLayoutChange}
@@ -134,6 +135,7 @@ export default function CustomersPage() {
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
               <Select
+                isRow={false}
                 name="areaId"
                 label="Filter By Area"
                 defaultValue={areaId}
@@ -149,6 +151,7 @@ export default function CustomersPage() {
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
               <Select
+                isRow={false}
                 name="sortBy"
                 label="Sort By"
                 defaultValue={sortBy}
@@ -163,6 +166,7 @@ export default function CustomersPage() {
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
               <Select
+                isRow={false}
                 name="sortOrder"
                 label="Sort Order"
                 defaultValue={sortOrder}
@@ -176,7 +180,7 @@ export default function CustomersPage() {
               </Select>
             </div>
             <div className="flex flex-col items-stretch justify-end p-2 sm:col-span-2 md:col-span-1">
-              <span className="text-sm font-light text-zinc-600">Search</span>
+              <span className="text-base font-light text-zinc-600">Search</span>
               <DebouncedSearch runSearch={setSearchTerms} placeholder="" />
             </div>
           </Card>

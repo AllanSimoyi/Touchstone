@@ -146,7 +146,7 @@ export default function UsersPage() {
                     <tr className="divide-x border border-zinc-200">
                       {EXCEL_TABLE_COLUMNS.map((col, index) => (
                         <th key={index} className="whitespace-nowrap px-2 py-1">
-                          <span className="text-sm font-semibold text-zinc-800">
+                          <span className="text-base font-semibold text-zinc-800">
                             {col}
                           </span>
                         </th>
@@ -156,14 +156,14 @@ export default function UsersPage() {
                   {!rows.length && (
                     <>
                       <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-6 rounded-md bg-white px-12 py-6 shadow-2xl">
-                        <span className="text-sm text-zinc-600">
+                        <span className="text-base text-zinc-600">
                           No excel file selected yet
                         </span>
                         <label htmlFor="excelFile">
                           <InputFileLabel />
                         </label>
                       </div>
-                      <tbody className="text-sm">
+                      <tbody className="text-base">
                         {[...Array(10).keys()].map((key) => (
                           <tr
                             key={key}
@@ -174,7 +174,7 @@ export default function UsersPage() {
                                 key={index}
                                 className="whitespace-nowrap bg-zinc-100 p-2"
                               >
-                                <span className="invisible text-sm font-normal text-zinc-400">
+                                <span className="invisible text-base font-normal text-zinc-400">
                                   Placeholder text
                                 </span>
                               </td>
@@ -185,7 +185,7 @@ export default function UsersPage() {
                     </>
                   )}
                   {!!rows.length && (
-                    <tbody className="text-sm">
+                    <tbody className="text-base">
                       {rows.map((row, index) => (
                         <tr
                           key={index}
@@ -200,10 +200,10 @@ export default function UsersPage() {
                               )}
                             >
                               {!cell && (
-                                <span className="text-sm font-light">-</span>
+                                <span className="text-base font-light">-</span>
                               )}
                               {!!cell && (
-                                <span className="text-sm font-light">
+                                <span className="text-base font-light">
                                   {cell.toString()}
                                 </span>
                               )}
@@ -233,7 +233,7 @@ function InputFileLabel() {
     <div
       className={twMerge(
         'cursor-pointer',
-        'rounded-md px-4 py-2 text-center text-sm text-white shadow-lg transition-all duration-150',
+        'rounded-md px-4 py-2 text-center text-base text-white shadow-lg transition-all duration-150',
         'bg-indigo-600 hover:bg-indigo-800 focus:bg-indigo-800 focus:outline-indigo-800'
       )}
     >

@@ -80,7 +80,7 @@ export default function PickListsPage() {
       <div className="flex grow flex-col items-stretch py-6">
         <CenteredView className="gap-6 px-2">
           <div className="flex flex-col items-start justify-center pt-2">
-            <span className="text-base font-semibold">Pick Lists</span>
+            <span className="text-lg font-semibold">Pick Lists</span>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <AddEditAreas

@@ -10,7 +10,7 @@ export function AppTitle(props: Props) {
   return (
     <h1
       className={twMerge(
-        'text-lg font-semibold text-zinc-600',
+        'text-xl font-semibold text-zinc-600',
         large && 'text-2xl',
         className
       )}

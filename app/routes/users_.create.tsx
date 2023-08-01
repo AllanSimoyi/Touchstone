@@ -134,31 +134,43 @@ export default function CreateUserPage() {
               <div className="flex min-w-[40%] flex-col items-stretch">
                 <Card>
                   <CardHeader>Create New User</CardHeader>
-                  <div className="flex flex-col items-stretch gap-2 p-2 pt-4">
-                    <FormSelect
-                      {...getNameProp('accessLevel')}
-                      label="Access Level"
-                    >
-                      {accessLevels.map((accessLevel) => (
-                        <option key={accessLevel} value={accessLevel}>
-                          {accessLevel}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormTextField
-                      {...getNameProp('username')}
-                      label="Username"
-                    />
-                    <FormTextField
-                      {...getNameProp('password')}
-                      type="password"
-                      label="Password"
-                    />
-                    <FormTextField
-                      {...getNameProp('reEnteredPassword')}
-                      type="password"
-                      label="Re-enter Password"
-                    />
+                  <div className="grid grid-cols-3 gap-6 px-2 py-6 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Access Level</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('accessLevel')}>
+                        {accessLevels.map((accessLevel) => (
+                          <option key={accessLevel} value={accessLevel}>
+                            {accessLevel}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Username</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('username')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Password</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...getNameProp('password')}
+                        type="password"
+                      />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Re-enter Password</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...getNameProp('reEnteredPassword')}
+                        type="password"
+                      />
+                    </div>
                   </div>
                 </Card>
                 <div className="flex flex-col items-stretch justify-center py-4">

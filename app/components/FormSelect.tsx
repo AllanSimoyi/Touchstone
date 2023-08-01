@@ -3,10 +3,8 @@ import type { ComponentProps } from 'react';
 import { useField, useIsSubmitting } from './ActionContextProvider';
 import { Select } from './Select';
 
-type Props = ComponentProps<'select'> & {
-  customRef?: ComponentProps<'select'>['ref'];
+type Props = ComponentProps<typeof Select> & {
   name: string;
-  label?: string | undefined;
 };
 export function FormSelect(props: Props) {
   const { name, defaultValue, disabled, ...restOfProps } = props;

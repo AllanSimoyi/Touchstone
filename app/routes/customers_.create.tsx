@@ -401,228 +401,333 @@ export default function CreateCustomerPage() {
         >
           <CenteredView className="w-full gap-4 px-2">
             <div className="flex flex-col items-start justify-center pt-2">
-              <span className="text-base font-semibold">
-                Record New Customer
-              </span>
+              <span className="text-lg font-semibold">Record New Customer</span>
             </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>Identification Details</CardHeader>
-                <div className="flex flex-col items-stretch gap-2 p-2">
-                  <FormTextField
-                    {...getNameProp('companyName')}
-                    label="Company Name"
-                  />
-                  <FormTextField
-                    {...getNameProp('accountNumber')}
-                    label="Account #"
-                  />
-                  <FormTextField
-                    {...getNameProp('tradingAs')}
-                    label="Trading As"
-                  />
-                  <FormTextField
-                    {...getNameProp('formerly')}
-                    label="Formerly"
-                  />
+                <div className="grid grow grid-cols-3 gap-2 p-2 font-light">
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Company</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('companyName')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Account #</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('accountNumber')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Trading As</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('tradingAs')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Formerly</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('formerly')} />
+                  </div>
                 </div>
               </Card>
               <Card>
                 <CardHeader>CEO Details</CardHeader>
-                <div className="flex flex-col items-stretch gap-2 p-2">
-                  <FormTextField
-                    {...getNameProp('ceoName')}
-                    label="CEO's Name"
-                  />
-                  <FormTextField
-                    {...getNameProp('ceoEmail')}
-                    label="CEO's Email"
-                  />
-                  <FormTextField
-                    {...getNameProp('ceoPhone')}
-                    label="CEO's Phone #"
-                  />
-                  <FormTextField
-                    {...getNameProp('ceoFax')}
-                    label="CEO's Fax #"
-                  />
+                <div className="grid grow grid-cols-3 gap-2 p-2 font-light">
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>CEO's Name</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('ceoName')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>CEO's Email</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('ceoEmail')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>CEO's Phone</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('ceoPhone')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>CEO's Fax #</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('ceoFax')} />
+                  </div>
                 </div>
               </Card>
               <Card>
                 <CardHeader>Contact Details</CardHeader>
-                <div className="flex flex-col items-stretch gap-2 p-2">
-                  <FormTextField
-                    {...getNameProp('addr')}
-                    label="Physical Address"
-                  />
-                  <FormTextField
-                    {...getNameProp('tel')}
-                    label="Telephone Number"
-                  />
-                  <FormTextField {...getNameProp('fax')} label="Fax Number" />
-                  <FormTextField
-                    {...getNameProp('cell')}
-                    label="Cellphone Number"
-                  />
+                <div className="grid grow grid-cols-3 gap-2 p-2 font-light">
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Address</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('addr')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Telephone</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('tel')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Fax Number</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('fax')} />
+                  </div>
+                  <div className="flex flex-col items-start justify-center p-2">
+                    <span>Cellphone</span>
+                  </div>
+                  <div className="col-span-2 flex flex-col items-stretch justify-center">
+                    <FormTextField {...getNameProp('cell')} />
+                  </div>
                 </div>
               </Card>
               <div className="flex flex-col items-stretch gap-6">
                 <Card>
                   <CardHeader>License Details</CardHeader>
-                  <div className="flex flex-col items-stretch gap-2 p-2">
-                    <FormSelect {...getNameProp('licenseId')} label="License">
-                      <option value="">NONE</option>
-                      {licenses.map((license) => (
-                        <option key={license.id} value={license.id}>
-                          {license.identifier} - USD{' '}
-                          {license.basicUsd.toFixed(2)}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormSelect
-                      {...getNameProp('licenseDetailId')}
-                      label="License Detail"
-                    >
-                      <option value="">NONE</option>
-                      {licenseDetails.map((licenseDetail) => (
-                        <option key={licenseDetail.id} value={licenseDetail.id}>
-                          {licenseDetail.identifier}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormTextField
-                      {...getNameProp('addedPercentage')}
-                      label="Added %"
-                      type="number"
-                    />
+                  <div className="grid grid-cols-3 gap-2 p-2 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>License</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('licenseId')}>
+                        <option value="">NONE</option>
+                        {licenses.map((license) => (
+                          <option key={license.id} value={license.id}>
+                            {license.identifier} - USD{' '}
+                            {license.basicUsd.toFixed(2)}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>License Detail</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('licenseDetailId')}>
+                        <option value="">NONE</option>
+                        {licenseDetails.map((licenseDetail) => (
+                          <option
+                            key={licenseDetail.id}
+                            value={licenseDetail.id}
+                          >
+                            {licenseDetail.identifier}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Added %</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...getNameProp('addedPercentage')}
+                        type="number"
+                      />
+                    </div>
                   </div>
                 </Card>
                 <Card className="grow">
                   <CardHeader>Contract Details</CardHeader>
-                  <div className="flex flex-col items-stretch gap-2 p-2">
-                    <FormTextField
-                      {...getNameProp('contractNumber')}
-                      label="Contract #"
-                    />
-                    <FormTextField
-                      {...getNameProp('dateOfContract')}
-                      label="Date of Contract"
-                      type="date"
-                    />
+                  <div className="grid grid-cols-3 gap-6 px-2 py-6 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Contract #</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('contractNumber')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Date of Contract</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...getNameProp('dateOfContract')}
+                        type="date"
+                      />
+                    </div>
                   </div>
                 </Card>
                 <Card className="grow">
                   <CardHeader>Accountant Details</CardHeader>
-                  <div className="flex flex-col items-stretch gap-2 p-2">
-                    <FormTextField
-                      {...getNameProp('accountantName')}
-                      label="Accountant Name"
-                    />
-                    <FormTextField
-                      {...getNameProp('accountantEmail')}
-                      label="Accountant Email"
-                    />
+                  <div className="grid grid-cols-3 gap-2 px-2 py-6 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Accountant Name</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('accountantName')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Accountant Email</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('accountantEmail')} />
+                    </div>
                   </div>
                 </Card>
               </div>
               <div className="flex flex-col items-stretch">
                 <Card className="grow">
                   <CardHeader>Misc Details</CardHeader>
-                  <div className="flex flex-col items-stretch gap-2 p-2">
-                    <FormSelect {...getNameProp('groupId')} label="Group">
-                      <option value="">NONE</option>
-                      {groups.map((group) => (
-                        <option key={group.id} value={group.id}>
-                          {group.identifier}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormSelect {...getNameProp('areaId')} label="Area">
-                      <option value="">NONE</option>
-                      {areas.map((area) => (
-                        <option key={area.id} value={area.id}>
-                          {area.identifier}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormSelect {...getNameProp('sectorId')} label="Sector">
-                      <option value="">NONE</option>
-                      {sectors.map((sector) => (
-                        <option key={sector.id} value={sector.id}>
-                          {sector.identifier}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormTextField
-                      {...getNameProp('vatNumber')}
-                      label="VAT #"
-                    />
-                    <FormTextField
-                      {...getNameProp('otherNames')}
-                      label="Other Names On Cheques"
-                    />
-                    <FormTextArea
-                      {...getNameProp('description')}
-                      label="Description"
-                    />
-                    <FormTextField {...getNameProp('actual')} label="Actual" />
-                    <FormTextField {...getNameProp('reason')} label="Reason" />
-                    <FormSelect {...getNameProp('statusId')} label="Status">
-                      <option value="">NONE</option>
-                      {statuses.map((status) => (
-                        <option key={status.id} value={status.id}>
-                          {status.identifier}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormTextArea {...getNameProp('comment')} label="Comment" />
+                  <div className="grid grow grid-cols-3 gap-2 p-2 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Group</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('groupId')}>
+                        <option value="">NONE</option>
+                        {groups.map((group) => (
+                          <option key={group.id} value={group.id}>
+                            {group.identifier}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Area</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('areaId')}>
+                        <option value="">NONE</option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.id}>
+                            {area.identifier}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Sector</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('sectorId')}>
+                        <option value="">NONE</option>
+                        {sectors.map((sector) => (
+                          <option key={sector.id} value={sector.id}>
+                            {sector.identifier}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>VAT #</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('vatNumber')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Other Names On Cheques</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('otherNames')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Description</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextArea {...getNameProp('description')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Actual</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('actual')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Reason</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('reason')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Status</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('statusId')}>
+                        <option value="">NONE</option>
+                        {statuses.map((status) => (
+                          <option key={status.id} value={status.id}>
+                            {status.identifier}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Comment</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextArea {...getNameProp('comment')} />
+                    </div>
                   </div>
                 </Card>
               </div>
               <div className="flex flex-col items-stretch gap-6">
                 <Card>
                   <CardHeader>Box Details</CardHeader>
-                  <div className="flex flex-col items-stretch gap-2 p-2">
-                    <FormSelect {...getNameProp('boxCityId')} label="City">
-                      <option value="">NONE</option>
-                      {cities.map((city) => (
-                        <option key={city.id} value={city.id}>
-                          {city.identifier}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormTextField
-                      {...getNameProp('boxNumber')}
-                      label="Box Number"
-                    />
-                    <FormTextField
-                      {...getNameProp('boxArea')}
-                      label="Box Area"
-                    />
+                  <div className="grid grid-cols-3 gap-2 p-2 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>City</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('boxCityId')}>
+                        <option value="">NONE</option>
+                        {cities.map((city) => (
+                          <option key={city.id} value={city.id}>
+                            {city.identifier}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Box Number</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('boxNumber')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Box Area</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('boxArea')} />
+                    </div>
                   </div>
                 </Card>
                 <Card>
                   <CardHeader>Delivery Address Details</CardHeader>
-                  <div className="flex flex-col items-stretch gap-2 p-2">
-                    <FormSelect
-                      {...getNameProp('deliveryCityId')}
-                      label="Delivery City"
-                    >
-                      <option value="">NONE</option>
-                      {cities.map((city) => (
-                        <option key={city.id} value={city.id}>
-                          {city.identifier}
-                        </option>
-                      ))}
-                    </FormSelect>
-                    <FormTextField
-                      {...getNameProp('deliverySuburb')}
-                      label="Delivery Suburb"
-                    />
-                    <FormTextField
-                      {...getNameProp('deliveryAddress')}
-                      label="Delivery Address"
-                    />
+                  <div className="grid grid-cols-3 gap-2 p-2 font-light">
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Delivery City</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormSelect {...getNameProp('deliveryCityId')}>
+                        <option value="">NONE</option>
+                        {cities.map((city) => (
+                          <option key={city.id} value={city.id}>
+                            {city.identifier}
+                          </option>
+                        ))}
+                      </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Delivery Suburb</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('deliverySuburb')} />
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>Delivery Address</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField {...getNameProp('deliveryAddress')} />
+                    </div>
                   </div>
                 </Card>
                 <Card className="grow">
