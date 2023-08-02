@@ -19,6 +19,7 @@ interface Props {
   accountantEmail: string;
   license: { identifier: string } | null;
 }
+//comment
 export function CustomerTableRow(props: Props) {
   const {
     id,
