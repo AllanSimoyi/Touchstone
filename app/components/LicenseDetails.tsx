@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 import { Card } from './Card';
 import { CardHeader } from './CardHeader';
 import { Chip } from './Chip';
@@ -35,10 +37,10 @@ export function LicenseDetails(props: Props) {
         <CardHeader>License Details</CardHeader>
         <div className="grid grid-cols-3 gap-2 p-2">
           {entries.map(([label, value]) => (
-            <>
+            <Fragment key={label}>
               <Chip className="font-light">{label}</Chip>
               <Chip className="col-span-2">{value}</Chip>
-            </>
+            </Fragment>
           ))}
         </div>
       </Card>

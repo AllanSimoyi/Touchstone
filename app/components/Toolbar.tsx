@@ -21,7 +21,7 @@ export function Toolbar(props: ToolbarProps) {
   const showProgressBar = initShowProgressBar || navigation.state !== 'idle';
 
   return (
-    <header className="sticky top-0 flex w-full flex-col items-stretch border border-zinc-200 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 flex w-full flex-col items-stretch border border-zinc-200 bg-white shadow-sm">
       {showProgressBar && (
         <div className="flex flex-col items-stretch py-0">
           <ProgressBar />

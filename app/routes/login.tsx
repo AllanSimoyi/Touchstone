@@ -3,7 +3,6 @@ import type { ActionArgs, LoaderArgs, V2_MetaFunction } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import {
   Form,
-  Link,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -11,15 +10,14 @@ import {
 import { z } from 'zod';
 
 import { ActionContextProvider } from '~/components/ActionContextProvider';
-import { AppTitle } from '~/components/AppTitle';
 import { RouteErrorBoundary } from '~/components/Boundaries';
 import { Footer } from '~/components/Footer';
 import { FormTextField } from '~/components/FormTextField';
 import { InlineAlert } from '~/components/InlineAlert';
+import { Logo } from '~/components/Logo';
 import { PrimaryButton } from '~/components/PrimaryButton';
 import { badRequest, processBadRequest } from '~/models/core.validations';
 import { getRawFormFields, hasFormError } from '~/models/forms';
-import { AppLinks } from '~/models/links';
 import { verifyLogin } from '~/models/user.server';
 import { createUserSession, getUserId } from '~/session.server';
 import { safeRedirect } from '~/utils';
@@ -74,17 +72,16 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-full flex-col items-stretch justify-center">
-      <div className="flex h-full flex-col items-center justify-center p-2">
+      <div className="flex h-full flex-col items-center justify-center gap-8 p-2">
         <div className="grow" />
+        <Logo />
         <Form
           method="post"
           className="flex w-full flex-col items-stretch justify-center gap-12 bg-white p-4 shadow-md sm:w-[80%] md:w-[60%] lg:w-[30%]"
         >
           <ActionContextProvider {...actionData} isSubmitting={isProcessing}>
             <div className="flex flex-col items-center justify-center">
-              <Link to={AppLinks.Home}>
-                <AppTitle large />
-              </Link>
+              <h1 className="text-xl font-semibold">Login to continue</h1>
             </div>
             <div className="flex flex-col items-stretch gap-4">
               <FormTextField name="username" label="Username" />

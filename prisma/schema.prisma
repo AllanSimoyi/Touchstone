@@ -103,8 +103,8 @@ model Area {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  account Account[]
-  events  AreaEvent[]
+  accounts Account[]
+  events   AreaEvent[]
 
   @@map("areas")
 }
