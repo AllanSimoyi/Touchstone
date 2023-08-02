@@ -72,7 +72,8 @@ export function fieldErrorsToArr(fieldErrors: FieldErrors) {
       if (!errors) {
         return undefined;
       }
-      return `${key}: ${errors.join(', ')}`;
+      return errors.join(', ');
+      // return `${key}: ${errors.join(', ')}`;
     })
     .filter(Boolean);
 }

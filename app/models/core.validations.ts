@@ -217,15 +217,25 @@ export const RECORD_TYPES = [
   'User',
 ] as const;
 
+export function ComposeIdentifierSchema(identifier: string) {
+  return z
+    .string({
+      required_error: `Please enter the ${identifier}`,
+      invalid_type_error: `Please provide valid input for the ${identifier}`,
+    })
+    .min(1, `Please enter the ${identifier} first`)
+    .max(100, `Please use less than 200 characters for the ${identifier}`);
+}
+
 const NameSchema = z
   .string({
-    required_error: "Please enter the area's name",
-    invalid_type_error: "Please provide valid input for the area's name",
+    required_error: 'Please enter the name',
+    invalid_type_error: 'Please provide valid input for the name',
   })
-  .min(1, "Please enter the area's name first")
-  .max(100, "Please use less than 200 characters for the area's name");
+  .min(1, 'Please enter the name first')
+  .max(100, 'Please use less than 200 characters for the name');
 
-const BasicUsdSchema = z.coerce
+export const BasicUsdSchema = z.coerce
   .number({
     required_error: 'Enter the basic USD for the license',
     invalid_type_error: 'Provide valid input for the license basic USD',

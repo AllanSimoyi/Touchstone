@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import type { ChangeEvent } from 'react';
-import type { Cell } from 'read-excel-file/types';
+import type { ParsedExcelRow } from '~/models/excel';
 
 import { json, redirect } from '@remix-run/node';
 import { useFetcher, useLoaderData } from '@remix-run/react';
@@ -18,10 +18,17 @@ import { RouteErrorBoundary } from '~/components/Boundaries';
 import { Card } from '~/components/Card';
 import { CenteredView } from '~/components/CenteredView';
 import { Footer } from '~/components/Footer';
+import { InlineAlert } from '~/components/InlineAlert';
 import { PrimaryButton } from '~/components/PrimaryButton';
 import { Toolbar } from '~/components/Toolbar';
-import { processBadRequest } from '~/models/core.validations';
-import { EXCEL_TABLE_COLUMNS } from '~/models/excel';
+import { prisma } from '~/db.server';
+import {
+  processBadRequest,
+  stringifyZodError,
+} from '~/models/core.validations';
+import { calcGross, calcNet, calcVat } from '~/models/customers';
+import { getErrorMessage } from '~/models/errors';
+import { EXCEL_TABLE_COLUMNS, ExcelRowSchema } from '~/models/excel';
 import { getRawFormFields } from '~/models/forms';
 import { AppLinks } from '~/models/links';
 import { logParseError } from '~/models/logger.server';
@@ -34,7 +41,11 @@ export const loader = async ({ request }: LoaderArgs) => {
 };
 
 const Schema = z.object({
-  rows: z.string(),
+  rows: z.preprocess((arg) => {
+    if (typeof arg === 'string') {
+      return JSON.parse(arg);
+    }
+  }, ExcelRowSchema.array()),
 });
 
 export async function action({ request }: ActionArgs) {
@@ -46,14 +57,167 @@ export async function action({ request }: ActionArgs) {
     logParseError(request, result.error, fields);
     return processBadRequest(result.error, fields);
   }
+  const { rows } = result.data;
+
+  for (let row of rows) {
+    const [
+      accountNumber,
+      companyName,
+      tradingAs,
+      formerly,
+      group,
+      area,
+      sector,
+      vatNumber,
+      otherNames,
+      description,
+      actual,
+      reason,
+      status,
+      contractNumber,
+      dateOfContract,
+      license,
+      basicUsd,
+      licenseDetail,
+      addedPercentage,
+      comment,
+      ceoName,
+      ceoEmail,
+      ceoPhone,
+      ceoFax,
+      addr,
+      tel,
+      fax,
+      cell,
+      accountantName,
+      accountantEmail,
+      boxCity,
+      boxNumber,
+      boxArea,
+      deliveryCity,
+      deliveryAddress,
+      deliverySuburb,
+      databases,
+      operatorName,
+      operatorEmail,
+    ] = row;
+
+    const [accNumDuplicates, contractNumDuplicates] = await Promise.all([
+      prisma.account.count({
+        where: { accountNumber },
+      }),
+      contractNumber
+        ? prisma.account.count({ where: { contractNumber } })
+        : undefined,
+    ]);
+    if (accNumDuplicates || contractNumDuplicates) {
+      continue;
+    }
+
+    const gross = calcGross({
+      basicUsd,
+      addedPercentage,
+      numDatabases: databases.length,
+    });
+
+    await prisma.account.create({
+      select: { id: true },
+      data: {
+        accountNumber,
+        companyName,
+        tradingAs,
+        formerly,
+        group: {
+          connectOrCreate: {
+            where: { identifier: group },
+            create: { identifier: group },
+          },
+        },
+        area: {
+          connectOrCreate: {
+            where: { identifier: area },
+            create: { identifier: area },
+          },
+        },
+        sector: {
+          connectOrCreate: {
+            where: { identifier: sector },
+            create: { identifier: sector },
+          },
+        },
+        vatNumber,
+        otherNames,
+        description,
+        actual,
+        reason,
+        status: {
+          connectOrCreate: {
+            where: { identifier: status },
+            create: { identifier: status },
+          },
+        },
+        contractNumber,
+        dateOfContract,
+        license: {
+          connectOrCreate: {
+            where: { identifier: license },
+            create: { identifier: license, basicUsd },
+          },
+        },
+        licenseDetail: {
+          connectOrCreate: {
+            where: { identifier: licenseDetail },
+            create: { identifier: licenseDetail },
+          },
+        },
+        addedPercentage,
+        gross,
+        net: calcNet(gross),
+        vat: calcVat(gross),
+        comment,
+        accountantName,
+        accountantEmail,
+        boxCity: {
+          connectOrCreate: {
+            where: { identifier: boxCity },
+            create: { identifier: boxCity },
+          },
+        },
+        boxNumber,
+        boxArea,
+        ceoName,
+        ceoEmail,
+        ceoPhone,
+        ceoFax,
+        physicalAddress: addr,
+        telephoneNumber: tel,
+        faxNumber: fax,
+        cellphoneNumber: cell,
+        deliveryAddress,
+        deliverySuburb,
+        deliveryCity: {
+          connectOrCreate: {
+            where: { identifier: deliveryCity },
+            create: { identifier: deliveryCity },
+          },
+        },
+        databases: {
+          create: databases.split(', ').map((databaseName) => ({
+            databaseName,
+          })),
+        },
+        operators: {
+          create: {
+            operatorName: operatorName,
+            operatorEmail: operatorEmail,
+          },
+        },
+      },
+    });
+  }
 
   return redirect(AppLinks.Customers);
 }
-
-// interface CustomCell {
-//   id: (typeof EXCEL_TABLE_COLUMNS)[number];
-//   value: Cell;
-// }
 
 export default function UsersPage() {
   const user = useUser();
@@ -62,35 +226,63 @@ export default function UsersPage() {
 
   const { getNameProp, isProcessing } = useForm(fetcher.data, Schema);
 
-  const [rows, setRows] = useState<(Cell | undefined)[][]>([]);
+  const [rows, setRows] = useState<(ParsedExcelRow | Error)[]>([]);
+  const [error, setError] = useState('');
 
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
-      if (!event.target.files) {
-        return;
-      }
-      const files = Array.from(event.target.files);
-      const [headingRow, ...rows] = await readXlsxFile(files[0]);
-      const colIndices = EXCEL_TABLE_COLUMNS.map((columnName) => {
-        const match = headingRow.find((cell) => cell === columnName);
-        if (!match) {
-          return { index: undefined, columnName };
+      try {
+        if (!event.target.files) {
+          return;
         }
-        return { index: headingRow.indexOf(match), columnName };
-      });
-      const preppedRows = rows.map((row) => {
-        return colIndices.map((colIndex) => {
-          if (!colIndex.index) {
-            return undefined;
-          }
-          const match = row[colIndex.index];
+        setError('');
+        const files = Array.from(event.target.files);
+        const rawRows = await readXlsxFile(files[0]);
+        if (!rawRows.length) {
+          throw new Error('No rows found on spreadsheet');
+        }
+        if (rawRows.length === 1) {
+          throw new Error(
+            'Only found one row, note that the first row is meant for column headings'
+          );
+        }
+        const [headingRow, ...dataRows] = rawRows;
+        const namedColumns = EXCEL_TABLE_COLUMNS.map(([columnName, _]) => {
+          const match = headingRow.find((cell) => cell === columnName);
           if (!match) {
-            return undefined;
+            return { index: undefined, columnName };
           }
-          return match;
+          return { index: headingRow.indexOf(match), columnName };
         });
-      });
-      setRows(preppedRows);
+        const orderedRows = dataRows.map((row) => {
+          return namedColumns.map((namedColumn) => {
+            if (!namedColumn.index) {
+              return undefined;
+            }
+            const match = row[namedColumn.index];
+            if (!match) {
+              return undefined;
+            }
+            return match;
+          });
+        });
+        const parsedRows = orderedRows.map((row) => {
+          const result = ExcelRowSchema.safeParse(row);
+          if (!result.success) {
+            console.log(row);
+            console.log(result.error.flatten());
+            return new Error(stringifyZodError(result.error));
+          }
+          return result.data;
+        });
+        setRows(parsedRows);
+      } catch (error) {
+        console.log(error);
+        return setError(
+          getErrorMessage(error) ||
+            'Something went wrong reading excel file, please try again'
+        );
+      }
     },
     []
   );
@@ -103,9 +295,12 @@ export default function UsersPage() {
           <div className="flex flex-col items-stretch">
             <Card>
               <div className="flex flex-row items-center justify-start gap-4 border-b border-b-zinc-200 px-4 py-2">
-                <h2 className="text-lg font-semibold">Import From Excel</h2>
+                <div className="flex flex-col items-start justify-center">
+                  <h2 className="text-lg font-semibold">Import From Excel</h2>
+                  {!!error && <InlineAlert>{error}</InlineAlert>}
+                </div>
                 <div className="grow" />
-                {!!rows.length && (
+                {!!rows.filter((row) => !(row instanceof Error)).length && (
                   <fetcher.Form method="post">
                     <ActionContextProvider
                       {...fetcher.data}
@@ -114,7 +309,9 @@ export default function UsersPage() {
                       <input
                         type="hidden"
                         {...getNameProp('rows')}
-                        value={JSON.stringify(rows)}
+                        value={JSON.stringify(
+                          rows.filter((row) => !(row instanceof Error))
+                        )}
                       />
                       <PrimaryButton
                         type="submit"
@@ -122,7 +319,7 @@ export default function UsersPage() {
                       >
                         <div className="flex flex-row items-center gap-4">
                           <Check className="text-white" size={18} />
-                          <span>Apply These Rows</span>
+                          <span>Add These Rows</span>
                         </div>
                       </PrimaryButton>
                     </ActionContextProvider>
@@ -144,7 +341,7 @@ export default function UsersPage() {
                 <table className="table-auto border-collapse text-left">
                   <thead className="divide-y rounded border border-zinc-200">
                     <tr className="divide-x border border-zinc-200">
-                      {EXCEL_TABLE_COLUMNS.map((col, index) => (
+                      {EXCEL_TABLE_COLUMNS.map(([col, _], index) => (
                         <th key={index} className="whitespace-nowrap px-2 py-1">
                           <span className="text-base font-semibold text-zinc-800">
                             {col}
@@ -191,24 +388,34 @@ export default function UsersPage() {
                           key={index}
                           className="divide-x divide-zinc-200 border border-zinc-200"
                         >
-                          {row.map((cell, index) => (
-                            <td
-                              key={index}
-                              className={twMerge(
-                                'whitespace-nowrap bg-green-50 p-2',
-                                !cell && 'bg-red-200'
-                              )}
-                            >
-                              {!cell && (
-                                <span className="text-base font-light">-</span>
-                              )}
-                              {!!cell && (
-                                <span className="text-base font-light">
-                                  {cell.toString()}
-                                </span>
-                              )}
+                          {row instanceof Error && (
+                            <td colSpan={39} className="bg-red-100 p-2">
+                              <span className="font-light text-red-600">
+                                {row.message}
+                              </span>
                             </td>
-                          ))}
+                          )}
+                          {!(row instanceof Error) && (
+                            <>
+                              {row.map((cell, index) => (
+                                <td
+                                  key={index}
+                                  className="whitespace-nowrap bg-green-50 p-2"
+                                >
+                                  {!cell && (
+                                    <span className="text-base font-light">
+                                      -
+                                    </span>
+                                  )}
+                                  {!!cell && (
+                                    <span className="text-base font-light">
+                                      {cell.toString()}
+                                    </span>
+                                  )}
+                                </td>
+                              ))}
+                            </>
+                          )}
                         </tr>
                       ))}
                     </tbody>
