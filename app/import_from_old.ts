@@ -351,6 +351,39 @@ const Schema = z.tuple([
     ] = result.data;
     console.log(_.type, __.type);
 
+    await prisma.account.deleteMany();
+    await prisma.accountEvent.deleteMany();
+
+    await prisma.area.deleteMany();
+    await prisma.areaEvent.deleteMany();
+
+    await prisma.city.deleteMany();
+    await prisma.cityEvent.deleteMany();
+
+    await prisma.database.deleteMany();
+    await prisma.databaseEvent.deleteMany();
+
+    await prisma.group.deleteMany();
+    await prisma.groupEvent.deleteMany();
+
+    await prisma.licenseDetail.deleteMany();
+    await prisma.licenseDetailEvent.deleteMany();
+
+    await prisma.license.deleteMany();
+    await prisma.licenseEvent.deleteMany();
+
+    await prisma.operator.deleteMany();
+    await prisma.operatorEvent.deleteMany();
+
+    await prisma.sector.deleteMany();
+    await prisma.sectorEvent.deleteMany();
+
+    await prisma.status.deleteMany();
+    await prisma.statusEvent.deleteMany();
+
+    await prisma.user.deleteMany();
+    await prisma.userEvent.deleteMany();
+
     for (let oldCity of oldCities) {
       await prisma.city.create({
         data: {
