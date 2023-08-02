@@ -16,7 +16,7 @@ interface Props {
   sortOrder: SortOrderOption;
   searchTerms: string;
   customers: (ComponentProps<typeof CustomerListCard>['customers'][number] & {
-    area: { id: number; identifier: string };
+    area: { id: number; identifier: string } | null;
   })[];
 }
 function CustomersLayout(props: Props) {
@@ -34,7 +34,7 @@ function CustomersLayout(props: Props) {
       if (!areaId) {
         return customers;
       }
-      return customers.filter((customer) => customer.area.id === areaId);
+      return customers.filter((customer) => customer.area?.id === areaId);
     },
     [areaId]
   );
@@ -49,9 +49,9 @@ function CustomersLayout(props: Props) {
         const conditions: boolean[] = [
           customer.accountNumber.toLowerCase().includes(preppedSearchTerms),
           customer.companyName.toLowerCase().includes(preppedSearchTerms),
-          customer.license.identifier
+          customer.license?.identifier
             .toLowerCase()
-            .includes(preppedSearchTerms),
+            .includes(preppedSearchTerms) || false,
           customer.accountantName.toLowerCase().includes(preppedSearchTerms) ||
             false,
           customer.accountantEmail.toLowerCase().includes(preppedSearchTerms) ||
@@ -84,9 +84,16 @@ function CustomersLayout(props: Props) {
       if (sortBy === 'License') {
         return customers.sort((a, b) => {
           if (sortOrder === 'A to Z') {
-            return a.license.identifier.localeCompare(b.license.identifier);
+            return (
+              a.license?.identifier.localeCompare(
+                b.license?.identifier || '-'
+              ) || 1
+            );
           }
-          return b.license.identifier.localeCompare(a.license.identifier);
+          return (
+            b.license?.identifier.localeCompare(a.license?.identifier || '-') ||
+            1
+          );
         });
       }
       return customers;
@@ -110,10 +117,10 @@ function CustomersLayout(props: Props) {
     customers: typeof customers;
   }
   const customerGroups = customers.reduce((acc, customer) => {
-    const matchingArea = acc.find((area) => area.id === customer.area.id);
+    const matchingArea = acc.find((area) => area.id === customer.area?.id);
     if (matchingArea) {
       return acc.map((area) => {
-        if (area.id === customer.area.id) {
+        if (area.id === customer.area?.id) {
           return { ...area, customers: [...area.customers, customer] };
         }
         return area;
@@ -122,8 +129,8 @@ function CustomersLayout(props: Props) {
     return [
       ...acc,
       {
-        id: customer.area.id,
-        identifier: customer.area.identifier,
+        id: customer.area?.id || 0,
+        identifier: customer.area?.identifier || '',
         customers: [customer],
       },
     ];

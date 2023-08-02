@@ -17,7 +17,7 @@ interface Props {
   companyName: string;
   accountantName: string;
   accountantEmail: string;
-  license: { identifier: string };
+  license: { identifier: string } | null;
 }
 export function CustomerTableRow(props: Props) {
   const {
@@ -78,7 +78,9 @@ export function CustomerTableRow(props: Props) {
           </span>
         </td>
         <td className="p-2">
-          <span className="font-light text-zinc-600">{license.identifier}</span>
+          <span className="font-light text-zinc-600">
+            {license?.identifier || '-'}
+          </span>
         </td>
         <td className="flex flex-col items-end p-2">
           {!isDeleting && (

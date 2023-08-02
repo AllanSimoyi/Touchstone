@@ -5,7 +5,7 @@ import { CardHeader } from './CardHeader';
 import { Chip } from './Chip';
 
 interface Props {
-  license: { identifier: string; basicUsd: string };
+  license: { identifier: string; basicUsd: string } | undefined;
   licenseDetail: string;
   addedPercentage: number;
   gross: number;
@@ -22,7 +22,10 @@ export function LicenseDetails(props: Props) {
 
   const entries = (
     [
-      ['License', `${license.identifier} - USD ${license.basicUsd}`],
+      [
+        'License',
+        license ? `${license.identifier} - USD ${license.basicUsd}` : '-',
+      ],
       ['License Detail', licenseDetail],
       ['Added %', `${addedPercentage}%`],
       ['Gross', `USD ${gross.toLocaleString()}`],

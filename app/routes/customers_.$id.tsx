@@ -98,8 +98,8 @@ export const loader = async ({ params, request }: LoaderArgs) => {
       return {
         ...restOfCustomer,
         license: {
-          ...license,
-          basicUsd: license.basicUsd.toNumber().toFixed(2),
+          identifier: license?.identifier || '',
+          basicUsd: license?.basicUsd?.toNumber().toFixed(2) || '',
         },
         dateOfContract: dateOfContract
           ? dayjs(dateOfContract).format(DATE_INPUT_FORMAT)
@@ -219,14 +219,14 @@ export default function CustomerPage() {
               fax={customer.ceoFax}
             />
             <MiscDetails
-              group={customer.group.identifier}
-              area={customer.area.identifier}
-              sector={customer.sector.identifier}
+              group={customer.group?.identifier || '-'}
+              area={customer.area?.identifier || '-'}
+              sector={customer.sector?.identifier || '-'}
               vatNumber={customer.vatNumber}
             />
             <LicenseDetails
-              license={customer.license}
-              licenseDetail={customer.licenseDetail.identifier}
+              license={customer.license || undefined}
+              licenseDetail={customer.licenseDetail?.identifier || '-'}
               addedPercentage={customer.addedPercentage}
               gross={Number(customer.gross)}
               net={Number(customer.net)}
@@ -246,7 +246,7 @@ export default function CustomerPage() {
               otherNames={customer.otherNames}
               actual={customer.actual}
               reason={customer.reason}
-              status={customer.status.identifier}
+              status={customer.status?.identifier || '-'}
             />
             <DatabaseDetails
               databases={customer.databases.map(
@@ -264,7 +264,7 @@ export default function CustomerPage() {
                 [
                   customer.boxNumber,
                   customer.boxArea,
-                  customer.boxCity.identifier,
+                  customer.boxCity?.identifier || '-',
                 ]
                   .filter(Boolean)
                   .join(', ') || ''
@@ -273,7 +273,7 @@ export default function CustomerPage() {
                 [
                   customer.deliveryAddress,
                   customer.deliverySuburb,
-                  customer.deliveryCity.identifier,
+                  customer.deliveryCity?.identifier || '-',
                 ]
                   .filter(Boolean)
                   .join(', ') || ''
