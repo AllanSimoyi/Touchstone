@@ -56,10 +56,10 @@ export default function Index() {
   return (
     <div className="flex min-h-full flex-col items-stretch">
       <Toolbar currentUserName={user.username} />
-      <div className="flex grow flex-col items-stretch py-12">
+      <div className="flex grow flex-col items-stretch py-6">
         <CenteredView className="px-2">
-          <div className="flex flex-col items-stretch gap-8">
-            <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
+          <div className="flex flex-col items-stretch gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <DashboardCard
                 title="Customers"
                 links={[
