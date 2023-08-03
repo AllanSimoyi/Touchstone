@@ -94,14 +94,6 @@ export default function PickListsPage() {
               />
             </div>
             <div className="break-inside flex flex-col items-stretch pb-6">
-              <AddEditCities
-                items={cities.map((city) => ({
-                  ...city,
-                  name: city.identifier,
-                }))}
-              />
-            </div>
-            <div className="break-inside flex flex-col items-stretch pb-6">
               <AddEditLicenses items={licenses} />
             </div>
             <div className="break-inside flex flex-col items-stretch pb-6">
@@ -125,6 +117,14 @@ export default function PickListsPage() {
                 items={sectors.map((sector) => ({
                   ...sector,
                   name: sector.identifier,
+                }))}
+              />
+            </div>
+            <div className="break-inside flex flex-col items-stretch pb-6">
+              <AddEditCities
+                items={cities.map((city) => ({
+                  ...city,
+                  name: city.identifier,
                 }))}
               />
             </div>
