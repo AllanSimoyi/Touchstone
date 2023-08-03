@@ -82,35 +82,45 @@ export default function PickListsPage() {
           <div className="flex flex-col items-start justify-center pt-2">
             <span className="text-lg font-semibold">Pick Lists</span>
           </div>
+          {/* <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"> */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <AddEditAreas
-              items={areas.map((area) => ({ ...area, name: area.identifier }))}
-            />
-            <AddEditGroups
-              items={groups.map((group) => ({
-                ...group,
-                name: group.identifier,
-              }))}
-            />
-            <AddEditCities
-              items={cities.map((city) => ({
-                ...city,
-                name: city.identifier,
-              }))}
-            />
-            <AddEditLicenses items={licenses} />
-            <AddEditSectors
-              items={sectors.map((sector) => ({
-                ...sector,
-                name: sector.identifier,
-              }))}
-            />
-            <AddEditStatuses
-              items={statuses.map((status) => ({
-                ...status,
-                name: status.identifier,
-              }))}
-            />
+            <div className="grid gap-6">
+              <AddEditAreas
+                items={areas.map((area) => ({
+                  ...area,
+                  name: area.identifier,
+                }))}
+              />
+              <AddEditCities
+                items={cities.map((city) => ({
+                  ...city,
+                  name: city.identifier,
+                }))}
+              />
+            </div>
+            <div className="grid gap-6">
+              <AddEditLicenses items={licenses} />
+              <AddEditGroups
+                items={groups.map((group) => ({
+                  ...group,
+                  name: group.identifier,
+                }))}
+              />
+            </div>
+            <div className="grid gap-6">
+              <AddEditStatuses
+                items={statuses.map((status) => ({
+                  ...status,
+                  name: status.identifier,
+                }))}
+              />
+              <AddEditSectors
+                items={sectors.map((sector) => ({
+                  ...sector,
+                  name: sector.identifier,
+                }))}
+              />
+            </div>
             <div className="col-span-3 flex flex-col items-stretch">
               <AddEditLicenseDetails className="grow" items={licenseDetails} />
             </div>
