@@ -8,57 +8,6 @@ import {
   YAxis,
 } from 'recharts';
 
-// const data = [
-//   {
-//     name: 'Jan',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Feb',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Mar',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Apr',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'May',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Jun',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Jul',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Aug',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Sep',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Oct',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Nov',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-//   {
-//     name: 'Dec',
-//     total: Math.floor(Math.random() * 5000) + 1000,
-//   },
-// ];
-
 type Props = {
   items: {
     key: string;
@@ -69,23 +18,22 @@ export function CustomBarChart(props: Props) {
   const { items } = props;
 
   return (
-    <div className="flex flex-col items-stretch py-4">
-      {/* <ResponsiveContainer width="100%" height={350}> */}
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={items}>
+    <div className="flex flex-col items-stretch overflow-x-auto py-4">
+      <ResponsiveContainer width="90%" height={250}>
+        <BarChart data={items} className="p-0">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="key"
             stroke="#888888"
             fontSize={12}
-            tickLine={false}
-            axisLine={false}
+            tickLine={true}
+            axisLine={true}
           />
           <YAxis
             stroke="#888888"
             fontSize={12}
-            tickLine={false}
-            axisLine={false}
+            tickLine={true}
+            axisLine={true}
             tickFormatter={(value) => `${value}`}
           />
           <Tooltip

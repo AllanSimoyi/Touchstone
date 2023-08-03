@@ -105,10 +105,28 @@ export default function Index() {
               <Card className="flex flex-col items-stretch justify-center">
                 <CardHeader>Groups</CardHeader>
                 <CustomBarChart
-                  items={groups.map((group) => ({
-                    key: group.identifier,
-                    value: group._count.accounts,
-                  }))}
+                  items={[
+                    ...groups.map((group) => ({
+                      key: group.identifier + group._count.accounts,
+                      value: group._count.accounts,
+                    })),
+                    ...groups.map((group) => ({
+                      key: group.identifier,
+                      value: group._count.accounts,
+                    })),
+                    ...groups.map((group) => ({
+                      key: group._count.accounts.toString(),
+                      value: group._count.accounts,
+                    })),
+                    ...groups.map((group) => ({
+                      key: group.identifier + '2',
+                      value: group._count.accounts,
+                    })),
+                  ]}
+                  // items={groups.map((group) => ({
+                  //   key: group.identifier,
+                  //   value: group._count.accounts,
+                  // }))}
                 />
               </Card>
               <Card className="flex flex-col items-stretch justify-center">
