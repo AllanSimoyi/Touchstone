@@ -120,7 +120,7 @@ export default function Index() {
                 ]}
               />
               <Card className="flex flex-col items-stretch justify-center">
-                <CardHeader>Areas</CardHeader>
+                <CardHeader>Top Areas</CardHeader>
                 <CustomBarChart
                   items={areas.map((area) => ({
                     key: area.identifier,
@@ -129,7 +129,7 @@ export default function Index() {
                 />
               </Card>
               <Card className="flex flex-col items-stretch justify-center">
-                <CardHeader>Groups</CardHeader>
+                <CardHeader>Top Groups</CardHeader>
                 <CustomBarChart
                   items={groups.map((group) => ({
                     key: group.identifier,
@@ -138,7 +138,7 @@ export default function Index() {
                 />
               </Card>
               <Card className="flex flex-col items-stretch justify-center">
-                <CardHeader>Licenses</CardHeader>
+                <CardHeader>Top Licenses</CardHeader>
                 <CustomBarChart
                   items={licenses.map((license) => ({
                     key: license.identifier,
@@ -147,7 +147,7 @@ export default function Index() {
                 />
               </Card>
               <Card className="flex flex-col items-stretch justify-center">
-                <CardHeader>Sectors</CardHeader>
+                <CardHeader>Top Sectors</CardHeader>
                 <CustomBarChart
                   items={sectors.map((sector) => ({
                     key: sector.identifier,
