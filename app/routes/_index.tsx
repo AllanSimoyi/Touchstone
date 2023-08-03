@@ -16,34 +16,60 @@ import { AppLinks } from '~/models/links';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
+const MAX_CHART_ITEMS = 6;
+
 export async function loader({ request }: LoaderArgs) {
   await requireUserId(request);
 
   const [areas, groups, licenses, sectors] = await Promise.all([
-    prisma.area.findMany({
-      select: {
-        identifier: true,
-        _count: { select: { accounts: true } },
-      },
-    }),
-    prisma.group.findMany({
-      select: {
-        identifier: true,
-        _count: { select: { accounts: true } },
-      },
-    }),
-    prisma.license.findMany({
-      select: {
-        identifier: true,
-        _count: { select: { accounts: true } },
-      },
-    }),
-    prisma.sector.findMany({
-      select: {
-        identifier: true,
-        _count: { select: { accounts: true } },
-      },
-    }),
+    prisma.area
+      .findMany({
+        select: {
+          identifier: true,
+          _count: { select: { accounts: true } },
+        },
+      })
+      .then((areas) =>
+        areas
+          .sort((a, b) => b._count.accounts - a._count.accounts)
+          .splice(0, MAX_CHART_ITEMS)
+      ),
+    prisma.group
+      .findMany({
+        select: {
+          identifier: true,
+          _count: { select: { accounts: true } },
+        },
+      })
+      .then((groups) =>
+        groups
+          .sort((a, b) => b._count.accounts - a._count.accounts)
+          .splice(0, MAX_CHART_ITEMS)
+      ),
+    prisma.license
+      .findMany({
+        select: {
+          identifier: true,
+          _count: { select: { accounts: true } },
+        },
+      })
+      .then((licenses) =>
+        licenses
+          .sort((a, b) => b._count.accounts - a._count.accounts)
+          .splice(0, MAX_CHART_ITEMS)
+      ),
+    prisma.sector
+      .findMany({
+        select: {
+          identifier: true,
+          _count: { select: { accounts: true } },
+        },
+      })
+      .then((sectors) =>
+        sectors
+          .sort((a, b) => b._count.accounts - a._count.accounts)
+          .splice(0, MAX_CHART_ITEMS)
+      ),
   ]);
 
   return json({ areas, groups, licenses, sectors });
@@ -105,28 +131,10 @@ export default function Index() {
               <Card className="flex flex-col items-stretch justify-center">
                 <CardHeader>Groups</CardHeader>
                 <CustomBarChart
-                  items={[
-                    ...groups.map((group) => ({
-                      key: group.identifier + group._count.accounts,
-                      value: group._count.accounts,
-                    })),
-                    ...groups.map((group) => ({
-                      key: group.identifier,
-                      value: group._count.accounts,
-                    })),
-                    ...groups.map((group) => ({
-                      key: group._count.accounts.toString(),
-                      value: group._count.accounts,
-                    })),
-                    ...groups.map((group) => ({
-                      key: group.identifier + '2',
-                      value: group._count.accounts,
-                    })),
-                  ]}
-                  // items={groups.map((group) => ({
-                  //   key: group.identifier,
-                  //   value: group._count.accounts,
-                  // }))}
+                  items={groups.map((group) => ({
+                    key: group.identifier,
+                    value: group._count.accounts,
+                  }))}
                 />
               </Card>
               <Card className="flex flex-col items-stretch justify-center">
