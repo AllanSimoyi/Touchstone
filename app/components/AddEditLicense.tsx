@@ -89,14 +89,16 @@ export function AddEditLicenses(props: Props) {
         {hasFormError(fetcher.data) && (
           <InlineAlert>{fetcher.data.formError}</InlineAlert>
         )}
-        {!!optimisticItem?.name && (
-          <OptimisticChip>
-            {optimisticItem.name} - USD {optimisticItem.basicUsd || ''}
-          </OptimisticChip>
-        )}
-        {items.map((item, index) => (
-          <LicenseChip key={index} {...item} />
-        ))}
+        <div className="flex max-h-[400px] flex-col items-stretch gap-2 overflow-auto py-2">
+          {!!optimisticItem?.name && (
+            <OptimisticChip>
+              {optimisticItem.name} - USD {optimisticItem.basicUsd || ''}
+            </OptimisticChip>
+          )}
+          {items.map((item, index) => (
+            <LicenseChip key={index} {...item} />
+          ))}
+        </div>
       </div>
     </Card>
   );

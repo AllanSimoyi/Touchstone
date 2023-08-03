@@ -43,12 +43,14 @@ export function AddEditAreas(props: Props) {
           recordType="Area"
           customRef={newAreaRef}
         />
-        {!!optimisticItem?.name && (
-          <OptimisticChip>{optimisticItem.name}</OptimisticChip>
-        )}
-        {items.map((item, index) => (
-          <AreaChip key={index} {...item} />
-        ))}
+        <div className="flex max-h-[400px] flex-col items-stretch gap-2 overflow-auto py-2">
+          {!!optimisticItem?.name && (
+            <OptimisticChip>{optimisticItem.name}</OptimisticChip>
+          )}
+          {items.map((item, index) => (
+            <AreaChip key={index} {...item} />
+          ))}
+        </div>
       </div>
     </Card>
   );

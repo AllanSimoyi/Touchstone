@@ -43,12 +43,14 @@ export function AddEditSectors(props: Props) {
           recordType="Sector"
           customRef={newSectorRef}
         />
-        {!!optimisticItem?.name && (
-          <OptimisticChip>{optimisticItem.name}</OptimisticChip>
-        )}
-        {items.map((item, index) => (
-          <SectorChip key={index} {...item} />
-        ))}
+        <div className="flex max-h-[400px] flex-col items-stretch gap-2 overflow-auto py-2">
+          {!!optimisticItem?.name && (
+            <OptimisticChip>{optimisticItem.name}</OptimisticChip>
+          )}
+          {items.map((item, index) => (
+            <SectorChip key={index} {...item} />
+          ))}
+        </div>
       </div>
     </Card>
   );

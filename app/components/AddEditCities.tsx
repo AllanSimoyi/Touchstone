@@ -43,12 +43,14 @@ export function AddEditCities(props: Props) {
           recordType="City"
           customRef={newCityRef}
         />
-        {!!optimisticItem?.name && (
-          <OptimisticChip>{optimisticItem.name}</OptimisticChip>
-        )}
-        {items.map((item, index) => (
-          <CityChip key={index} {...item} />
-        ))}
+        <div className="flex max-h-[400px] flex-col items-stretch gap-2 overflow-auto py-2">
+          {!!optimisticItem?.name && (
+            <OptimisticChip>{optimisticItem.name}</OptimisticChip>
+          )}
+          {items.map((item, index) => (
+            <CityChip key={index} {...item} />
+          ))}
+        </div>
       </div>
     </Card>
   );
