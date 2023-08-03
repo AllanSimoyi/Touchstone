@@ -83,8 +83,52 @@ export default function PickListsPage() {
             <span className="text-lg font-semibold">Pick Lists</span>
           </div>
           {/* <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"> */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="grid gap-6">
+          {/* <div className="masonry sm:masonry-sm md:masonry-md gap-6"> */}
+          <div className="columns-1 gap-6 sm:columns-2 md:columns-3">
+            <div className="break-inside flex flex-col items-stretch pb-6">
+              <AddEditAreas
+                items={areas.map((area) => ({
+                  ...area,
+                  name: area.identifier,
+                }))}
+              />
+            </div>
+            <div className="break-inside flex flex-col items-stretch pb-6">
+              <AddEditCities
+                items={cities.map((city) => ({
+                  ...city,
+                  name: city.identifier,
+                }))}
+              />
+            </div>
+            <div className="break-inside flex flex-col items-stretch pb-6">
+              <AddEditLicenses items={licenses} />
+            </div>
+            <div className="break-inside flex flex-col items-stretch pb-6">
+              <AddEditGroups
+                items={groups.map((group) => ({
+                  ...group,
+                  name: group.identifier,
+                }))}
+              />
+            </div>
+            <div className="break-inside flex flex-col items-stretch pb-6">
+              <AddEditStatuses
+                items={statuses.map((status) => ({
+                  ...status,
+                  name: status.identifier,
+                }))}
+              />
+            </div>
+            <div className="break-inside flex flex-col items-stretch pb-6">
+              <AddEditSectors
+                items={sectors.map((sector) => ({
+                  ...sector,
+                  name: sector.identifier,
+                }))}
+              />
+            </div>
+            {/* <div className="grid gap-6">
               <AddEditAreas
                 items={areas.map((area) => ({
                   ...area,
@@ -123,7 +167,10 @@ export default function PickListsPage() {
             </div>
             <div className="col-span-3 flex flex-col items-stretch">
               <AddEditLicenseDetails className="grow" items={licenseDetails} />
-            </div>
+            </div> */}
+          </div>
+          <div className="flex flex-col items-stretch pb-6">
+            <AddEditLicenseDetails className="grow" items={licenseDetails} />
           </div>
         </CenteredView>
       </div>
