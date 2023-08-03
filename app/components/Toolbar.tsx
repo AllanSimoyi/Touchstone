@@ -27,7 +27,7 @@ export function Toolbar(props: ToolbarProps) {
           <ProgressBar />
         </div>
       )}
-      <div className="flex flex-col items-stretch p-4">
+      <div className="flex flex-col items-stretch px-2 py-4">
         <CenteredView>
           <div className="flex flex-row items-stretch justify-center">
             <div className="flex flex-col justify-center">
