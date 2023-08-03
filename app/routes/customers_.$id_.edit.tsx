@@ -35,6 +35,7 @@ import {
 import { calcGross, calcNet, calcVat } from '~/models/customers';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { getErrorMessage } from '~/models/errors';
+import { EventKind, type UpdateEventDetails } from '~/models/events';
 import {
   fieldErrorsToArr,
   getFieldErrors,
@@ -287,7 +288,7 @@ const Schema = z.object({
   ),
 });
 export const action = async ({ request }: ActionArgs) => {
-  await requireUserId(request);
+  const currentUserId = await requireUserId(request);
 
   try {
     const fields = await getRawFormFields(request);
@@ -357,71 +358,286 @@ export const action = async ({ request }: ActionArgs) => {
       numDatabases: databases.length,
     });
 
-    await prisma.$transaction([
-      prisma.account.update({
+    await prisma.$transaction(async (tx) => {
+      const accountBeforeUpdate = await tx.account.findUnique({
         where: { id },
-        select: { id: true },
-        data: {
-          accountNumber,
-          companyName,
-          tradingAs,
-          formerly,
-          groupId,
-          areaId,
-          sectorId,
-          vatNumber,
-          otherNames,
-          description,
-          actual,
-          reason,
-          statusId,
-          contractNumber,
-          dateOfContract,
-          licenseId,
-          licenseDetailId,
-          addedPercentage,
-          gross,
-          net: calcNet(gross),
-          vat: calcVat(gross),
-          comment,
-          accountantName,
-          accountantEmail,
-          boxCityId,
-          boxNumber,
-          boxArea,
-          ceoName,
-          ceoEmail,
-          ceoPhone,
-          ceoFax,
-          physicalAddress: addr,
-          telephoneNumber: tel,
-          faxNumber: fax,
-          cellphoneNumber: cell,
-          deliveryAddress,
-          deliverySuburb,
-          deliveryCityId,
+        include: {
+          group: true,
+          area: true,
+          sector: true,
+          license: true,
+          licenseDetail: true,
+          boxCity: true,
+          status: true,
+          deliveryCity: true,
+          databases: true,
+          operators: true,
         },
-      }),
-      prisma.database.deleteMany({
-        where: { accountId: id },
-      }),
-      prisma.database.createMany({
-        data: databases.map((databaseName) => ({
-          accountId: id,
-          databaseName,
-        })),
-      }),
-      prisma.operator.deleteMany({
-        where: { accountId: id },
-      }),
-      prisma.operator.createMany({
-        data: operators.map(({ name, email }) => ({
-          accountId: id,
-          operatorName: name,
-          operatorEmail: email,
-        })),
-      }),
-    ]);
+      });
+      if (!accountBeforeUpdate) {
+        throw new Error('Account record not found');
+      }
+      const [updatedAccount] = await Promise.all([
+        tx.account.update({
+          where: { id },
+          include: {
+            group: true,
+            area: true,
+            sector: true,
+            license: true,
+            licenseDetail: true,
+            boxCity: true,
+            status: true,
+            deliveryCity: true,
+            databases: true,
+            operators: true,
+          },
+          data: {
+            accountNumber,
+            companyName,
+            tradingAs,
+            formerly,
+            groupId,
+            areaId,
+            sectorId,
+            vatNumber,
+            otherNames,
+            description,
+            actual,
+            reason,
+            statusId,
+            contractNumber,
+            dateOfContract,
+            licenseId,
+            licenseDetailId,
+            addedPercentage,
+            gross,
+            net: calcNet(gross),
+            vat: calcVat(gross),
+            comment,
+            accountantName,
+            accountantEmail,
+            boxCityId,
+            boxNumber,
+            boxArea,
+            ceoName,
+            ceoEmail,
+            ceoPhone,
+            ceoFax,
+            physicalAddress: addr,
+            telephoneNumber: tel,
+            faxNumber: fax,
+            cellphoneNumber: cell,
+            deliveryAddress,
+            deliverySuburb,
+            deliveryCityId,
+          },
+        }),
+        tx.database.deleteMany({
+          where: { accountId: id },
+        }),
+        tx.database.createMany({
+          data: databases.map((databaseName) => ({
+            accountId: id,
+            databaseName,
+          })),
+        }),
+        tx.operator.deleteMany({
+          where: { accountId: id },
+        }),
+        tx.operator.createMany({
+          data: operators.map(({ name, email }) => ({
+            accountId: id,
+            operatorName: name,
+            operatorEmail: email,
+          })),
+        }),
+      ]);
+      const details: UpdateEventDetails = {
+        accountNumber: {
+          from: accountBeforeUpdate.accountNumber,
+          to: updatedAccount.accountNumber,
+        },
+        companyName: {
+          from: accountBeforeUpdate.companyName,
+          to: updatedAccount.companyName,
+        },
+        tradingAs: {
+          from: accountBeforeUpdate.tradingAs,
+          to: updatedAccount.tradingAs,
+        },
+        formerly: {
+          from: accountBeforeUpdate.formerly,
+          to: updatedAccount.formerly,
+        },
+        group: {
+          from: accountBeforeUpdate.group?.identifier || '-',
+          to: updatedAccount.group?.identifier || '-',
+        },
+        area: {
+          from: accountBeforeUpdate.area?.identifier || '-',
+          to: updatedAccount.area?.identifier || '-',
+        },
+        sector: {
+          from: accountBeforeUpdate.sector?.identifier || '-',
+          to: updatedAccount.sector?.identifier || '-',
+        },
+        vatNumber: {
+          from: accountBeforeUpdate.vatNumber,
+          to: updatedAccount.vatNumber,
+        },
+        otherNames: {
+          from: accountBeforeUpdate.otherNames,
+          to: updatedAccount.otherNames,
+        },
+        description: {
+          from: accountBeforeUpdate.description,
+          to: updatedAccount.description,
+        },
+        actual: { from: accountBeforeUpdate.actual, to: updatedAccount.actual },
+        reason: { from: accountBeforeUpdate.reason, to: updatedAccount.reason },
+        status: {
+          from: accountBeforeUpdate.status?.identifier || '-',
+          to: updatedAccount.status?.identifier || '-',
+        },
+        contractNumber: {
+          from: accountBeforeUpdate.contractNumber,
+          to: updatedAccount.contractNumber,
+        },
+        dateOfContract: {
+          from: accountBeforeUpdate.accountNumber,
+          to: dayjs(updatedAccount.dateOfContract).format(DATE_INPUT_FORMAT),
+        },
+        license: {
+          from: accountBeforeUpdate.licenseId?.toString() || '-',
+          to: updatedAccount.licenseId?.toString() || '-',
+        },
+        licenseDetail: {
+          from: accountBeforeUpdate.licenseDetailId?.toString() || '-',
+          to: updatedAccount.licenseDetailId?.toString() || '-',
+        },
+        addedPercentage: {
+          from: accountBeforeUpdate.addedPercentage,
+          to: updatedAccount.addedPercentage,
+        },
+        gross: {
+          from: accountBeforeUpdate.gross.toString(),
+          to: updatedAccount.gross.toString(),
+        },
+        net: {
+          from: accountBeforeUpdate.net.toString(),
+          to: updatedAccount.net.toString(),
+        },
+        vat: {
+          from: accountBeforeUpdate.vat.toString(),
+          to: updatedAccount.vat.toString(),
+        },
+        comment: {
+          from: accountBeforeUpdate.comment,
+          to: updatedAccount.comment,
+        },
+        accountantName: {
+          from: accountBeforeUpdate.accountantName,
+          to: updatedAccount.accountantName,
+        },
+        accountantEmail: {
+          from: accountBeforeUpdate.accountantEmail,
+          to: updatedAccount.accountantEmail,
+        },
+        boxCity: {
+          from: accountBeforeUpdate.boxCityId?.toString() || '-',
+          to: updatedAccount.boxCityId?.toString() || '-',
+        },
+        boxNumber: {
+          from: accountBeforeUpdate.boxNumber,
+          to: updatedAccount.boxNumber,
+        },
+        boxArea: {
+          from: accountBeforeUpdate.boxArea,
+          to: updatedAccount.boxArea,
+        },
+        ceoName: {
+          from: accountBeforeUpdate.ceoName,
+          to: updatedAccount.ceoName,
+        },
+        ceoEmail: {
+          from: accountBeforeUpdate.ceoEmail,
+          to: updatedAccount.ceoEmail,
+        },
+        ceoPhone: {
+          from: accountBeforeUpdate.ceoPhone,
+          to: updatedAccount.ceoPhone,
+        },
+        ceoFax: {
+          from: accountBeforeUpdate.ceoFax,
+          to: updatedAccount.ceoFax,
+        },
+        physicalAddress: {
+          from: accountBeforeUpdate.physicalAddress,
+          to: updatedAccount.physicalAddress,
+        },
+        telephoneNumber: {
+          from: accountBeforeUpdate.telephoneNumber,
+          to: updatedAccount.telephoneNumber,
+        },
+        faxNumber: {
+          from: accountBeforeUpdate.faxNumber,
+          to: updatedAccount.faxNumber,
+        },
+        cellphoneNumber: {
+          from: accountBeforeUpdate.cellphoneNumber,
+          to: updatedAccount.cellphoneNumber,
+        },
+        deliveryAddress: {
+          from: accountBeforeUpdate.deliveryAddress,
+          to: updatedAccount.deliveryAddress,
+        },
+        deliverySuburb: {
+          from: accountBeforeUpdate.deliverySuburb,
+          to: updatedAccount.deliverySuburb,
+        },
+        deliveryCity: {
+          from: accountBeforeUpdate.deliveryCity?.identifier || '-',
+          to: updatedAccount.deliveryCity?.identifier || '-',
+        },
+        databases: {
+          from:
+            accountBeforeUpdate.databases
+              .map((d) => d.databaseName)
+              .join(', ') || '-',
+          to:
+            updatedAccount.databases.map((d) => d.databaseName).join(', ') ||
+            '-',
+        },
+        operators: {
+          from:
+            accountBeforeUpdate.operators
+              .map((o) => o.operatorName + '-' + o.operatorEmail)
+              .join(', ') || '-',
+          to:
+            updatedAccount.operators
+              .map((o) => o.operatorName + '-' + o.operatorEmail)
+              .join(', ') || '-',
+        },
+        createdAt: {
+          from: dayjs(accountBeforeUpdate.createdAt).format(DATE_INPUT_FORMAT),
+          to: dayjs(updatedAccount.createdAt).format(DATE_INPUT_FORMAT),
+        },
+        updatedAt: {
+          from: dayjs(accountBeforeUpdate.updatedAt).format(DATE_INPUT_FORMAT),
+          to: dayjs(updatedAccount.updatedAt).format(DATE_INPUT_FORMAT),
+        },
+      };
+      await tx.accountEvent.create({
+        data: {
+          accountId: updatedAccount.id,
+          userId: currentUserId,
+          details: JSON.stringify(details),
+          kind: EventKind.Update,
+        },
+      });
+      return updatedAccount;
+    });
 
     return redirect(AppLinks.Customer(id));
   } catch (error) {
@@ -462,27 +678,27 @@ export default function EditCustomerPage() {
     tel: account.telephoneNumber || '',
     fax: account.faxNumber || '',
     cell: account.cellphoneNumber || '',
-    licenseId: account.licenseId?.toString() || '-',
-    licenseDetailId: account.licenseDetailId?.toString() || '-',
+    licenseId: account.licenseId?.toString() || '',
+    licenseDetailId: account.licenseDetailId?.toString() || '',
     addedPercentage: account.addedPercentage.toFixed(),
     contractNumber: account.contractNumber,
     dateOfContract: dayjs(account.dateOfContract).format(DATE_INPUT_FORMAT),
     accountantName: account.accountantName || '',
     accountantEmail: account.accountantEmail || '',
-    groupId: account.groupId?.toString() || '-',
-    areaId: account.areaId?.toString() || '-',
-    sectorId: account.sectorId?.toString() || '-',
+    groupId: account.groupId?.toString() || '',
+    areaId: account.areaId?.toString() || '',
+    sectorId: account.sectorId?.toString() || '',
     vatNumber: account.vatNumber,
     otherNames: account.otherNames,
     description: account.description,
-    actual: account.actual?.toString() || '-',
+    actual: account.actual?.toString() || '',
     reason: account.reason,
-    statusId: account.statusId?.toString() || '-',
+    statusId: account.statusId?.toString() || '',
     comment: account.comment,
-    boxCityId: account.boxCityId?.toString() || '-',
+    boxCityId: account.boxCityId?.toString() || '',
     boxNumber: account.boxNumber || '-',
     boxArea: account.boxArea || '-',
-    deliveryCityId: account.deliveryCityId?.toString() || '-',
+    deliveryCityId: account.deliveryCityId?.toString() || '',
     deliverySuburb: account.deliverySuburb || '',
     deliveryAddress: account.deliveryAddress || '',
     databases: JSON.stringify(

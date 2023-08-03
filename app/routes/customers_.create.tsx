@@ -1,8 +1,9 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
+import type { CreateOrDeleteEventDetails } from '~/models/events';
 
 import { json, redirect } from '@remix-run/node';
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { z } from 'zod';
 
 import {
@@ -29,7 +30,9 @@ import {
   processBadRequest,
 } from '~/models/core.validations';
 import { calcGross, calcNet, calcVat } from '~/models/customers';
+import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { getErrorMessage } from '~/models/errors';
+import { EventKind } from '~/models/events';
 import { getRawFormFields, hasFormError } from '~/models/forms';
 import { AppLinks } from '~/models/links';
 import { requireUserId } from '~/session.server';
@@ -198,7 +201,7 @@ const Schema = z.object({
   ),
 });
 export const action = async ({ request }: ActionArgs) => {
-  await requireUserId(request);
+  const currentUserId = await requireUserId(request);
 
   try {
     const fields = await getRawFormFields(request);
@@ -261,9 +264,20 @@ export const action = async ({ request }: ActionArgs) => {
       numDatabases: databases.length,
     });
 
-    const creationResult = await prisma.account
-      .create({
-        select: { id: true },
+    const creationResult = await prisma.$transaction(async (tx) => {
+      const newAccount = await tx.account.create({
+        include: {
+          group: true,
+          area: true,
+          sector: true,
+          license: true,
+          licenseDetail: true,
+          boxCity: true,
+          status: true,
+          deliveryCity: true,
+          databases: true,
+          operators: true,
+        },
         data: {
           accountNumber,
           companyName,
@@ -315,14 +329,67 @@ export const action = async ({ request }: ActionArgs) => {
             })),
           },
         },
-      })
-      .catch((error) => {
-        return {
-          formError:
-            getErrorMessage(error) ||
-            'Something went wrong recording the account',
-        };
       });
+      const details: CreateOrDeleteEventDetails = {
+        accountNumber: newAccount.accountNumber,
+        companyName: newAccount.companyName,
+        tradingAs: newAccount.tradingAs,
+        formerly: newAccount.formerly,
+        group: newAccount.group?.identifier || '-',
+        area: newAccount.area?.identifier || '-',
+        sector: newAccount.sector?.identifier || '-',
+        vatNumber: newAccount.vatNumber,
+        otherNames: newAccount.otherNames,
+        description: newAccount.description,
+        actual: newAccount.actual,
+        reason: newAccount.reason,
+        status: newAccount.status?.identifier || '-',
+        contractNumber: newAccount.contractNumber,
+        dateOfContract: dayjs(newAccount.dateOfContract).format(
+          DATE_INPUT_FORMAT
+        ),
+        license: newAccount.licenseId?.toString() || '-',
+        licenseDetail: newAccount.licenseDetailId?.toString() || '-',
+        addedPercentage: newAccount.addedPercentage,
+        gross: newAccount.gross.toString(),
+        net: newAccount.net.toString(),
+        vat: newAccount.vat.toString(),
+        comment: newAccount.comment,
+        accountantName: newAccount.accountantName,
+        accountantEmail: newAccount.accountantEmail,
+        boxCity: newAccount.boxCityId?.toString() || '-',
+        boxNumber: newAccount.boxNumber,
+        boxArea: newAccount.boxArea,
+        ceoName: newAccount.ceoName,
+        ceoEmail: newAccount.ceoEmail,
+        ceoPhone: newAccount.ceoPhone,
+        ceoFax: newAccount.ceoFax,
+        physicalAddress: newAccount.physicalAddress,
+        telephoneNumber: newAccount.telephoneNumber,
+        faxNumber: newAccount.faxNumber,
+        cellphoneNumber: newAccount.cellphoneNumber,
+        deliveryAddress: newAccount.deliveryAddress,
+        deliverySuburb: newAccount.deliverySuburb,
+        deliveryCity: newAccount.deliveryCity?.identifier || '-',
+        databases:
+          newAccount.databases.map((d) => d.databaseName).join(', ') || '-',
+        operators:
+          newAccount.operators
+            .map((o) => o.operatorName + '-' + o.operatorEmail)
+            .join(', ') || '-',
+        createdAt: dayjs(newAccount.createdAt).format(DATE_INPUT_FORMAT),
+        updatedAt: dayjs(newAccount.updatedAt).format(DATE_INPUT_FORMAT),
+      };
+      await tx.accountEvent.create({
+        data: {
+          accountId: newAccount.id,
+          userId: currentUserId,
+          details: JSON.stringify(details),
+          kind: EventKind.Create,
+        },
+      });
+      return newAccount;
+    });
     if (hasFormError(creationResult)) {
       return badRequest({ formError: creationResult.formError });
     }
@@ -344,46 +411,46 @@ export default function CreateCustomerPage() {
 
   const { getNameProp, isProcessing } = useForm(actionData, Schema);
 
-  // const defaultValues = {
-  //   companyName: 'Allan',
-  //   accountNumber: '1234567',
-  //   tradingAs: 'Allan',
-  //   formerly: 'Allan',
-  //   ceoName: 'Allan Simoyi',
-  //   ceoEmail: 'bach@gmail.com',
-  //   ceoPhone: '+263779528194',
-  //   ceoFax: '12345',
-  //   addr: '123 Place, Bigger Place',
-  //   tel: '+263779528194',
-  //   fax: '12345',
-  //   cell: '+263779528194',
-  //   licenseId: licenses[0].id.toString(),
-  //   licenseDetailId: licenseDetails[0].id.toString(),
-  //   addedPercentage: '15',
-  //   contractNumber: '12345',
-  //   dateOfContract: dayjs().format(DATE_INPUT_FORMAT),
-  //   accountantName: 'Tatenda',
-  //   accountantEmail: 'tatenda@gmail.com',
-  //   groupId: groups[0].id.toString(),
-  //   areaId: areas[0].id.toString(),
-  //   sectorId: sectors[0].id.toString(),
-  //   vatNumber: '12345',
-  //   otherNames: 'Bach',
-  //   description: 'Description goes here...',
-  //   actual: '1',
-  //   reason: 'Reason goes here...',
-  //   statusId: statuses[0].id.toString(),
-  //   comment: 'Comment goes here...',
-  //   boxCityId: cities[0].id.toString(),
-  //   boxNumber: '12345',
-  //   boxArea: 'Area23',
-  //   deliveryCityId: cities[0].id.toString(),
-  //   deliverySuburb: 'Plce',
-  //   deliveryAddress: '123 Another Place, Bigger Place',
-  //   databases: '["Database one", "Database two"]',
-  //   operators:
-  //     '[{"name": "Allan", "email": "allan@gmail.com"}, {"name": "Tatenda", "email": "tatenda@gmail.com"}]',
-  // };
+  const defaultValues = {
+    companyName: 'Allan',
+    accountNumber: '1234567',
+    tradingAs: 'Allan',
+    formerly: 'Allan',
+    ceoName: 'Allan Simoyi',
+    ceoEmail: 'bach@gmail.com',
+    ceoPhone: '+263779528194',
+    ceoFax: '12345',
+    addr: '123 Place, Bigger Place',
+    tel: '+263779528194',
+    fax: '12345',
+    cell: '+263779528194',
+    licenseId: licenses[0].id.toString(),
+    licenseDetailId: licenseDetails[0].id.toString(),
+    addedPercentage: '15',
+    contractNumber: '12345',
+    dateOfContract: dayjs().format(DATE_INPUT_FORMAT),
+    accountantName: 'Tatenda',
+    accountantEmail: 'tatenda@gmail.com',
+    groupId: groups[0].id.toString(),
+    areaId: areas[0].id.toString(),
+    sectorId: sectors[0].id.toString(),
+    vatNumber: '12345',
+    otherNames: 'Bach',
+    description: 'Description goes here...',
+    actual: '1',
+    reason: 'Reason goes here...',
+    statusId: statuses[0].id.toString(),
+    comment: 'Comment goes here...',
+    boxCityId: cities[0].id.toString(),
+    boxNumber: '12345',
+    boxArea: 'Area23',
+    deliveryCityId: cities[0].id.toString(),
+    deliverySuburb: 'Plce',
+    deliveryAddress: '123 Another Place, Bigger Place',
+    databases: '["Database one", "Database two"]',
+    operators:
+      '[{"name": "Allan", "email": "allan@gmail.com"}, {"name": "Tatenda", "email": "tatenda@gmail.com"}]',
+  };
 
   return (
     <div className="flex min-h-full flex-col items-stretch">
@@ -396,7 +463,7 @@ export default function CreateCustomerPage() {
       <Form method="post" className="flex grow flex-col items-stretch py-6">
         <ActionContextProvider
           {...actionData}
-          // fields={defaultValues}
+          fields={defaultValues}
           isSubmitting={isProcessing}
         >
           <CenteredView className="w-full gap-4 px-2">

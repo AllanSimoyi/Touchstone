@@ -424,7 +424,7 @@ export default function AuditPage() {
                 type="datetime-local"
                 label="From this date and time"
                 defaultValue={
-                  from ? dayjs(from).format(DATE_INPUT_FORMAT + ' hh:mm') : ''
+                  from ? dayjs(from).format(DATE_INPUT_FORMAT + ' HH:mm') : ''
                 }
                 onChange={onFromChange}
               />
@@ -482,7 +482,7 @@ export default function AuditPage() {
                       >
                         <td className="px-2 py-3">
                           <span className="whitespace-nowrap font-light text-zinc-600">
-                            {dayjs(event.createdAt).format('YYYY-MM-DD hh:mm')}
+                            {dayjs(event.createdAt).format('YYYY-MM-DD HH:mm')}
                           </span>
                         </td>
                         <td className="px-2 py-3">
