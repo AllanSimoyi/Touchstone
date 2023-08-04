@@ -1,4 +1,5 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
+import type { UpdateEventDetails } from '~/models/events';
 
 import { Response, json, redirect } from '@remix-run/node';
 import {
@@ -32,6 +33,7 @@ import {
   processBadRequest,
 } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
+import { EventKind } from '~/models/events';
 import {
   fieldErrorsToArr,
   getFieldErrors,
@@ -86,7 +88,7 @@ const Schema = z.object({
 });
 
 export const action = async ({ request, params }: ActionArgs) => {
-  await requireUserId(request);
+  const currentUserId = await requireUserId(request);
 
   try {
     const id = getValidatedId(params.id);
@@ -116,9 +118,29 @@ export const action = async ({ request, params }: ActionArgs) => {
       });
     }
 
-    await prisma.user.update({
-      where: { id },
-      data: { accessLevel, username },
+    await prisma.$transaction(async (tx) => {
+      const oldRecord = await tx.user.findUnique({
+        where: { id },
+      });
+      if (!oldRecord) {
+        throw new Error('Record not found');
+      }
+      await tx.user.update({
+        where: { id },
+        data: { accessLevel, username },
+      });
+      const details: UpdateEventDetails = {
+        accessLevel: { from: oldRecord.accessLevel, to: accessLevel },
+        username: { from: oldRecord.username, to: username },
+      };
+      await tx.userEvent.create({
+        data: {
+          recordId: id,
+          userId: currentUserId,
+          details: JSON.stringify(details),
+          kind: EventKind.Update,
+        },
+      });
     });
     customLog('info', 'User updated', { id, accessLevel, username });
 

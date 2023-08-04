@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
+import type { CreateOrDeleteEventDetails } from '~/models/events';
 
-// import { faker } from '@faker-js/faker';
 import { json, redirect } from '@remix-run/node';
 import { Form, useActionData, useLoaderData } from '@remix-run/react';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
 import { badRequest, processBadRequest } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
+import { EventKind } from '~/models/events';
 import { getRawFormFields, hasFormError } from '~/models/forms';
 import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
@@ -31,7 +32,7 @@ import {
   logParseError,
 } from '~/models/logger.server';
 import { AccessLevelSchema, accessLevels } from '~/models/user.validations';
-import { requireUser, requireUserId } from '~/session.server';
+import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
 export async function loader({ request }: LoaderArgs) {
@@ -60,7 +61,7 @@ const Schema = z
     path: ['reEnteredPassword'],
   });
 export const action = async ({ request }: ActionArgs) => {
-  await requireUser(request);
+  const currentUserId = await requireUserId(request);
 
   try {
     const fields = await getRawFormFields(request);
@@ -86,8 +87,22 @@ export const action = async ({ request }: ActionArgs) => {
       });
     }
 
-    await prisma.user.create({
-      data: { accessLevel, username, password },
+    await prisma.$transaction(async (tx) => {
+      const { id } = await tx.user.create({
+        data: { accessLevel, username, password },
+      });
+      const details: CreateOrDeleteEventDetails = {
+        accessLevel,
+        username,
+      };
+      await tx.userEvent.create({
+        data: {
+          recordId: id,
+          userId: currentUserId,
+          details: JSON.stringify(details),
+          kind: EventKind.Create,
+        },
+      });
     });
     customLog('info', 'New user created', { accessLevel, username });
 
