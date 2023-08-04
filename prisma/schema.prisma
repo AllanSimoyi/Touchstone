@@ -74,9 +74,10 @@ model Account {
   deliveryAddress String @db.VarChar(300)
   deliverySuburb  String @db.VarChar(100)
 
-  databases Database[]
-  operators Operator[]
-  events    AccountEvent[]
+  databases  Database[]
+  operators  Operator[]
+  events     AccountEvent[]
+  SupportJob SupportJob[]
 
   @@map("accounts")
 }
@@ -385,6 +386,7 @@ model User {
   statusEvents        StatusEvent[]
   eventsImposed       UserEvent[]          @relation("record")
   eventsAuthored      UserEvent[]          @relation("author")
+  SupportJob          SupportJob[]
 
   @@map("users")
 }
@@ -404,4 +406,29 @@ model UserEvent {
   kind    String @db.VarChar(20)
 
   @@map("user_event")
+}
+
+model SupportJob {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accountId       Int
+  account         Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  clientStaffName String  @db.VarChar(100)
+  supportPerson   String  @db.VarChar(100)
+
+  supportType String @db.VarChar(500)
+  status      String @db.VarChar(100)
+
+  enquiry     String @db.Text
+  actionTaken String @db.Text
+
+  charge Decimal  @db.Decimal(19, 2)
+  date   DateTime @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("support_job")
 }
