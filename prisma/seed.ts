@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 import { EventKind } from '~/models/events';
+import { SUPPORT_JOB_STATUSES, SUPPORT_JOB_TYPES } from '~/models/support-jobs';
 
 const prisma = new PrismaClient();
 
@@ -38,6 +39,9 @@ async function seed() {
 
   await prisma.status.deleteMany();
   await prisma.statusEvent.deleteMany();
+
+  await prisma.supportJob.deleteMany();
+  await prisma.supportJobEvent.deleteMany();
 
   await prisma.user.deleteMany();
   await prisma.userEvent.deleteMany();
@@ -187,7 +191,7 @@ async function seed() {
 
   const accessLevels = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'];
 
-  const [{ id: userId }] = await Promise.all(
+  const users = await Promise.all(
     accessLevels.map((accessLevel) => {
       return prisma.user.create({
         data: {
@@ -198,6 +202,31 @@ async function seed() {
       });
     })
   );
+  const [{ id: userId }] = users;
+
+  function getSupportJobStatus(index: number) {
+    if (index < 3) {
+      return SUPPORT_JOB_STATUSES[index];
+    }
+    return SUPPORT_JOB_STATUSES[2];
+  }
+
+  for (const user of users) {
+    await prisma.supportJob.createMany({
+      data: accountIds.slice(0, 10).map((accountId, index) => ({
+        accountId,
+        clientStaffName: faker.person.fullName(),
+        supportPerson: faker.person.fullName(),
+        supportType: [SUPPORT_JOB_TYPES[0], SUPPORT_JOB_TYPES[1]].join(', '),
+        status: getSupportJobStatus(index),
+        enquiry: faker.lorem.sentence(7),
+        actionTaken: faker.lorem.paragraph(2),
+        charge: faker.finance.amount(),
+        date: faker.date.past(),
+        userId: user.id,
+      })),
+    });
+  }
 
   for (const accountId of accountIds) {
     await Promise.all([

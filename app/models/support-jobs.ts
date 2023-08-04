@@ -1,4 +1,4 @@
-export const a = [
+export const SUPPORT_JOB_TYPES = [
   'Telephone',
   'Email',
   'Remote',
@@ -7,7 +7,7 @@ export const a = [
   'Personal device',
   'In office',
   'Network',
-];
+] as const;
 
 // "telephone and email support"
 // "remote support"
@@ -24,7 +24,11 @@ export const a = [
 // "technical in office network support"
 // "email support"
 
-export const b = ['Finalised', 'Completed', 'In progress'];
+export const SUPPORT_JOB_STATUSES = [
+  'Finalised',
+  'Completed',
+  'In progress',
+] as const;
 
 // "finalised"
 // "completed"

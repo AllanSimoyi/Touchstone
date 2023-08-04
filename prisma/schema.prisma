@@ -366,48 +366,6 @@ model StatusEvent {
   @@map("status_event")
 }
 
-model User {
-  id          Int      @id @default(autoincrement())
-  username    String   @unique @db.VarChar(40)
-  password    String   @db.Text
-  accessLevel String   @db.VarChar(40)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  accountEvents       AccountEvent[]
-  areaEvents          AreaEvent[]
-  cityEvents          CityEvent[]
-  databaseEvents      DatabaseEvent[]
-  groupEvents         GroupEvent[]
-  licenseDetailEvents LicenseDetailEvent[]
-  licenseEvents       LicenseEvent[]
-  operatorEvents      OperatorEvent[]
-  sectorEvents        SectorEvent[]
-  statusEvents        StatusEvent[]
-  eventsImposed       UserEvent[]          @relation("record")
-  eventsAuthored      UserEvent[]          @relation("author")
-  SupportJob          SupportJob[]
-
-  @@map("users")
-}
-
-model UserEvent {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  recordId Int
-  record   User @relation("record", fields: [recordId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  userId Int
-  user   User @relation("author", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  details String @db.Text
-  kind    String @db.VarChar(20)
-
-  @@map("user_event")
-}
-
 model SupportJob {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -430,5 +388,67 @@ model SupportJob {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  events SupportJobEvent[]
+
   @@map("support_job")
+}
+
+model SupportJobEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  supportJobId Int
+  supportJob   SupportJob @relation(fields: [supportJobId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("support_job_event")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  username    String   @unique @db.VarChar(40)
+  password    String   @db.Text
+  accessLevel String   @db.VarChar(40)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  accountEvents       AccountEvent[]
+  areaEvents          AreaEvent[]
+  cityEvents          CityEvent[]
+  databaseEvents      DatabaseEvent[]
+  groupEvents         GroupEvent[]
+  licenseDetailEvents LicenseDetailEvent[]
+  licenseEvents       LicenseEvent[]
+  operatorEvents      OperatorEvent[]
+  sectorEvents        SectorEvent[]
+  statusEvents        StatusEvent[]
+  eventsImposed       UserEvent[]          @relation("record")
+  eventsAuthored      UserEvent[]          @relation("author")
+  supportJobs         SupportJob[]
+  supportJobEvents    SupportJobEvent[]
+
+  @@map("users")
+}
+
+model UserEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recordId Int
+  record   User @relation("record", fields: [recordId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation("author", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("user_event")
 }
