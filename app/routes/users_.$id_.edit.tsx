@@ -33,7 +33,7 @@ import {
   processBadRequest,
 } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
-import { EventKind } from '~/models/events';
+import { EventKind, getOnlyChangedUpdateDetails } from '~/models/events';
 import {
   fieldErrorsToArr,
   getFieldErrors,
@@ -137,7 +137,7 @@ export const action = async ({ request, params }: ActionArgs) => {
         data: {
           recordId: id,
           userId: currentUserId,
-          details: JSON.stringify(details),
+          details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
           kind: EventKind.Update,
         },
       });

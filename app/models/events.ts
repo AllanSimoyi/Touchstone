@@ -44,3 +44,15 @@ export const EventKindDetailsSchema = z.discriminatedUnion('kind', [
   }),
 ]);
 export type EventKindDetails = z.infer<typeof EventKindDetailsSchema>;
+
+export function getOnlyChangedUpdateDetails(details: UpdateEventDetails) {
+  return Object.keys(details)
+    .filter((key) => details[key].from !== details[key].to)
+    .reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: details[key],
+      }),
+      {} as UpdateEventDetails
+    );
+}

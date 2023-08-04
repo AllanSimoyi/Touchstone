@@ -9,7 +9,7 @@ import {
   processBadRequest,
 } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
-import { EventKind } from '~/models/events';
+import { EventKind, getOnlyChangedUpdateDetails } from '~/models/events';
 import { getRawFormFields } from '~/models/forms';
 import { customServerLog, logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
@@ -45,7 +45,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             areaId: id,
             userId: currentUserId,
-            details: JSON.stringify(details),
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
             kind: EventKind.Update,
           },
         });
@@ -73,7 +73,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             cityId: id,
             userId: currentUserId,
-            details: JSON.stringify(details),
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
             kind: EventKind.Update,
           },
         });
@@ -101,7 +101,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             groupId: id,
             userId: currentUserId,
-            details: JSON.stringify(details),
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
             kind: EventKind.Update,
           },
         });
@@ -129,7 +129,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             licenseDetailId: id,
             userId: currentUserId,
-            details: JSON.stringify(details),
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
             kind: EventKind.Update,
           },
         });
@@ -161,7 +161,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             licenseId: id,
             userId: currentUserId,
-            details: JSON.stringify(details),
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
             kind: EventKind.Update,
           },
         });
@@ -189,7 +189,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             sectorId: id,
             userId: currentUserId,
-            details: JSON.stringify(details),
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
             kind: EventKind.Update,
           },
         });
@@ -217,7 +217,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             statusId: id,
             userId: currentUserId,
-            details: JSON.stringify(details),
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
             kind: EventKind.Update,
           },
         });

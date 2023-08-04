@@ -35,7 +35,11 @@ import {
 import { calcGross, calcNet, calcVat } from '~/models/customers';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { getErrorMessage } from '~/models/errors';
-import { EventKind, type UpdateEventDetails } from '~/models/events';
+import {
+  EventKind,
+  getOnlyChangedUpdateDetails,
+  type UpdateEventDetails,
+} from '~/models/events';
 import {
   fieldErrorsToArr,
   getFieldErrors,
@@ -505,7 +509,9 @@ export const action = async ({ request }: ActionArgs) => {
           to: updatedAccount.contractNumber,
         },
         dateOfContract: {
-          from: accountBeforeUpdate.accountNumber,
+          from: dayjs(accountBeforeUpdate.dateOfContract).format(
+            DATE_INPUT_FORMAT
+          ),
           to: dayjs(updatedAccount.dateOfContract).format(DATE_INPUT_FORMAT),
         },
         license: {
@@ -632,7 +638,7 @@ export const action = async ({ request }: ActionArgs) => {
         data: {
           accountId: updatedAccount.id,
           userId: currentUserId,
-          details: JSON.stringify(details),
+          details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
           kind: EventKind.Update,
         },
       });
