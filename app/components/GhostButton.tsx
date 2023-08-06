@@ -13,7 +13,7 @@ function getClassName(props: GetClassNameProps) {
 
   return twMerge(
     'rounded text-center font-semibold transition-all duration-150 md:bg-transparent p-2 text-zinc-600',
-    'focus:bg-zinc-100 focus:outline-zinc-100 hover:bg-zinc-100',
+    'focus:bg-zinc-200 focus:outline-zinc-200 hover:bg-zinc-200',
     disabled && 'text-zinc-200',
     inputClassName
   );

@@ -6,12 +6,12 @@ import { DropDownMenuItem } from './DropDownMenuItem';
 
 interface Props {
   identifier: string;
-  linkToEdit: string;
+  actionItem: string | (() => void);
   handleDelete: () => void;
 }
 
 export function TableDropDownMenu(props: Props) {
-  const { handleDelete, identifier, linkToEdit } = props;
+  const { handleDelete, identifier, actionItem } = props;
 
   return (
     <div className="relative">
@@ -36,11 +36,28 @@ export function TableDropDownMenu(props: Props) {
           <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="px-1 py-1">
               <Menu.Item>
-                {({ active }) => (
-                  <DropDownMenuItem mode="link" active={active} to={linkToEdit}>
-                    Edit {identifier}
-                  </DropDownMenuItem>
-                )}
+                {({ active }) => {
+                  if (typeof actionItem === 'string') {
+                    return (
+                      <DropDownMenuItem
+                        mode="link"
+                        active={active}
+                        to={actionItem}
+                      >
+                        Edit {identifier}
+                      </DropDownMenuItem>
+                    );
+                  }
+                  return (
+                    <DropDownMenuItem
+                      mode="button"
+                      active={active}
+                      onClick={actionItem}
+                    >
+                      Edit {identifier}
+                    </DropDownMenuItem>
+                  );
+                }}
               </Menu.Item>
               <Menu.Item>
                 {({ active }) => (

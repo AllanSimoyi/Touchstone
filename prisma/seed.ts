@@ -217,7 +217,10 @@ async function seed() {
         accountId,
         clientStaffName: faker.person.fullName(),
         supportPerson: faker.person.fullName(),
-        supportType: [SUPPORT_JOB_TYPES[0], SUPPORT_JOB_TYPES[1]].join(', '),
+        supportType: JSON.stringify([
+          SUPPORT_JOB_TYPES[0],
+          SUPPORT_JOB_TYPES[1],
+        ]),
         status: getSupportJobStatus(index),
         enquiry: faker.lorem.sentence(7),
         actionTaken: faker.lorem.paragraph(2),

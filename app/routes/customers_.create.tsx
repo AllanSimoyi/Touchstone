@@ -25,7 +25,7 @@ import { PrimaryButton } from '~/components/PrimaryButton';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
 import {
-  ComposeOptionalRecordIdSchema,
+  ComposeRecordIdSchema,
   badRequest,
   processBadRequest,
 } from '~/models/core.validations';
@@ -119,8 +119,8 @@ const Schema = z.object({
   cell: z
     .string()
     .max(20, 'Use less than 20 characters for the cellphone number'),
-  licenseId: ComposeOptionalRecordIdSchema('license'),
-  licenseDetailId: ComposeOptionalRecordIdSchema('license detail record'),
+  licenseId: ComposeRecordIdSchema('license', 'optional'),
+  licenseDetailId: ComposeRecordIdSchema('license detail record', 'optional'),
   addedPercentage: z.coerce
     .number()
     .int('Enter an integer for the added percentage')
@@ -138,9 +138,9 @@ const Schema = z.object({
     .string()
     .email('Enter a valid email for the accountant')
     .max(50, "Use less than 50 characters for the accountant's email"),
-  groupId: ComposeOptionalRecordIdSchema('group'),
-  areaId: ComposeOptionalRecordIdSchema('area'),
-  sectorId: ComposeOptionalRecordIdSchema('sector'),
+  groupId: ComposeRecordIdSchema('group', 'optional'),
+  areaId: ComposeRecordIdSchema('area', 'optional'),
+  sectorId: ComposeRecordIdSchema('sector', 'optional'),
   vatNumber: z
     .string()
     .max(20, 'Use less than 20 characters for the VAT number'),
@@ -158,16 +158,16 @@ const Schema = z.object({
     .int("Enter a whole number for 'Actual'")
     .or(z.literal('').transform((_) => 0)),
   reason: z.string().max(500, 'Use less than 500 characters for the reason'),
-  statusId: ComposeOptionalRecordIdSchema('status'),
+  statusId: ComposeRecordIdSchema('status', 'optional'),
   comment: z
     .string()
     .max(1600, 'Use less than 1600 characters for the comment'),
-  boxCityId: ComposeOptionalRecordIdSchema('box city'),
+  boxCityId: ComposeRecordIdSchema('box city', 'optional'),
   boxNumber: z
     .string()
     .max(200, 'Use less than 200 characters for the box number'),
   boxArea: z.string().max(200, 'Use less than 200 characters for the box area'),
-  deliveryCityId: ComposeOptionalRecordIdSchema('delivery city'),
+  deliveryCityId: ComposeRecordIdSchema('delivery city', 'optional'),
   deliverySuburb: z
     .string()
     .max(100, 'Use less than 100 characters for the delivery suburbs'),

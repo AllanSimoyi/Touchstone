@@ -5,6 +5,7 @@ import { json } from '@remix-run/server-runtime';
 import { z } from 'zod';
 
 import { fieldErrorsToArr } from './forms';
+import { StrSupportJobTypeSchema } from './support-jobs';
 
 export enum ResponseMessage {
   Unauthorised = "You're not authorised to access this resource",
@@ -35,13 +36,17 @@ export const CleanPositiveIntSchema = z
   })
   .int({ message: 'Enter a whole number (integer)' })
   .positive({ message: 'Enter a positive number' });
-export const StringNumber = z
-  .string({
-    invalid_type_error: 'Provide a valid number',
-    required_error: 'Provide a number',
-  })
-  .regex(/\d+/, { message: 'Enter a valid number' })
-  .transform(Number);
+export const StringNumber = z.coerce.number({
+  invalid_type_error: 'Provide a valid number',
+  required_error: 'Provide a number',
+});
+// export const StringNumber = z
+//   .string({
+//     invalid_type_error: 'Provide a valid number',
+//     required_error: 'Provide a number',
+//   })
+//   .regex(/\d+/, { message: 'Enter a valid number' })
+//   .transform(Number);
 export const PresentStringSchema = z
   .string({
     invalid_type_error: 'Provide a valid string',
@@ -95,37 +100,30 @@ export const OptionalRecordIdSchema = z
   .or(StringNumber)
   .refine((n) => n === 0 || n > 0);
 
-export const RecordIdSchema = z
-  .number({
-    invalid_type_error: 'Provide a valid record ID',
-    required_error: 'Provide a record ID',
-  })
-  .int({ message: 'Provide an valid record ID' })
-  .min(1, { message: 'Provide a valid record ID' })
-  .or(StringNumber)
-  .refine((n) => n > 0);
+export function ComposeRecordIdSchema(
+  identifier: string,
+  optional?: 'optional'
+) {
+  const Schema = z.coerce
+    .number({
+      invalid_type_error: `Enter a valid ${identifier}`,
+      required_error: `Enter a ${identifier}`,
+    })
+    .int({ message: `Enter a valid ${identifier}` });
+  if (optional) {
+    return Schema;
+  }
+  return Schema.min(1, { message: `Enter a valid ${identifier}` });
+}
+export const RecordIdSchema = ComposeRecordIdSchema('record ID');
 
 export function ComposeOptionalRecordIdSchema(identifier: string) {
-  return z
+  return z.coerce
     .number({
       invalid_type_error: `Select a valid ${identifier}`,
       required_error: `Select a ${identifier}`,
     })
-    .int({ message: `Select a valid ${identifier}` })
-    .or(StringNumber)
-    .refine((n) => n === 0 || n > 0);
-}
-
-export function ComposeRecordIdSchema(identifier: string) {
-  return z
-    .number({
-      invalid_type_error: `Select a valid ${identifier}`,
-      required_error: `Select a ${identifier}`,
-    })
-    .int({ message: `Select a valid ${identifier}` })
-    .min(1, { message: `Select a valid ${identifier}` })
-    .or(StringNumber)
-    .refine((n) => n > 0);
+    .int({ message: `Select a valid ${identifier}` });
 }
 
 export const DateSchema = z.preprocess(
@@ -214,6 +212,7 @@ export const RECORD_TYPES = [
   'Operator',
   'Sector',
   'Status',
+  'SupportJob',
   'User',
 ] as const;
 
@@ -278,6 +277,90 @@ export const AddStatusSchema = z.object({
   recordType: z.literal('Status'),
   name: NameSchema,
 });
+export const AddSupportJobSchema = z.object({
+  recordType: z.literal('SupportJob'),
+  accountId: ComposeRecordIdSchema('account'),
+  clientStaffName: z
+    .string({
+      required_error: "Enter a client staff member's name",
+      invalid_type_error:
+        "Provide valid input for the client staff member's name",
+    })
+    .min(1, "Enter a client staff member's name")
+    .max(
+      100,
+      "Use less than 100 characters for the client staff member's name"
+    ),
+  supportPerson: z
+    .string({
+      required_error: "Enter the support person's name",
+      invalid_type_error: "Provide valid input for the support person's name",
+    })
+    .min(1, "Enter a support person's name")
+    .max(100, "Use less than 100 characters for the support person's name"),
+  supportType: z.preprocess(
+    (arg) => {
+      if (typeof arg === 'string') {
+        try {
+          return JSON.parse(arg);
+        } catch (error) {
+          return undefined;
+        }
+      }
+    },
+    z
+      .string({
+        required_error: 'Select the type of work',
+        invalid_type_error: 'Provide valid input for the type of work',
+      })
+      .min(1, 'Select the type of work')
+      .max(40, 'Use less than 40 characters for the type of work')
+      .array(),
+    {
+      required_error: 'Select the type of work',
+      invalid_type_error: 'Provide valid input for the type of work',
+    }
+  ),
+  status: z
+    .string({
+      required_error: 'Select the support job status',
+      invalid_type_error: 'Provide valid input for the support job status',
+    })
+    .min(1, 'Select the support job status')
+    .max(100, 'Use less than 100 characters for the support job status'),
+  enquiry: z
+    .string({
+      required_error: 'Enter the support job enquiry',
+      invalid_type_error: 'Provide valid input for the support job enquiry',
+    })
+    .min(1, 'Enter the support job enquiry')
+    .max(2400, 'Use less than 2400 characters for the support job enquiry'),
+  actionTaken: z
+    .string({
+      required_error: 'Enter the action taken',
+      invalid_type_error: 'Provide valid input for the action taken',
+    })
+    .max(2400, 'Use less than 2400 characters for the action taken'),
+  charge: z.coerce
+    .number({
+      required_error: 'Enter the charge for the support job, if any',
+      invalid_type_error:
+        'Provide valid input for the charge for the support job, if any',
+    })
+    .min(
+      0,
+      'Enter a positive figure for the charge for the support job, if any'
+    )
+    .max(
+      1_000_000_000,
+      'Enter a figure less than 1_000_000_000 for the charge for the support job, if any'
+    ),
+  date: z.coerce.date({
+    required_error: 'Enter the support job date',
+    invalid_type_error: 'Provide valid input for the support job date',
+  }),
+  userId: ComposeRecordIdSchema('user'),
+});
 
 export const AddRecordSchema = z.discriminatedUnion('recordType', [
   AddAreaSchema,
@@ -287,6 +370,7 @@ export const AddRecordSchema = z.discriminatedUnion('recordType', [
   AddLicenseSchema,
   AddSectorSchema,
   AddStatusSchema,
+  AddSupportJobSchema,
 ]);
 
 export const UpdateAreaSchema = z.object({
@@ -325,10 +409,75 @@ export const UpdateSectorSchema = z.object({
   id: RecordIdSchema,
   name: NameSchema,
 });
+
 export const UpdateStatusSchema = z.object({
   recordType: z.literal('Status'),
   id: RecordIdSchema,
   name: NameSchema,
+});
+
+export const UpdateSupportJobSchema = z.object({
+  recordType: z.literal('SupportJob'),
+  id: ComposeRecordIdSchema('support job'),
+  accountId: ComposeRecordIdSchema('account'),
+  clientStaffName: z
+    .string({
+      required_error: "Enter a client staff member's name",
+      invalid_type_error:
+        "Provide valid input for the client staff member's name",
+    })
+    .min(1, "Enter a client staff member's name")
+    .max(
+      100,
+      "Use less than 100 characters for the client staff member's name"
+    ),
+  supportPerson: z
+    .string({
+      required_error: "Enter the support person's name",
+      invalid_type_error: "Provide valid input for the support person's name",
+    })
+    .min(1, "Enter a support person's name")
+    .max(100, "Use less than 100 characters for the support person's name"),
+  supportType: StrSupportJobTypeSchema,
+  status: z
+    .string({
+      required_error: 'Select the support job status',
+      invalid_type_error: 'Provide valid input for the support job status',
+    })
+    .min(1, 'Select the support job status')
+    .max(100, 'Use less than 100 characters for the support job status'),
+  enquiry: z
+    .string({
+      required_error: 'Enter the support job enquiry',
+      invalid_type_error: 'Provide valid input for the support job enquiry',
+    })
+    .min(1, 'Enter the support job enquiry')
+    .max(2400, 'Use less than 2400 characters for the support job enquiry'),
+  actionTaken: z
+    .string({
+      required_error: 'Enter the action taken',
+      invalid_type_error: 'Provide valid input for the action taken',
+    })
+    .max(2400, 'Use less than 2400 characters for the action taken'),
+  charge: z.coerce
+    .number({
+      required_error: 'Enter the charge for the support job, if any',
+      invalid_type_error:
+        'Provide valid input for the charge for the support job, if any',
+    })
+    .min(
+      0,
+      'Enter a positive figure for the charge for the support job, if any'
+    )
+    .max(
+      1_000_000_000,
+      'Enter a figure less than 1_000_000_000 for the charge for the support job, if any'
+    ),
+  date: z.coerce.date({
+    required_error: 'Enter the support job date',
+    invalid_type_error: 'Provide valid input for the support job date',
+  }),
+  userId: ComposeRecordIdSchema('user'),
 });
 
 export const UpdateRecordSchema = z.discriminatedUnion('recordType', [
@@ -339,6 +488,7 @@ export const UpdateRecordSchema = z.discriminatedUnion('recordType', [
   UpdateLicenseSchema,
   UpdateSectorSchema,
   UpdateStatusSchema,
+  UpdateSupportJobSchema,
 ]);
 
 export const DeleteRecordSchema = z.object({

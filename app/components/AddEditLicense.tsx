@@ -45,10 +45,7 @@ export function AddEditLicenses(props: Props) {
     AddLicenseSchema,
     ['name', 'basicUsd']
   );
-  useFieldClearOnSuccess(fetcher.data, AddLicenseSchema, [
-    ['name', identifierRef],
-    ['basicUsd', basicUsdRef],
-  ]);
+  useFieldClearOnSuccess(fetcher.data, [identifierRef, basicUsdRef]);
 
   return (
     <Card className="flex flex-col items-stretch gap-2">

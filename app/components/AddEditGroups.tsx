@@ -30,9 +30,7 @@ export function AddEditGroups(props: Props) {
     AddGroupSchema,
     ['name']
   );
-  useFieldClearOnSuccess(addFetcher.data, AddGroupSchema, [
-    ['name', newGroupRef],
-  ]);
+  useFieldClearOnSuccess(addFetcher.data, [newGroupRef]);
 
   return (
     <Card className="flex flex-col items-stretch gap-2">

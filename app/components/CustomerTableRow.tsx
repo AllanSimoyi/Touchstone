@@ -86,7 +86,7 @@ export function CustomerTableRow(props: Props) {
         <td className="flex flex-col items-end p-2">
           {!isDeleting && (
             <TableDropDownMenu
-              linkToEdit={AppLinks.EditCustomer(id)}
+              actionItem={AppLinks.EditCustomer(id)}
               identifier="Customer"
               handleDelete={askForConfirmation}
             />

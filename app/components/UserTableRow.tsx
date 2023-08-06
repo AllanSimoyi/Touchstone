@@ -56,7 +56,7 @@ export function UserTableRow(props: Props) {
           {!isDeleting && (
             <TableDropDownMenu
               identifier="User"
-              linkToEdit={AppLinks.EditUser(id)}
+              actionItem={AppLinks.EditUser(id)}
               handleDelete={askForConfirmation}
             />
           )}

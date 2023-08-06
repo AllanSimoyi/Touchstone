@@ -48,9 +48,7 @@ export function AddEditLicenseDetails(props: Props) {
     AddLicenseDetailSchema,
     ['name']
   );
-  useFieldClearOnSuccess(fetcher.data, AddLicenseDetailSchema, [
-    ['name', identifierRef],
-  ]);
+  useFieldClearOnSuccess(fetcher.data, [identifierRef]);
 
   return (
     <Card

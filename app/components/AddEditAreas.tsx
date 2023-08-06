@@ -30,9 +30,7 @@ export function AddEditAreas(props: Props) {
     AddAreaSchema,
     ['name']
   );
-  useFieldClearOnSuccess(addFetcher.data, AddAreaSchema, [
-    ['name', newAreaRef],
-  ]);
+  useFieldClearOnSuccess(addFetcher.data, [newAreaRef]);
 
   return (
     <Card className="flex flex-col items-stretch gap-2">

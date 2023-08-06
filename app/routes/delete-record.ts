@@ -335,6 +335,49 @@ export async function action({ request }: ActionArgs) {
           });
         });
       },
+      SupportJob: () => {
+        return prisma.$transaction(async (tx) => {
+          const oldRecord = await tx.supportJob.findUnique({
+            where: { id },
+            select: {
+              account: { select: { companyName: true } },
+              clientStaffName: true,
+              supportPerson: true,
+              supportType: true,
+              status: true,
+              enquiry: true,
+              actionTaken: true,
+              charge: true,
+              date: true,
+              user: { select: { username: true } },
+            },
+          });
+          if (!oldRecord) {
+            throw new Error('Record not found');
+          }
+          await tx.supportJob.delete({ where: { id } });
+          const details: CreateOrDeleteEventDetails = {
+            account: oldRecord.account.companyName,
+            clientStaffName: oldRecord.clientStaffName,
+            supportPerson: oldRecord.supportPerson,
+            supportType: oldRecord.supportType,
+            status: oldRecord.status,
+            enquiry: oldRecord.enquiry,
+            actionTaken: oldRecord.actionTaken,
+            charge: oldRecord.charge.toFixed(2),
+            date: oldRecord.date,
+            userId: oldRecord.user.username,
+          };
+          await tx.supportJobEvent.create({
+            data: {
+              supportJobId: id,
+              userId: currentUserId,
+              details: JSON.stringify(details),
+              kind: EventKind.Update,
+            },
+          });
+        });
+      },
       User: () => {
         return prisma.$transaction(async (tx) => {
           const oldRecord = await tx.user.findUnique({

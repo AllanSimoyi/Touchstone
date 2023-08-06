@@ -45,13 +45,8 @@ export function DeletePickListItem(props: Props) {
         />
         <input type="hidden" name="id" value={id} />
         <InputRecordType value={recordType} />
-        <GhostButton
-          type="submit"
-          className="group p-0"
-          title="Remove item"
-          disabled={isUpdating}
-        >
-          <X className="text-red-600 transition-all duration-150 group-hover:rotate-90" />
+        <GhostButton type="submit" title="Remove item" disabled={isUpdating}>
+          <X className="text-red-600 transition-all duration-150" />
         </GhostButton>
       </ActionContextProvider>
     </fetcher.Form>

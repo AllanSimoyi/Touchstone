@@ -30,9 +30,7 @@ export function AddEditStatuses(props: Props) {
     AddStatusSchema,
     ['name']
   );
-  useFieldClearOnSuccess(addFetcher.data, AddStatusSchema, [
-    ['name', newStatusRef],
-  ]);
+  useFieldClearOnSuccess(addFetcher.data, [newStatusRef]);
 
   return (
     <Card className="flex flex-col items-stretch gap-2">

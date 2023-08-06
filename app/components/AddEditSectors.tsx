@@ -30,9 +30,7 @@ export function AddEditSectors(props: Props) {
     AddSectorSchema,
     ['name']
   );
-  useFieldClearOnSuccess(addFetcher.data, AddSectorSchema, [
-    ['name', newSectorRef],
-  ]);
+  useFieldClearOnSuccess(addFetcher.data, [newSectorRef]);
 
   return (
     <Card className="flex flex-col items-stretch gap-2">

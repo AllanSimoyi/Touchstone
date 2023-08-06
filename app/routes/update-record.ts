@@ -27,7 +27,7 @@ export async function action({ request }: ActionArgs) {
 
     if (result.data.recordType === 'Area') {
       const { id, name } = result.data;
-      return prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.area.findUnique({
           where: { id },
         });
@@ -55,7 +55,7 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'City') {
       const { id, name } = result.data;
-      return prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.city.findUnique({
           where: { id },
         });
@@ -83,7 +83,7 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'Group') {
       const { id, name } = result.data;
-      return prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.group.findUnique({
           where: { id },
         });
@@ -111,7 +111,7 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'LicenseDetail') {
       const { id, name } = result.data;
-      return prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.licenseDetail.findUnique({
           where: { id },
         });
@@ -139,7 +139,7 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'License') {
       const { id, name, basicUsd } = result.data;
-      return prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.license.findUnique({
           where: { id },
         });
@@ -171,7 +171,7 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'Sector') {
       const { id, name } = result.data;
-      return prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.sector.findUnique({
           where: { id },
         });
@@ -199,8 +199,8 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'Status') {
       const { id, name } = result.data;
-      return prisma.$transaction(async (tx) => {
-        const oldRecord = await tx.sector.findUnique({
+      await prisma.$transaction(async (tx) => {
+        const oldRecord = await tx.status.findUnique({
           where: { id },
         });
         if (!oldRecord) {
@@ -222,6 +222,72 @@ export async function action({ request }: ActionArgs) {
           },
         });
         customServerLog('info', 'Updated status', result.data, request);
+        return updateResult;
+      });
+    }
+    if (result.data.recordType === 'SupportJob') {
+      const {
+        id,
+        accountId,
+        clientStaffName,
+        supportPerson,
+        supportType,
+        status,
+        enquiry,
+        actionTaken,
+        charge,
+        date,
+        userId,
+      } = result.data;
+      await prisma.$transaction(async (tx) => {
+        const oldRecord = await tx.supportJob.findUnique({
+          where: { id },
+        });
+        if (!oldRecord) {
+          throw new Error('Record not found');
+        }
+        const updateResult = await prisma.supportJob.update({
+          where: { id },
+          data: {
+            accountId,
+            clientStaffName,
+            supportPerson,
+            supportType: JSON.stringify(supportType),
+            status,
+            enquiry,
+            actionTaken,
+            charge,
+            date,
+            userId,
+          },
+        });
+        const details: UpdateEventDetails = {
+          accountId: { from: oldRecord.accountId, to: accountId },
+          clientStaffName: {
+            from: oldRecord.clientStaffName,
+            to: clientStaffName,
+          },
+          supportPerson: { from: oldRecord.supportPerson, to: supportPerson },
+          supportType: {
+            from: oldRecord.supportType,
+            to: JSON.stringify(supportType),
+          },
+          status: { from: oldRecord.status, to: status },
+          enquiry: { from: oldRecord.enquiry, to: enquiry },
+          actionTaken: { from: oldRecord.actionTaken, to: actionTaken },
+          charge: { from: oldRecord.charge.toNumber(), to: charge },
+          date: { from: oldRecord.date, to: date },
+          userId: { from: oldRecord.userId, to: userId },
+        };
+        await tx.supportJobEvent.create({
+          data: {
+            supportJobId: id,
+            userId: currentUserId,
+            details: JSON.stringify(getOnlyChangedUpdateDetails(details)),
+            kind: EventKind.Update,
+          },
+        });
+        customServerLog('info', 'Updated support job', result.data, request);
         return updateResult;
       });
     }

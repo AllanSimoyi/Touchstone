@@ -36,7 +36,7 @@ export async function action({ request }: ActionArgs) {
           });
         }
         return prisma.$transaction(async (tx) => {
-          const addResult = await prisma.area.create({
+          const addResult = await tx.area.create({
             data: { identifier: name },
           });
           const details: CreateOrDeleteEventDetails = {
@@ -65,7 +65,7 @@ export async function action({ request }: ActionArgs) {
           });
         }
         return prisma.$transaction(async (tx) => {
-          const addResult = await prisma.city.create({
+          const addResult = await tx.city.create({
             data: { identifier: name },
           });
           const details: CreateOrDeleteEventDetails = {
@@ -94,7 +94,7 @@ export async function action({ request }: ActionArgs) {
           });
         }
         return prisma.$transaction(async (tx) => {
-          const addResult = await prisma.group.create({
+          const addResult = await tx.group.create({
             data: { identifier: name },
           });
           const details: CreateOrDeleteEventDetails = {
@@ -123,7 +123,7 @@ export async function action({ request }: ActionArgs) {
           });
         }
         return prisma.$transaction(async (tx) => {
-          const addResult = await prisma.licenseDetail.create({
+          const addResult = await tx.licenseDetail.create({
             data: { identifier: name },
           });
           const details: CreateOrDeleteEventDetails = {
@@ -144,7 +144,7 @@ export async function action({ request }: ActionArgs) {
       if (result.data.recordType === 'License') {
         const { name, basicUsd } = result.data;
         return prisma.$transaction(async (tx) => {
-          const addResult = await prisma.license.create({
+          const addResult = await tx.license.create({
             data: { identifier: name, basicUsd },
           });
           const details: CreateOrDeleteEventDetails = {
@@ -174,7 +174,7 @@ export async function action({ request }: ActionArgs) {
           });
         }
         return prisma.$transaction(async (tx) => {
-          const addResult = await prisma.sector.create({
+          const addResult = await tx.sector.create({
             data: { identifier: name },
           });
           const details: CreateOrDeleteEventDetails = {
@@ -203,7 +203,7 @@ export async function action({ request }: ActionArgs) {
           });
         }
         return prisma.$transaction(async (tx) => {
-          const addResult = await prisma.status.create({
+          const addResult = await tx.status.create({
             data: { identifier: name },
           });
           const details: CreateOrDeleteEventDetails = {
@@ -218,6 +218,58 @@ export async function action({ request }: ActionArgs) {
             },
           });
           customServerLog('info', 'Added status', result.data, request);
+          return addResult;
+        });
+      }
+      if (result.data.recordType === 'SupportJob') {
+        const {
+          accountId,
+          clientStaffName,
+          supportPerson,
+          supportType,
+          status,
+          enquiry,
+          actionTaken,
+          charge,
+          date,
+          userId,
+        } = result.data;
+        return prisma.$transaction(async (tx) => {
+          const addResult = await tx.supportJob.create({
+            data: {
+              accountId,
+              clientStaffName,
+              supportPerson,
+              supportType: JSON.stringify(supportType),
+              status,
+              enquiry,
+              actionTaken,
+              charge,
+              date,
+              userId,
+            },
+          });
+          const details: CreateOrDeleteEventDetails = {
+            accountId,
+            clientStaffName,
+            supportPerson,
+            supportType: JSON.stringify(supportType),
+            status,
+            enquiry,
+            actionTaken,
+            charge,
+            date,
+            userId,
+          };
+          await tx.supportJobEvent.create({
+            data: {
+              supportJobId: addResult.id,
+              userId: currentUserId,
+              details: JSON.stringify(details),
+              kind: EventKind.Create,
+            },
+          });
+          customServerLog('info', 'Added support job', result.data, request);
           return addResult;
         });
       }

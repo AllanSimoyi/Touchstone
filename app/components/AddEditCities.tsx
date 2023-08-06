@@ -30,9 +30,7 @@ export function AddEditCities(props: Props) {
     AddCitySchema,
     ['name']
   );
-  useFieldClearOnSuccess(addFetcher.data, AddCitySchema, [
-    ['name', newCityRef],
-  ]);
+  useFieldClearOnSuccess(addFetcher.data, [newCityRef]);
 
   return (
     <Card className="flex flex-col items-stretch gap-2">
