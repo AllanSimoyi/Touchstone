@@ -122,6 +122,7 @@ export default function Index() {
               <Card className="flex flex-col items-stretch justify-center">
                 <CardHeader>Top Areas</CardHeader>
                 <CustomBarChart
+                  identifier="area(s)"
                   items={areas.map((area) => ({
                     key: area.identifier,
                     value: area._count.accounts,
@@ -131,6 +132,7 @@ export default function Index() {
               <Card className="flex flex-col items-stretch justify-center">
                 <CardHeader>Top Groups</CardHeader>
                 <CustomBarChart
+                  identifier="group(s)"
                   items={groups.map((group) => ({
                     key: group.identifier,
                     value: group._count.accounts,
@@ -140,6 +142,7 @@ export default function Index() {
               <Card className="flex flex-col items-stretch justify-center">
                 <CardHeader>Top Licenses</CardHeader>
                 <CustomBarChart
+                  identifier="license(s)"
                   items={licenses.map((license) => ({
                     key: license.identifier,
                     value: license._count.accounts,
@@ -149,6 +152,7 @@ export default function Index() {
               <Card className="flex flex-col items-stretch justify-center">
                 <CardHeader>Top Sectors</CardHeader>
                 <CustomBarChart
+                  identifier="sector(s)"
                   items={sectors.map((sector) => ({
                     key: sector.identifier,
                     value: sector._count.accounts,

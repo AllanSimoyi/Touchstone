@@ -27,6 +27,14 @@ export async function action({ request }: ActionArgs) {
 
     if (result.data.recordType === 'Area') {
       const { id, name } = result.data;
+      const numDuplicates = await prisma.area.count({
+        where: { identifier: name, id: { not: id } },
+      });
+      if (numDuplicates) {
+        return badRequest({
+          fieldErrors: { name: [`${name} already entered`] },
+        });
+      }
       await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.area.findUnique({
           where: { id },
@@ -55,6 +63,14 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'City') {
       const { id, name } = result.data;
+      const numDuplicates = await prisma.city.count({
+        where: { identifier: name, id: { not: id } },
+      });
+      if (numDuplicates) {
+        return badRequest({
+          fieldErrors: { name: [`${name} already entered`] },
+        });
+      }
       await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.city.findUnique({
           where: { id },
@@ -83,6 +99,14 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'Group') {
       const { id, name } = result.data;
+      const numDuplicates = await prisma.group.count({
+        where: { identifier: name, id: { not: id } },
+      });
+      if (numDuplicates) {
+        return badRequest({
+          fieldErrors: { name: [`${name} already entered`] },
+        });
+      }
       await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.group.findUnique({
           where: { id },
@@ -111,6 +135,14 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'LicenseDetail') {
       const { id, name } = result.data;
+      const numDuplicates = await prisma.licenseDetail.count({
+        where: { identifier: name, id: { not: id } },
+      });
+      if (numDuplicates) {
+        return badRequest({
+          fieldErrors: { name: [`${name} already entered`] },
+        });
+      }
       await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.licenseDetail.findUnique({
           where: { id },
@@ -139,6 +171,14 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'License') {
       const { id, name, basicUsd } = result.data;
+      const numDuplicates = await prisma.license.count({
+        where: { identifier: name, id: { not: id } },
+      });
+      if (numDuplicates) {
+        return badRequest({
+          fieldErrors: { name: [`${name} already entered`] },
+        });
+      }
       await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.license.findUnique({
           where: { id },
@@ -171,6 +211,14 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'Sector') {
       const { id, name } = result.data;
+      const numDuplicates = await prisma.sector.count({
+        where: { identifier: name, id: { not: id } },
+      });
+      if (numDuplicates) {
+        return badRequest({
+          fieldErrors: { name: [`${name} already entered`] },
+        });
+      }
       await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.sector.findUnique({
           where: { id },
@@ -199,6 +247,14 @@ export async function action({ request }: ActionArgs) {
     }
     if (result.data.recordType === 'Status') {
       const { id, name } = result.data;
+      const numDuplicates = await prisma.status.count({
+        where: { identifier: name, id: { not: id } },
+      });
+      if (numDuplicates) {
+        return badRequest({
+          fieldErrors: { name: [`${name} already entered`] },
+        });
+      }
       await prisma.$transaction(async (tx) => {
         const oldRecord = await tx.status.findUnique({
           where: { id },

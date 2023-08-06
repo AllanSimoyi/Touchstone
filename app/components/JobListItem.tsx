@@ -137,7 +137,10 @@ export function JobListItem(props: Props) {
       {!editMode && (
         <div className="grid grow grid-cols-1 gap-6 md:grid-cols-4">
           <ListItemDetail subtitle="Company" detail={companyName} />
-          <ListItemDetail subtitle="Staff Member" detail={clientStaffName} />
+          <ListItemDetail
+            subtitle="Company Staff Member"
+            detail={clientStaffName}
+          />
           <ListItemDetail
             subtitle="Support Person"
             detail={
@@ -222,7 +225,7 @@ export function JobListItem(props: Props) {
               <SecondaryButton type="button" onClick={() => setEditMode(false)}>
                 Cancel
               </SecondaryButton>
-              <PrimaryButton type="submit">Submit</PrimaryButton>
+              <PrimaryButton type="submit">Update</PrimaryButton>
             </div>
           </ActionContextProvider>
         </updateFetcher.Form>

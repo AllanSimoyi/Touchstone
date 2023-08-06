@@ -13,9 +13,10 @@ type Props = {
     key: string;
     value: number;
   }[];
+  identifier: string;
 };
 export function CustomBarChart(props: Props) {
-  const { items } = props;
+  const { items, identifier } = props;
 
   return (
     <div className="flex flex-col items-stretch overflow-x-auto py-4">
@@ -42,7 +43,7 @@ export function CustomBarChart(props: Props) {
                 return (
                   <div className="rounded-md border border-zinc-50 bg-white/50 px-6 py-2 shadow-lg backdrop-blur-lg">
                     <span className="label">
-                      {label} has {payload[0]?.value ?? '0'} accounts
+                      {label} - {payload[0]?.value ?? '0'} {identifier}
                     </span>
                   </div>
                 );

@@ -99,9 +99,9 @@ export async function loader({ request }: LoaderArgs) {
     }),
   ]);
 
-  const newOrderId = jobs.length ? jobs[0].id + 1 : 1;
+  const newJobId = jobs.length ? jobs[0].id + 1 : 1;
 
-  return json({ jobs, accounts, newOrderId });
+  return json({ jobs, accounts, newJobId });
 }
 
 export default function SupportJobs() {
@@ -109,7 +109,7 @@ export default function SupportJobs() {
   const {
     jobs: suppliedJobs,
     accounts,
-    newOrderId,
+    newJobId,
   } = useLoaderData<typeof loader>();
 
   const [jobType, setJobType] = useState<SupportJobType | undefined>(undefined);
@@ -219,20 +219,22 @@ export default function SupportJobs() {
         return jobs;
       }
       return jobs.filter((job) => {
-        const preppedSearchTerms = searchTerms.toLowerCase();
+        const lowercaseSearchTerms = searchTerms.toLowerCase();
         const conditions: boolean[] = [
-          pad(job.accountId.toString(), 4, '0').includes(preppedSearchTerms),
-          job.companyName.toLowerCase().includes(preppedSearchTerms),
-          job.clientStaffName.toLowerCase().includes(preppedSearchTerms),
-          job.supportPerson.toLowerCase().includes(preppedSearchTerms),
+          pad(job.id.toString(), 4, '0').includes(lowercaseSearchTerms),
+          job.companyName.toLowerCase().includes(lowercaseSearchTerms),
+          job.clientStaffName.toLowerCase().includes(lowercaseSearchTerms),
+          job.supportPerson.toLowerCase().includes(lowercaseSearchTerms),
           job.supportTypes
             .join(', ')
             .toLowerCase()
-            .includes(preppedSearchTerms) || false,
-          job.enquiry.toLowerCase().includes(preppedSearchTerms) || false,
-          job.actionTaken.toLowerCase().includes(preppedSearchTerms) || false,
-          job.status.toLowerCase().includes(preppedSearchTerms) || false,
-          job.date.toLowerCase().includes(preppedSearchTerms) || false,
+            .includes(lowercaseSearchTerms) || false,
+          job.enquiry.toLowerCase().includes(lowercaseSearchTerms) || false,
+          job.actionTaken.toLowerCase().includes(lowercaseSearchTerms) || false,
+          job.status.toLowerCase().includes(lowercaseSearchTerms) || false,
+          job.date.toLowerCase().includes(lowercaseSearchTerms) || false,
+          job.user.username.toLowerCase().includes(lowercaseSearchTerms) ||
+            false,
         ];
         return conditions.some((condition) => condition);
       });
@@ -377,7 +379,7 @@ export default function SupportJobs() {
               <DebouncedSearch runSearch={setSearchTerms} placeholder="" />
             </div>
           </Card>
-          <JobList newOrderId={newOrderId} accounts={accounts} jobs={jobs} />
+          <JobList newJobId={newJobId} accounts={accounts} jobs={jobs} />
         </CenteredView>
       </div>
       <Footer />

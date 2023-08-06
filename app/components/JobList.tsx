@@ -2,9 +2,10 @@ import type { ComponentProps } from 'react';
 import type { z } from 'zod';
 
 import { faker } from '@faker-js/faker';
-import { useFetcher } from '@remix-run/react';
+import { Link, useFetcher } from '@remix-run/react';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { ChevronRight } from 'tabler-icons-react';
 
 import { useFormData } from '~/hooks/useFormData';
 import {
@@ -27,16 +28,17 @@ import { AddJob } from './AddJob';
 import { InputRecordType } from './InputRecordType';
 import { JobListItem } from './JobListItem';
 import { PrimaryButton } from './PrimaryButton';
+import { UnderLineOnHover } from './UnderLineOnHover';
 
 interface Props {
-  newOrderId: number;
+  newJobId: number;
   accounts: { id: number; companyName: string }[];
   jobs: Omit<ComponentProps<typeof JobListItem>, 'accounts'>[];
 }
 const RecordType: (typeof RECORD_TYPES)[number] = 'SupportJob';
 export function JobList(props: Props) {
   const currentUser = useUser();
-  const { newOrderId, accounts, jobs } = props;
+  const { newJobId, accounts, jobs } = props;
 
   const [addCardIsOpen, setAddCardIsOpen] = useState(false);
 
@@ -75,7 +77,7 @@ export function JobList(props: Props) {
     string
   > = {
     recordType: 'SupportJob',
-    accountId: newOrderId.toString(),
+    accountId: newJobId.toString(),
     clientStaffName: faker.person.fullName(),
     supportPerson: faker.person.fullName(),
     supportType: SUPPORT_JOB_TYPES[1],
@@ -90,7 +92,19 @@ export function JobList(props: Props) {
   return (
     <div className="flex flex-col items-stretch">
       <div className="flex flex-row items-start">
-        <h2 className="text-lg font-semibold">Support Jobs</h2>
+        <h2 className="flex flex-row items-stretch gap-2 text-2xl font-semibold">
+          <span className="text-zinc-800">Support Jobs</span>
+          <div className="flex flex-col items-center justify-center">
+            <ChevronRight className="text-zinc-400" />
+          </div>
+          <Link to={AppLinks.SupportJobStats}>
+            <UnderLineOnHover>
+              <span className="text-zinc-400 transition-all duration-150 hover:text-zinc-800">
+                Analytics
+              </span>
+            </UnderLineOnHover>
+          </Link>
+        </h2>
         <div className="grow" />
         {!addCardIsOpen && (
           <PrimaryButton type="button" onClick={() => setAddCardIsOpen(true)}>
@@ -119,7 +133,7 @@ export function JobList(props: Props) {
               />
               <AddJob
                 fetcher={fetcher}
-                newOrderId={newOrderId}
+                newJobId={newJobId}
                 accounts={accounts}
                 accountId={1}
                 cancel={() => setAddCardIsOpen(false)}
@@ -132,7 +146,7 @@ export function JobList(props: Props) {
             {!!optimisticItem?.clientStaffName && (
               <JobListItem
                 {...optimisticItem}
-                id={newOrderId}
+                id={newJobId}
                 accountId={Number(optimisticItem.accountId) || 0}
                 companyName={
                   accounts.find(

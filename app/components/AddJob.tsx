@@ -28,13 +28,13 @@ import { SecondaryButton } from './SecondaryButton';
 
 interface Props {
   fetcher: FetcherWithComponents<any>;
-  newOrderId: number;
+  newJobId: number;
   accounts: { id: number; companyName: string }[];
   accountId: number;
   cancel: () => void;
 }
 export function AddJob(props: Props) {
-  const { fetcher, newOrderId, accounts, accountId, cancel } = props;
+  const { fetcher, newJobId, accounts, accountId, cancel } = props;
   const currentUser = useUser();
 
   const [supportType, setSupportType] = useState<SupportJobType>(
@@ -96,13 +96,13 @@ export function AddJob(props: Props) {
       className="flex flex-col items-stretch gap-6 rounded-md border border-zinc-200 bg-white p-4 shadow-lg"
     >
       <div className="flex flex-col items-start">
-        <span className="text-lg font-semibold">New Support Order</span>
+        <span className="text-lg font-semibold">New Support Job</span>
       </div>
       <div className="relative flex flex-row items-stretch justify-start gap-10">
         <div className="flex flex-col items-stretch whitespace-nowrap">
           <ListItemDetail
             subtitle="Job #"
-            detail={pad(newOrderId.toString(), 4, '0')}
+            detail={pad(newJobId.toString(), 4, '0')}
           />
         </div>
         <div className="grid grow grid-cols-1 gap-6 sm:grid-cols-3 md:grid-cols-4">
@@ -242,7 +242,7 @@ export function AddJob(props: Props) {
         <SecondaryButton type="button" onClick={handleCancel}>
           Cancel
         </SecondaryButton>
-        <PrimaryButton type="submit">Submit</PrimaryButton>
+        <PrimaryButton type="submit">Record</PrimaryButton>
       </div>
     </div>
   );
