@@ -132,17 +132,6 @@ export default function SupportJobs() {
     []
   );
 
-  const onAccountChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      const result = z.string().safeParse(event.currentTarget.value);
-      if (!result.success) {
-        return;
-      }
-      setCompany(result.data);
-    },
-    []
-  );
-
   const onStatusChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
       const result = SupportJobStatusSchema.or(z.literal('')).safeParse(
@@ -195,7 +184,9 @@ export default function SupportJobs() {
       if (!company) {
         return jobs;
       }
-      return jobs.filter((job) => job.company === company);
+      return jobs.filter((job) =>
+        job.company.toLowerCase().includes(company.toLowerCase())
+      );
     },
     [company]
   );
@@ -311,20 +302,16 @@ export default function SupportJobs() {
               </Select>
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
-              <Select
-                isRow={false}
-                name="areaId"
-                label="Customer"
-                defaultValue={company}
-                onChange={onAccountChange}
-              >
-                <option value={''}>All Customers</option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.companyName}
-                  </option>
-                ))}
-              </Select>
+              <div className="flex flex-col items-start justify-center">
+                <span className="text-base font-light text-zinc-600">
+                  Company
+                </span>
+              </div>
+              <DebouncedSearch
+                runSearch={setCompany}
+                placeholder="Search by company"
+                noIcon
+              />
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
               <Select

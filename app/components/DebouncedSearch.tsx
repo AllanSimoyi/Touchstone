@@ -1,17 +1,18 @@
+import type { ComponentProps } from 'react';
+
 import { useCallback, useEffect } from 'react';
 
 import useDebounce from '../hooks/useDebounce';
 
 import { SearchBox } from './SearchBox';
 
-export function DebouncedSearch({
-  runSearch,
-  toggleInput = undefined,
-  ...restOfProps
-}: {
+type Props = ComponentProps<typeof SearchBox> & {
   runSearch: (searchTerms: string) => void;
   toggleInput?: boolean;
-} & React.InputHTMLAttributes<HTMLInputElement>) {
+};
+export function DebouncedSearch(props: Props) {
+  const { runSearch, toggleInput = undefined, ...restOfProps } = props;
+
   const { searchTerms, setSearchTerms } = useDebounce((searchTerms: string) => {
     runSearch(searchTerms);
   }, 800);
