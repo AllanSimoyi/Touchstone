@@ -1,4 +1,5 @@
 import { createReadStream } from 'fs';
+import path from 'path';
 
 import { Response, type LoaderArgs } from '@remix-run/node';
 import dayjs from 'dayjs';
@@ -7,6 +8,7 @@ import ExcelJS from 'exceljs';
 import { prisma } from '~/db.server';
 import { StatusCode } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
+import { Env } from '~/models/environment';
 import { getErrorMessage } from '~/models/errors';
 import { requireUserId } from '~/session.server';
 
@@ -131,7 +133,16 @@ export async function loader({ request }: LoaderArgs) {
       });
     });
 
-    const filename = `Touchstone_${dayjs().format(DATE_INPUT_FORMAT)}`;
+    let tempDir: string;
+    if (Env.NODE_ENV === 'development') {
+      tempDir = path.join(__dirname, `../../tmp/`);
+    } else {
+      tempDir = '/tmp/';
+    }
+
+    const filename = `${tempDir}Touchstone_${dayjs().format(
+      DATE_INPUT_FORMAT
+    )}`;
     await workbook.xlsx.writeFile(filename);
     const stream = createReadStream(filename);
 
