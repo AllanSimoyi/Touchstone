@@ -19,11 +19,15 @@ export function SupportTypesMultiSelect(props: Props) {
     if (typeof data !== 'string') {
       return undefined;
     }
-    const result = z.string().array().safeParse(JSON.parse(data));
-    if (!result.success) {
+    try {
+      const result = z.string().array().safeParse(JSON.parse(data));
+      if (!result.success) {
+        return undefined;
+      }
+      return result.data.map((el) => ({ value: el, label: el }));
+    } catch (error) {
       return undefined;
     }
-    return result.data.map((el) => ({ value: el, label: el }));
   }, []);
 
   const [supportTypes, setSupportTypes] = useState<CustomOption[]>(

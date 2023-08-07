@@ -34,11 +34,15 @@ export function useLister<SchemaType extends ZodTypeAny>(
       if (typeof value !== 'string') {
         return;
       }
-      const result = Schema.array().safeParse(JSON.parse(value));
-      if (!result.success) {
-        throw new Error(result.error.message);
+      try {
+        const result = Schema.array().safeParse(JSON.parse(value));
+        if (!result.success) {
+          throw new Error(result.error.message);
+        }
+        setItems(result.data);
+      } catch (error) {
+        return;
       }
-      setItems(result.data);
     } catch (error) {
       console.error(getErrorMessage(error));
       setErrors(INVALID_VALUES_FROM_SERVER);
