@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 import { EventKind } from '~/models/events';
-import { SUPPORT_JOB_STATUSES, SUPPORT_JOB_TYPES } from '~/models/support-jobs';
+// import { SUPPORT_JOB_STATUSES, SUPPORT_JOB_TYPES } from '~/models/support-jobs';
 
 const prisma = new PrismaClient();
 
@@ -204,32 +204,32 @@ async function seed() {
   );
   const [{ id: userId }] = users;
 
-  function getSupportJobStatus(index: number) {
-    if (index < 3) {
-      return SUPPORT_JOB_STATUSES[index];
-    }
-    return SUPPORT_JOB_STATUSES[2];
-  }
+  // function getSupportJobStatus(index: number) {
+  //   if (index < 3) {
+  //     return SUPPORT_JOB_STATUSES[index];
+  //   }
+  //   return SUPPORT_JOB_STATUSES[2];
+  // }
 
-  for (const user of users) {
-    await prisma.supportJob.createMany({
-      data: [...Array(10).keys()].map((_, index) => ({
-        company: faker.company.name(),
-        clientStaffName: faker.person.fullName(),
-        supportPerson: faker.person.fullName(),
-        supportType: JSON.stringify([
-          SUPPORT_JOB_TYPES[0],
-          SUPPORT_JOB_TYPES[1],
-        ]),
-        status: getSupportJobStatus(index),
-        enquiry: faker.lorem.sentence(7),
-        actionTaken: faker.lorem.paragraph(2),
-        charge: faker.finance.amount(),
-        date: faker.date.past(),
-        userId: user.id,
-      })),
-    });
-  }
+  // for (const user of users) {
+  //   await prisma.supportJob.createMany({
+  //     data: [...Array(10).keys()].map((_, index) => ({
+  //       company: faker.company.name(),
+  //       clientStaffName: faker.person.fullName(),
+  //       supportPerson: faker.person.fullName(),
+  //       supportType: JSON.stringify([
+  //         SUPPORT_JOB_TYPES[0],
+  //         SUPPORT_JOB_TYPES[1],
+  //       ]),
+  //       status: getSupportJobStatus(index),
+  //       enquiry: faker.lorem.sentence(7),
+  //       actionTaken: faker.lorem.paragraph(2),
+  //       charge: faker.finance.amount(),
+  //       date: faker.date.past(),
+  //       userId: user.id,
+  //     })),
+  //   });
+  // }
 
   for (const accountId of accountIds) {
     await Promise.all([

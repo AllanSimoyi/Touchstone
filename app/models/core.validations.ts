@@ -304,29 +304,7 @@ export const AddSupportJobSchema = z.object({
     })
     .min(1, "Enter a support person's name")
     .max(100, "Use less than 100 characters for the support person's name"),
-  supportType: z.preprocess(
-    (arg) => {
-      if (typeof arg === 'string') {
-        try {
-          return JSON.parse(arg);
-        } catch (error) {
-          return undefined;
-        }
-      }
-    },
-    z
-      .string({
-        required_error: 'Select the type of work',
-        invalid_type_error: 'Provide valid input for the type of work',
-      })
-      .min(1, 'Select the type of work')
-      .max(40, 'Use less than 40 characters for the type of work')
-      .array(),
-    {
-      required_error: 'Select the type of work',
-      invalid_type_error: 'Provide valid input for the type of work',
-    }
-  ),
+  supportType: StrSupportJobTypeSchema,
   status: z
     .string({
       required_error: 'Select the support job status',

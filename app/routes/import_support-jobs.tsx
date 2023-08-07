@@ -1,14 +1,23 @@
+import type { LoaderArgs } from '@remix-run/node';
 import type { ChangeEvent } from 'react';
+import type { SupportJobStatus, SupportJobType } from '~/models/support-jobs';
 
-import { json, type LoaderArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { useCallback } from 'react';
+import { json } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
+import { useCallback, useState } from 'react';
 import readXlsxFile from 'read-excel-file';
-import { z, ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 
 import { prisma } from '~/db.server';
+import { useActionErrors } from '~/hooks/useActionErrors';
+import {
+  hasSuccess,
+  type AddSupportJobSchema,
+} from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
+import { AppLinks } from '~/models/links';
 import { requireUserId } from '~/session.server';
+import { useUser } from '~/utils';
 
 export async function loader({ request }: LoaderArgs) {
   await requireUserId(request);
@@ -21,7 +30,10 @@ export async function loader({ request }: LoaderArgs) {
 }
 
 export default function SupportJobs() {
+  const currentUser = useUser();
   useLoaderData<typeof loader>();
+
+  const [arr, setArr] = useState<any[]>([]);
 
   const handleFileChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>) => {
@@ -76,18 +88,7 @@ export default function SupportJobs() {
           z.string(),
           CustomStatusSchema,
           z.date(),
-          // z
-          //   .string()
-          //   .refine((arg) => arg.split('-')[0])
-          //   .transform(Number),
         ]);
-        // string
-        // Customer Name
-        // Support Type
-        // Support Enquiry
-        // Solution
-        // Status
-        // date
 
         const parsedRows = dataRows.map((row) => {
           const result = Schema.safeParse(row);
@@ -101,43 +102,106 @@ export default function SupportJobs() {
         console.log('erredRows', erredRows);
 
         const correctRows = parsedRows.filter(
-          (row) => !(row instanceof ZodError)
+          (row): row is Exclude<(typeof parsedRows)[number], ZodError> =>
+            !(row instanceof ZodError)
         );
         console.log('correct rows', correctRows);
 
-        // const customerNames = dataRows
-        //   .map((row) => row[1]?.toString())
-        //   .filter(Boolean);
-        // console.log(
-        //   'Existing customers',
-        //   customerNames.filter((c) =>
-        //     customers.some((el) => el.companyName === c)
-        //   )
-        // );
-        // console.log(
-        //   'New customers',
-        //   customerNames.filter((c) =>
-        //     customers.every((el) => el.companyName !== c)
-        //   )
-        // );
+        function mapSupportTypes(key: string) {
+          const mapping: [string, SupportJobType[]][] = [
+            ['telephone and email support', ['Telephone', 'Email']],
+            ['remote support', ['Remote']],
+            ['email and telephone support', ['Email', 'Telephone']],
+            ['telephone support', ['Telephone']],
+            ['technical support', ['Technical']],
+            ['telephone and remote support', ['Telephone', 'Remote']],
+            ['inhouse consultation', ['Inhouse']],
+            ['inhouse support', ['Inhouse']],
+            ['personal machine consult', ['Personal device']],
+            ['in office technical support', ['In office']],
+            ['oinhouse support', ['Inhouse']],
+            ['in office consultation support', ['In office']],
+            ['technical in office network support', ['In office', 'Network']],
+            ['email support', ['Email']],
+          ];
+          return mapping.find((el) => el[0] === key)?.[1] || undefined;
+        }
 
-        // const supportTypes = dataRows
-        //   .map((row) => row[2]?.toString())
-        //   .filter(Boolean);
-        // const distinctSupportTypes = new Set(supportTypes);
-        // console.log('distinctSupportTypes', distinctSupportTypes);
+        function mapStatus(key: string) {
+          const mapping: [string, SupportJobStatus][] = [
+            ['finalised', 'Finalised'],
+            ['completed', 'Completed'],
+            [
+              'in process however progress made with developer of screen reader',
+              'In progress',
+            ],
+            ['in progress', 'In progress'],
+            ['backup inprocess', 'In progress'],
+            ['InProgress', 'In progress'],
+          ];
+          return mapping.find((el) => el[0] === key)?.[1] || undefined;
+        }
 
-        // const statuses = dataRows
-        //   .map((row) => row[5]?.toString())
-        //   .filter(Boolean);
-        // const distinctStatuses = new Set(statuses);
-        // console.log('distinctStatuses', distinctStatuses);
+        setArr(
+          correctRows.map((row) => {
+            const [, company, supportType, enquiry, actionTaken, status, date] =
+              row;
+            const details: Omit<
+              z.infer<typeof AddSupportJobSchema>,
+              'date' | 'supportType'
+            > & {
+              date: string;
+              supportType: string;
+            } = {
+              recordType: 'SupportJob',
+              company,
+              clientStaffName: '-',
+              supportPerson: 'Aidan',
+              supportType: JSON.stringify(mapSupportTypes(supportType) || []),
+              status: mapStatus(status) || 'Finalised',
+              enquiry,
+              actionTaken,
+              charge: 0,
+              date: date.toString(),
+              userId: currentUser.id,
+            };
+            return details;
+          })
+        );
+
+        // for (let row of correctRows) {
+        //   const [, company, supportType, enquiry, actionTaken, status, date] =
+        //     row;
+        //   const details: Omit<
+        //     z.infer<typeof AddSupportJobSchema>,
+        //     'date' | 'supportType'
+        //   > & {
+        //     date: string;
+        //     supportType: string;
+        //   } = {
+        //     recordType: 'SupportJob',
+        //     company,
+        //     clientStaffName: '-',
+        //     supportPerson: 'Aidan',
+        //     supportType: JSON.stringify(mapSupportTypes(supportType) || []),
+        //     status: mapStatus(status) || 'Finalised',
+        //     enquiry,
+        //     actionTaken,
+        //     charge: 0,
+        //     date: date.toString(),
+        //     userId: currentUser.id,
+        //   };
+        //   return submit(details, {
+        //     action: AppLinks.AddRecord,
+        //     method: 'post',
+        //   });
+        // }
       } catch (error) {
         console.log(error);
         window.alert(getErrorMessage(error));
       }
     },
-    []
+    [currentUser.id]
   );
 
   return (
@@ -150,6 +214,40 @@ export default function SupportJobs() {
         onChange={handleFileChange}
         disabled={false}
       />
+      {arr.map((el, index) => (
+        <Sub key={index} details={el} />
+      ))}
+    </div>
+  );
+}
+
+interface Props {
+  details: any;
+}
+function Sub(props: Props) {
+  const { details } = props;
+  const { submit, ...fetcher } = useFetcher();
+
+  const actionErrors = useActionErrors(fetcher.data);
+  if (actionErrors) {
+    console.log('actionErrors', actionErrors);
+  }
+
+  const handleClick = useCallback(() => {
+    return submit(details, {
+      action: AppLinks.AddRecord,
+      method: 'post',
+    });
+  }, [submit, details]);
+
+  return (
+    <div>
+      <button type="button" onClick={handleClick}>
+        {fetcher.state === 'idle' ? 'Chilled' : 'Adding...'}
+      </button>
+      {hasSuccess(fetcher.data) && <span>SUCCESS!</span>}
+      <span>{fetcher.state}</span>
+      {!!actionErrors && <span>Errors: {actionErrors}</span>}
     </div>
   );
 }
