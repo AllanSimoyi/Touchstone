@@ -394,7 +394,9 @@ export const action = async ({ request }: ActionArgs) => {
       return badRequest({ formError: creationResult.formError });
     }
 
-    return redirect(AppLinks.Customer(creationResult.id));
+    return redirect(
+      `${AppLinks.Customer(creationResult.id)}?message=Customer_added`
+    );
   } catch (error) {
     const formError =
       getErrorMessage(error) ||

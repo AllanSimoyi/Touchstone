@@ -31,16 +31,21 @@ import { prisma } from '~/db.server';
 import { useDelete } from '~/hooks/useDelete';
 import {
   StatusCode,
+  getQueryParams,
   getValidatedId,
   hasSuccess,
 } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { AppLinks } from '~/models/links';
+import { showToast } from '~/models/toast';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   await requireUserId(request);
+
+  const rawQueryParams = getQueryParams(request.url, ['message']);
+  const message = rawQueryParams.message;
 
   const id = getValidatedId(params.id);
   const customer = await prisma.account
@@ -110,14 +115,20 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     throw new Response('Account not found', { status: StatusCode.NotFound });
   }
 
-  return json({ customer });
+  return json({ customer, message });
 };
 
 export default function CustomerPage() {
   const user = useUser();
-  const { customer } = useLoaderData<typeof loader>();
+  const { customer, message } = useLoaderData<typeof loader>();
   const { submit, ...fetcher } = useFetcher();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (message) {
+      showToast('success', message);
+    }
+  }, [message]);
 
   const { isOpen, askForConfirmation, closeModal, onConfirmed } = useDelete({
     handleDelete: () => {
@@ -131,7 +142,7 @@ export default function CustomerPage() {
 
   useEffect(() => {
     if (hasSuccess(fetcher.data)) {
-      navigate(AppLinks.Customers);
+      navigate(`${AppLinks.Customers}?message=Customer_deleted`);
     }
   }, [fetcher.data, navigate]);
 

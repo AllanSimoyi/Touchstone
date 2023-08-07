@@ -18,6 +18,7 @@ import { CenteredView } from '~/components/CenteredView';
 import { DebouncedSearch } from '~/components/DebouncedSearch';
 import { Footer } from '~/components/Footer';
 import { JobList } from '~/components/JobList';
+import { SearchTermContextProvider } from '~/components/SearchTermContextProvider';
 import { Select } from '~/components/Select';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
@@ -233,6 +234,7 @@ export default function SupportJobs() {
           job.actionTaken.toLowerCase().includes(lowercaseSearchTerms) || false,
           job.status.toLowerCase().includes(lowercaseSearchTerms) || false,
           job.date.toLowerCase().includes(lowercaseSearchTerms) || false,
+          job.charge.toLowerCase().includes(lowercaseSearchTerms) || false,
           job.user.username.toLowerCase().includes(lowercaseSearchTerms) ||
             false,
         ];
@@ -379,7 +381,9 @@ export default function SupportJobs() {
               <DebouncedSearch runSearch={setSearchTerms} placeholder="" />
             </div>
           </Card>
-          <JobList newJobId={newJobId} accounts={accounts} jobs={jobs} />
+          <SearchTermContextProvider searchTerms={searchTerms}>
+            <JobList newJobId={newJobId} accounts={accounts} jobs={jobs} />
+          </SearchTermContextProvider>
         </CenteredView>
       </div>
       <Footer />

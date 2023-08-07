@@ -21,6 +21,7 @@ import {
   type SupportJobStatus,
   type SupportJobType,
 } from '~/models/support-jobs';
+import { showToast } from '~/models/toast';
 import { useUser } from '~/utils';
 
 import { ActionContextProvider, useForm } from './ActionContextProvider';
@@ -51,6 +52,7 @@ export function JobList(props: Props) {
   useEffect(() => {
     if (hasSuccess(fetcher.data)) {
       setAddCardIsOpen(false);
+      showToast('success', 'Support job added');
     }
   }, [fetcher.data]);
 

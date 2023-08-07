@@ -1,20 +1,14 @@
 import type { FetcherWithComponents } from '@remix-run/react';
-import type { ChangeEvent } from 'react';
-import type { SupportJobType } from '~/models/support-jobs';
 
 import dayjs from 'dayjs';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import { AddSupportJobSchema } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { hasFormError } from '~/models/forms';
 import { pad } from '~/models/strings';
-import {
-  SUPPORT_JOB_STATUSES,
-  SUPPORT_JOB_TYPES,
-  SupportJobTypeSchema,
-} from '~/models/support-jobs';
+import { SUPPORT_JOB_STATUSES } from '~/models/support-jobs';
 import { useUser } from '~/utils';
 
 import { useForm } from './ActionContextProvider';
@@ -25,6 +19,7 @@ import { InlineAlert } from './InlineAlert';
 import { ListItemDetail } from './ListItemDetail';
 import { PrimaryButton } from './PrimaryButton';
 import { SecondaryButton } from './SecondaryButton';
+import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 
 interface Props {
   fetcher: FetcherWithComponents<any>;
@@ -36,20 +31,6 @@ interface Props {
 export function AddJob(props: Props) {
   const { fetcher, newJobId, accounts, accountId, cancel } = props;
   const currentUser = useUser();
-
-  const [supportType, setSupportType] = useState<SupportJobType>(
-    SUPPORT_JOB_TYPES[1]
-  );
-
-  const onSupportTypeChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      const result = SupportJobTypeSchema.safeParse(event.currentTarget.value);
-      if (result.success) {
-        setSupportType(result.data);
-      }
-    },
-    []
-  );
 
   const accountIdRef = useRef<HTMLSelectElement>(null);
   const clientStaffNameRef = useRef<HTMLInputElement>(null);
@@ -158,28 +139,16 @@ export function AddJob(props: Props) {
               </FormSelect>
             }
           />
-          <ListItemDetail
-            subtitle="Type of Work"
-            detail={
-              <FormSelect
-                customRef={supportTypeRef}
-                name="fake"
-                defaultValue={supportType}
-                onChange={onSupportTypeChange}
-              >
-                {SUPPORT_JOB_TYPES.map((jobType) => (
-                  <option key={jobType} value={jobType}>
-                    {jobType}
-                  </option>
-                ))}
-              </FormSelect>
-            }
-          />
-          <input
-            type="hidden"
-            {...getNameProp('supportType')}
-            value={JSON.stringify([supportType])}
-          />
+          <div className="col-span-2 flex flex-col items-stretch">
+            <ListItemDetail
+              subtitle="Type of Work"
+              detail={
+                <SupportTypesMultiSelect
+                  name={getNameProp('supportType').name}
+                />
+              }
+            />
+          </div>
           <ListItemDetail
             subtitle="Charge, if any"
             detail={

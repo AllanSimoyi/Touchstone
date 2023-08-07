@@ -13,12 +13,14 @@ import { UpdateSupportJobSchema, hasSuccess } from '~/models/core.validations';
 import { hasFields, hasFormError } from '~/models/forms';
 import { AppLinks } from '~/models/links';
 import { pad } from '~/models/strings';
+import { showToast } from '~/models/toast';
 
 import { ActionContextProvider, useForm } from './ActionContextProvider';
 import { Card } from './Card';
 import { Chip } from './Chip';
 import { ConfirmDelete } from './ConfirmDelete';
 import { EditJob } from './EditJob';
+import { HighlightText } from './HighlightText';
 import { InlineAlert } from './InlineAlert';
 import { InputRecordType } from './InputRecordType';
 import { ListItemDetail } from './ListItemDetail';
@@ -84,8 +86,15 @@ export function JobListItem(props: Props) {
   useEffect(() => {
     if (hasSuccess(updateFetcher.data)) {
       setEditMode(false);
+      showToast('success', 'Support job updated');
     }
   }, [updateFetcher.data]);
+
+  useEffect(() => {
+    if (hasSuccess(deleteFetcher.data)) {
+      showToast('success', 'Support job deleted');
+    }
+  }, [deleteFetcher.data]);
 
   const defaultValues: Record<
     keyof z.infer<typeof UpdateSupportJobSchema>,
@@ -96,7 +105,7 @@ export function JobListItem(props: Props) {
     accountId: accountId.toString(),
     clientStaffName,
     supportPerson,
-    supportType: supportTypes[0],
+    supportType: JSON.stringify(supportTypes),
     status,
     enquiry,
     actionTaken,
@@ -145,11 +154,11 @@ export function JobListItem(props: Props) {
             subtitle="Support Person"
             detail={
               <div className="flex flex-col items-stretch">
-                <span>{supportPerson}</span>
+                <HighlightText>{supportPerson}</HighlightText>
                 {supportPerson !== user.username && (
-                  <span className="font-light text-zinc-600">
-                    Recorded By {user.username}
-                  </span>
+                  <HighlightText className="font-light text-zinc-600">
+                    {`Recorded By ${user.username}`}
+                  </HighlightText>
                 )}
               </div>
             }
@@ -157,7 +166,7 @@ export function JobListItem(props: Props) {
           <ListItemDetail
             subtitle="Status"
             detail={
-              <span
+              <HighlightText
                 className={twMerge(
                   status === 'Finalised' && 'text-green-600',
                   status === 'In progress' && 'text-orange-600',
@@ -165,24 +174,28 @@ export function JobListItem(props: Props) {
                 )}
               >
                 {status}
-              </span>
+              </HighlightText>
             }
           />
-          <ListItemDetail
-            subtitle="Type of Work"
-            detail={
-              <div className="flex flex-wrap gap-2">
-                {supportTypes.map((supportType) => (
-                  <Chip
-                    key={supportType}
-                    className="rounded bg-zinc-200 px-2 py-0"
-                  >
-                    <span className="font-semibold">{supportType}</span>
-                  </Chip>
-                ))}
-              </div>
-            }
-          />
+          <div className="col-span-2 flex flex-col items-stretch">
+            <ListItemDetail
+              subtitle="Type of Work"
+              detail={
+                <div className="flex flex-wrap gap-2">
+                  {supportTypes.map((supportType) => (
+                    <Chip
+                      key={supportType}
+                      className="rounded bg-zinc-200 px-2 py-0"
+                    >
+                      <HighlightText className="font-semibold">
+                        {supportType}
+                      </HighlightText>
+                    </Chip>
+                  ))}
+                </div>
+              }
+            />
+          </div>
           <ListItemDetail subtitle="Charge" detail={`USD ${charge}`} />
           <ListItemDetail subtitle="Date" detail={date} />
           <div className="col-span-2 flex flex-col items-stretch">

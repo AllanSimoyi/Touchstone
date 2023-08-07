@@ -8,6 +8,7 @@ import { useDelete } from '~/hooks/useDelete';
 import { AppLinks } from '~/models/links';
 
 import { ConfirmDelete } from './ConfirmDelete';
+import { HighlightText } from './HighlightText';
 import { TableDropDownMenu } from './TableDropDownMenu';
 import { UnderLineOnHover } from './UnderLineOnHover';
 
@@ -19,7 +20,6 @@ interface Props {
   accountantEmail: string;
   license: { identifier: string } | null;
 }
-//comment
 export function CustomerTableRow(props: Props) {
   const {
     id,
@@ -64,24 +64,24 @@ export function CustomerTableRow(props: Props) {
           <Link to={AppLinks.Customer(id)}>
             <div className="flex flex-col items-start">
               <UnderLineOnHover>
-                <span className="font-semibold text-zinc-600">
+                <HighlightText className="font-semibold text-zinc-600">
                   {companyName}
-                </span>
+                </HighlightText>
               </UnderLineOnHover>
             </div>
           </Link>
         </td>
         <td className="p-2">
-          <span className="font-light text-zinc-600">
+          <HighlightText className="font-light text-zinc-600">
             {!!accountantName || !!accountantEmail
               ? [accountantName, accountantEmail].filter(Boolean).join(' - ')
               : '-'}
-          </span>
+          </HighlightText>
         </td>
         <td className="p-2">
-          <span className="font-light text-zinc-600">
+          <HighlightText className="font-light text-zinc-600">
             {license?.identifier || '-'}
-          </span>
+          </HighlightText>
         </td>
         <td className="flex flex-col items-end p-2">
           {!isDeleting && (

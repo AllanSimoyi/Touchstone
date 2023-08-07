@@ -1,26 +1,21 @@
 import type { FetcherWithComponents } from '@remix-run/react';
-import type { ChangeEvent } from 'react';
-import type { SupportJobType } from '~/models/support-jobs';
 
 import dayjs from 'dayjs';
-import { useCallback, useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import { UpdateSupportJobSchema } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { hasFormError } from '~/models/forms';
-import {
-  SUPPORT_JOB_STATUSES,
-  SUPPORT_JOB_TYPES,
-  SupportJobTypeSchema,
-} from '~/models/support-jobs';
+import { SUPPORT_JOB_STATUSES } from '~/models/support-jobs';
 import { useUser } from '~/utils';
 
-import { useField, useForm } from './ActionContextProvider';
+import { useForm } from './ActionContextProvider';
 import { FormSelect } from './FormSelect';
 import { FormTextArea } from './FormTextArea';
 import { FormTextField } from './FormTextField';
 import { InlineAlert } from './InlineAlert';
 import { ListItemDetail } from './ListItemDetail';
+import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 
 interface Props {
   fetcher: FetcherWithComponents<any>;
@@ -30,70 +25,16 @@ export function EditJob(props: Props) {
   const { fetcher, accounts } = props;
   const currentUser = useUser();
 
-  const getValidatedSupportType = useCallback((data: unknown) => {
-    const result = SupportJobTypeSchema.safeParse(data);
-    if (!result.success) {
-      return undefined;
-    }
-    return result.data;
-  }, []);
-
   const { getNameProp } = useForm(fetcher.data, UpdateSupportJobSchema);
-
-  const { value: defaultSupportType } = useField(
-    getNameProp('supportType').name
-  );
-
-  const [supportType, setSupportType] = useState<SupportJobType>(
-    getValidatedSupportType(defaultSupportType) || SUPPORT_JOB_TYPES[1]
-  );
-
-  const onSupportTypeChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      const newSupportType = getValidatedSupportType(event.currentTarget.value);
-      if (newSupportType) {
-        setSupportType(newSupportType);
-      }
-    },
-    [getValidatedSupportType]
-  );
 
   const accountIdRef = useRef<HTMLSelectElement>(null);
   const clientStaffNameRef = useRef<HTMLInputElement>(null);
   const supportPersonRef = useRef<HTMLInputElement>(null);
-  const supportTypeRef = useRef<HTMLSelectElement>(null);
   const statusRef = useRef<HTMLSelectElement>(null);
   const enquiryRef = useRef<HTMLTextAreaElement>(null);
   const actionTakenRef = useRef<HTMLTextAreaElement>(null);
   const chargeRef = useRef<HTMLInputElement>(null);
   const dateRef = useRef<HTMLInputElement>(null);
-
-  // const refs = useMemo(
-  //   () => [
-  //     clientStaffNameRef,
-  //     accountIdRef,
-  //     clientStaffNameRef,
-  //     supportPersonRef,
-  //     supportTypeRef,
-  //     statusRef,
-  //     enquiryRef,
-  //     actionTakenRef,
-  //     chargeRef,
-  //     dateRef,
-  //   ],
-  //   []
-  // );
-
-  // useFieldClearOnSuccess(fetcher.data, refs);
-
-  // const handleCancel = useCallback(() => {
-  //   refs.forEach((ref) => {
-  //     if (ref.current) {
-  //       ref.current.value = '';
-  //     }
-  //   });
-  //   cancel();
-  // }, [refs, cancel]);
 
   return (
     <div className="grid grow grid-cols-1 gap-6 sm:grid-cols-3 md:grid-cols-4">
@@ -144,28 +85,14 @@ export function EditJob(props: Props) {
           </FormSelect>
         }
       />
-      <ListItemDetail
-        subtitle="Type of Work"
-        detail={
-          <FormSelect
-            customRef={supportTypeRef}
-            name="fake"
-            defaultValue={supportType}
-            onChange={onSupportTypeChange}
-          >
-            {SUPPORT_JOB_TYPES.map((jobType) => (
-              <option key={jobType} value={jobType}>
-                {jobType}
-              </option>
-            ))}
-          </FormSelect>
-        }
-      />
-      <input
-        type="hidden"
-        {...getNameProp('supportType')}
-        value={JSON.stringify([supportType])}
-      />
+      <div className="col-span-2 flex flex-col items-stretch">
+        <ListItemDetail
+          subtitle="Type of Work"
+          detail={
+            <SupportTypesMultiSelect name={getNameProp('supportType').name} />
+          }
+        />
+      </div>
       <ListItemDetail
         subtitle="Charge, if any"
         detail={

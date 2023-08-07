@@ -14,6 +14,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from '@remix-run/react';
+import { ToastContainer } from 'react-toastify';
+import toastifyCss from 'react-toastify/dist/ReactToastify.css';
 
 import { getUser } from '~/session.server';
 import stylesheet from '~/tailwind.css';
@@ -22,6 +24,7 @@ export const meta: V2_MetaFunction = () => [{ title: 'Touchstone' }];
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
+  { rel: 'stylesheet', href: toastifyCss },
   {
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap',
@@ -47,6 +50,7 @@ export default function App() {
         style={{ fontFamily: '"Poppins", sans-serif !important' }}
       >
         <Outlet />
+        <ToastContainer />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

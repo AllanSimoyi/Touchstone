@@ -8,7 +8,7 @@ import type {
 
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 
 import { RouteErrorBoundary } from '~/components/Boundaries';
@@ -17,10 +17,11 @@ import { CenteredView } from '~/components/CenteredView';
 import CustomersLayout from '~/components/CustomersLayout';
 import { DebouncedSearch } from '~/components/DebouncedSearch';
 import { Footer } from '~/components/Footer';
+import { SearchTermContextProvider } from '~/components/SearchTermContextProvider';
 import { Select } from '~/components/Select';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
-import { RecordIdSchema } from '~/models/core.validations';
+import { RecordIdSchema, getQueryParams } from '~/models/core.validations';
 import {
   LayoutOptionSchema,
   SortByOptionSchema,
@@ -29,11 +30,14 @@ import {
   sortByOptions,
   sortOrderOptions,
 } from '~/models/customers';
+import { showToast } from '~/models/toast';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
 export const loader = async ({ request }: LoaderArgs) => {
   await requireUserId(request);
+
+  const message = getQueryParams(request.url, ['message']).message;
 
   const [customers, areas] = await Promise.all([
     prisma.account.findMany({
@@ -52,12 +56,12 @@ export const loader = async ({ request }: LoaderArgs) => {
     }),
   ]);
 
-  return json({ customers, areas });
+  return json({ customers, areas, message });
 };
 
 export default function CustomersPage() {
   const user = useUser();
-  const { customers, areas } = useLoaderData<typeof loader>();
+  const { customers, areas, message } = useLoaderData<typeof loader>();
 
   const [layout, setLayout] = useState<LayoutOption>(layoutOptions[0]);
   const [areaId, setAreaId] = useState<number>(0);
@@ -66,6 +70,12 @@ export default function CustomersPage() {
     sortOrderOptions[0]
   );
   const [searchTerms, setSearchTerms] = useState('');
+
+  useEffect(() => {
+    if (message) {
+      showToast('success', message);
+    }
+  }, [message]);
 
   const onLayoutChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
@@ -184,14 +194,16 @@ export default function CustomersPage() {
               <DebouncedSearch runSearch={setSearchTerms} placeholder="" />
             </div>
           </Card>
-          <CustomersLayout
-            areaId={areaId}
-            layout={layout}
-            sortBy={sortBy}
-            sortOrder={sortOrder}
-            searchTerms={searchTerms}
-            customers={customers}
-          />
+          <SearchTermContextProvider searchTerms={searchTerms}>
+            <CustomersLayout
+              areaId={areaId}
+              layout={layout}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              searchTerms={searchTerms}
+              customers={customers}
+            />
+          </SearchTermContextProvider>
         </CenteredView>
       </div>
       <Footer />

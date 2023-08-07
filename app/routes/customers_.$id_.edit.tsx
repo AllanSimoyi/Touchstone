@@ -645,7 +645,7 @@ export const action = async ({ request }: ActionArgs) => {
       return updatedAccount;
     });
 
-    return redirect(AppLinks.Customer(id));
+    return redirect(`${AppLinks.Customer(id)}?message=Customer_updated`);
   } catch (error) {
     const formError =
       getErrorMessage(error) ||

@@ -1,6 +1,8 @@
 import { useMemo, type ComponentProps } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+import { HighlightText } from './HighlightText';
+
 interface Props extends ComponentProps<'div'> {
   subtitle: string;
   detail: string | number | React.ReactNode;
@@ -8,8 +10,11 @@ interface Props extends ComponentProps<'div'> {
 export function ListItemDetail(props: Props) {
   const { subtitle, detail, className, ...restOfProps } = props;
 
-  const isNode = useMemo(() => {
-    return typeof detail !== 'string' && typeof detail !== 'number';
+  const typedChild = useMemo(() => {
+    if (typeof detail === 'string' || typeof detail === 'number') {
+      return { type: 'primitive', detail } as const;
+    }
+    return { type: 'node', detail } as const;
   }, [detail]);
 
   return (
@@ -18,8 +23,14 @@ export function ListItemDetail(props: Props) {
       {...restOfProps}
     >
       <span className="text-sm font-light text-zinc-600">{subtitle}</span>
-      {isNode && <div className="text-base font-normal">{detail}</div>}
-      {!isNode && <span className="text-base font-normal">{detail}</span>}
+      {typedChild.type === 'node' && (
+        <div className="text-base font-light">{typedChild.detail}</div>
+      )}
+      {typedChild.type === 'primitive' && (
+        <HighlightText className="text-base font-semibold">
+          {typedChild.detail.toString()}
+        </HighlightText>
+      )}
     </div>
   );
 }
