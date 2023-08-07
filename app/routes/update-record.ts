@@ -284,7 +284,7 @@ export async function action({ request }: ActionArgs) {
     if (result.data.recordType === 'SupportJob') {
       const {
         id,
-        accountId,
+        company,
         clientStaffName,
         supportPerson,
         supportType,
@@ -305,7 +305,7 @@ export async function action({ request }: ActionArgs) {
         const updateResult = await prisma.supportJob.update({
           where: { id },
           data: {
-            accountId,
+            company,
             clientStaffName,
             supportPerson,
             supportType: JSON.stringify(supportType),
@@ -318,7 +318,7 @@ export async function action({ request }: ActionArgs) {
           },
         });
         const details: UpdateEventDetails = {
-          accountId: { from: oldRecord.accountId, to: accountId },
+          company: { from: oldRecord.company, to: company },
           clientStaffName: {
             from: oldRecord.clientStaffName,
             to: clientStaffName,

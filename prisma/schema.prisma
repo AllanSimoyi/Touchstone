@@ -371,10 +371,9 @@ model SupportJob {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accountId       Int
-  account         Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  clientStaffName String  @db.VarChar(100)
-  supportPerson   String  @db.VarChar(100)
+  company         String @default("") @db.VarChar(100)
+  clientStaffName String @db.VarChar(100)
+  supportPerson   String @db.VarChar(100)
 
   supportType String @db.VarChar(500)
   status      String @db.VarChar(100)
@@ -388,7 +387,9 @@ model SupportJob {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  events SupportJobEvent[]
+  events    SupportJobEvent[]
+  Account   Account?          @relation(fields: [accountId], references: [id])
+  accountId Int?
 
   @@map("support_job")
 }

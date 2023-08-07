@@ -1,11 +1,11 @@
 import type { ComponentProps } from 'react';
-import type { z } from 'zod';
 
 import { faker } from '@faker-js/faker';
 import { Link, useFetcher } from '@remix-run/react';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { ChevronRight } from 'tabler-icons-react';
+import { z } from 'zod';
 
 import { useFormData } from '~/hooks/useFormData';
 import {
@@ -34,12 +34,12 @@ import { UnderLineOnHover } from './UnderLineOnHover';
 interface Props {
   newJobId: number;
   accounts: { id: number; companyName: string }[];
-  jobs: Omit<ComponentProps<typeof JobListItem>, 'accounts'>[];
+  jobs: ComponentProps<typeof JobListItem>[];
 }
 const RecordType: (typeof RECORD_TYPES)[number] = 'SupportJob';
 export function JobList(props: Props) {
   const currentUser = useUser();
-  const { newJobId, accounts, jobs } = props;
+  const { newJobId, jobs } = props;
 
   const [addCardIsOpen, setAddCardIsOpen] = useState(false);
 
@@ -56,12 +56,12 @@ export function JobList(props: Props) {
     }
   }, [fetcher.data]);
 
-  const optimisticItem = useFormData(
+  const rawOptimisticItem = useFormData(
     fetcher.submission?.formData,
     AddSupportJobSchema,
     [
       'recordType',
-      'accountId',
+      'company',
       'clientStaffName',
       'supportPerson',
       'supportType',
@@ -74,12 +74,30 @@ export function JobList(props: Props) {
     ]
   );
 
+  const optimisticItem = (() => {
+    try {
+      if (!rawOptimisticItem || !rawOptimisticItem.supportType) {
+        return rawOptimisticItem;
+      }
+      const result = z
+        .string()
+        .array()
+        .safeParse(JSON.parse(rawOptimisticItem.supportType));
+      if (!result.success) {
+        return rawOptimisticItem;
+      }
+      return { ...rawOptimisticItem, supportType: result.data };
+    } catch (error) {
+      return rawOptimisticItem;
+    }
+  })();
+
   const defaultValues: Record<
     keyof z.infer<typeof AddSupportJobSchema>,
     string
   > = {
     recordType: 'SupportJob',
-    accountId: newJobId.toString(),
+    company: faker.company.name(),
     clientStaffName: faker.person.fullName(),
     supportPerson: faker.person.fullName(),
     supportType: SUPPORT_JOB_TYPES[1],
@@ -136,8 +154,6 @@ export function JobList(props: Props) {
               <AddJob
                 fetcher={fetcher}
                 newJobId={newJobId}
-                accounts={accounts}
-                accountId={1}
                 cancel={() => setAddCardIsOpen(false)}
               />
             </ActionContextProvider>
@@ -149,12 +165,7 @@ export function JobList(props: Props) {
               <JobListItem
                 {...optimisticItem}
                 id={newJobId}
-                accountId={Number(optimisticItem.accountId) || 0}
-                companyName={
-                  accounts.find(
-                    (el) => el.id.toString() === optimisticItem.accountId
-                  )?.companyName || ''
-                }
+                company={optimisticItem.company || ''}
                 clientStaffName={optimisticItem.clientStaffName || ''}
                 supportPerson={optimisticItem.supportPerson || ''}
                 supportTypes={[optimisticItem.supportType as SupportJobType]}
@@ -165,11 +176,10 @@ export function JobList(props: Props) {
                 date={optimisticItem.date || ''}
                 user={currentUser}
                 menuIsDisabled
-                accounts={accounts}
               />
             )}
             {jobs.map((job) => (
-              <JobListItem key={job.id} {...job} accounts={accounts} />
+              <JobListItem key={job.id} {...job} />
             ))}
           </div>
         )}

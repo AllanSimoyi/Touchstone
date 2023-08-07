@@ -213,8 +213,8 @@ async function seed() {
 
   for (const user of users) {
     await prisma.supportJob.createMany({
-      data: accountIds.slice(0, 10).map((accountId, index) => ({
-        accountId,
+      data: [...Array(10).keys()].map((_, index) => ({
+        company: faker.company.name(),
         clientStaffName: faker.person.fullName(),
         supportPerson: faker.person.fullName(),
         supportType: JSON.stringify([

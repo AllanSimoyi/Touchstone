@@ -22,7 +22,6 @@ import { SearchTermContextProvider } from '~/components/SearchTermContextProvide
 import { Select } from '~/components/Select';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
-import { RecordIdSchema } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { logParseError } from '~/models/logger.server';
 import { pad } from '~/models/strings';
@@ -48,7 +47,7 @@ export async function loader({ request }: LoaderArgs) {
       .findMany({
         select: {
           id: true,
-          account: { select: { id: true, companyName: true } },
+          company: true,
           clientStaffName: true,
           supportPerson: true,
           supportType: true,
@@ -84,8 +83,6 @@ export async function loader({ request }: LoaderArgs) {
             }
             return {
               ...job,
-              accountId: job.account.id,
-              companyName: job.account.companyName,
               date: dayjs(job.date).format(DATE_INPUT_FORMAT),
               charge: job.charge.toFixed(2),
               supportTypes,
@@ -114,7 +111,7 @@ export default function SupportJobs() {
   } = useLoaderData<typeof loader>();
 
   const [jobType, setJobType] = useState<SupportJobType | undefined>(undefined);
-  const [accountId, setAccountId] = useState<number>(0);
+  const [company, setCompany] = useState('');
   const [status, setStatus] = useState<SupportJobStatus | undefined>(undefined);
   const [sortBy, setSortBy] = useState<JobSortByOption>(jobSortByOptions[0]);
   const [sortOrder, setSortOrder] = useState<JobSortOrderOption>(
@@ -137,12 +134,11 @@ export default function SupportJobs() {
 
   const onAccountChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
-      const Schema = RecordIdSchema.or(z.literal('0').transform((_) => 0));
-      const result = Schema.safeParse(event.currentTarget.value);
+      const result = z.string().safeParse(event.currentTarget.value);
       if (!result.success) {
         return;
       }
-      setAccountId(result.data);
+      setCompany(result.data);
     },
     []
   );
@@ -196,12 +192,12 @@ export default function SupportJobs() {
 
   const filterByAccount = useCallback(
     (jobs: typeof suppliedJobs) => {
-      if (!accountId) {
+      if (!company) {
         return jobs;
       }
-      return jobs.filter((job) => job.accountId === accountId);
+      return jobs.filter((job) => job.company === company);
     },
-    [accountId]
+    [company]
   );
 
   const filterByStatus = useCallback(
@@ -223,7 +219,7 @@ export default function SupportJobs() {
         const lowercaseSearchTerms = searchTerms.toLowerCase();
         const conditions: boolean[] = [
           pad(job.id.toString(), 4, '0').includes(lowercaseSearchTerms),
-          job.companyName.toLowerCase().includes(lowercaseSearchTerms),
+          job.company.toLowerCase().includes(lowercaseSearchTerms),
           job.clientStaffName.toLowerCase().includes(lowercaseSearchTerms),
           job.supportPerson.toLowerCase().includes(lowercaseSearchTerms),
           job.supportTypes
@@ -257,9 +253,9 @@ export default function SupportJobs() {
       if (sortBy === 'Company Name') {
         return jobs.sort((a, b) => {
           if (sortOrder === 'A to Z') {
-            return a.companyName.localeCompare(b.companyName);
+            return a.company.localeCompare(b.company);
           }
-          return b.companyName.localeCompare(a.companyName);
+          return b.company.localeCompare(a.company);
         });
       }
       if (sortBy === 'Status') {
@@ -319,10 +315,10 @@ export default function SupportJobs() {
                 isRow={false}
                 name="areaId"
                 label="Customer"
-                defaultValue={accountId}
+                defaultValue={company}
                 onChange={onAccountChange}
               >
-                <option value={0}>All Customers</option>
+                <option value={''}>All Customers</option>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.companyName}

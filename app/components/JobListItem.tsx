@@ -1,4 +1,3 @@
-import type { ComponentProps } from 'react';
 import type { z } from 'zod';
 import type { DeleteRecordSchema } from '~/models/core.validations';
 import type { SupportJobStatus, SupportJobType } from '~/models/support-jobs';
@@ -30,8 +29,7 @@ import { TableDropDownMenu } from './TableDropDownMenu';
 
 interface Props {
   id: number;
-  accountId: number;
-  companyName: string;
+  company: string;
   clientStaffName: string;
   supportPerson: string;
   supportTypes: SupportJobType[];
@@ -42,13 +40,11 @@ interface Props {
   date: string;
   user: { id: number; username: string };
   menuIsDisabled?: boolean;
-  accounts: ComponentProps<typeof EditJob>['accounts'];
 }
 export function JobListItem(props: Props) {
   const {
     id,
-    accountId,
-    companyName,
+    company,
     clientStaffName,
     supportPerson,
     supportTypes,
@@ -59,7 +55,6 @@ export function JobListItem(props: Props) {
     date,
     user,
     menuIsDisabled,
-    accounts,
   } = props;
 
   const updateFetcher = useFetcher();
@@ -102,7 +97,7 @@ export function JobListItem(props: Props) {
   > = {
     recordType: 'SupportJob',
     id: id.toString(),
-    accountId: accountId.toString(),
+    company,
     clientStaffName,
     supportPerson,
     supportType: JSON.stringify(supportTypes),
@@ -145,7 +140,7 @@ export function JobListItem(props: Props) {
       </div>
       {!editMode && (
         <div className="grid grow grid-cols-1 gap-6 md:grid-cols-4">
-          <ListItemDetail subtitle="Company" detail={companyName} />
+          <ListItemDetail subtitle="Company" detail={company} />
           <ListItemDetail
             subtitle="Company Staff Member"
             detail={clientStaffName}
@@ -154,7 +149,9 @@ export function JobListItem(props: Props) {
             subtitle="Support Person"
             detail={
               <div className="flex flex-col items-stretch">
-                <HighlightText>{supportPerson}</HighlightText>
+                <HighlightText className="font-semibold">
+                  {supportPerson}
+                </HighlightText>
                 {supportPerson !== user.username && (
                   <HighlightText className="font-light text-zinc-600">
                     {`Recorded By ${user.username}`}
@@ -168,6 +165,7 @@ export function JobListItem(props: Props) {
             detail={
               <HighlightText
                 className={twMerge(
+                  'font-semibold',
                   status === 'Finalised' && 'text-green-600',
                   status === 'In progress' && 'text-orange-600',
                   status === 'Completed' && 'text-blue-600'
@@ -177,6 +175,9 @@ export function JobListItem(props: Props) {
               </HighlightText>
             }
           />
+          <div className="col-span-2 flex flex-col items-stretch">
+            <ListItemDetail subtitle="Enquiry" detail={enquiry} />
+          </div>
           <div className="col-span-2 flex flex-col items-stretch">
             <ListItemDetail
               subtitle="Type of Work"
@@ -196,14 +197,11 @@ export function JobListItem(props: Props) {
               }
             />
           </div>
-          <ListItemDetail subtitle="Charge" detail={`USD ${charge}`} />
-          <ListItemDetail subtitle="Date" detail={date} />
-          <div className="col-span-2 flex flex-col items-stretch">
-            <ListItemDetail subtitle="Enquiry" detail={enquiry} />
-          </div>
           <div className="col-span-2 flex flex-col items-stretch">
             <ListItemDetail subtitle="Action Taken" detail={actionTaken} />
           </div>
+          <ListItemDetail subtitle="Charge" detail={`USD ${charge}`} />
+          <ListItemDetail subtitle="Date" detail={date} />
           {!!deleteErrors && (
             <div className="flex flex-col items-start">
               <InlineAlert className="p-2 text-xs">{deleteErrors}</InlineAlert>
@@ -215,7 +213,7 @@ export function JobListItem(props: Props) {
         <updateFetcher.Form
           method="post"
           action={AppLinks.UpdateRecord}
-          className="flex flex-col items-stretch gap-10"
+          className="flex grow flex-col items-stretch gap-10"
         >
           <ActionContextProvider
             {...updateFetcher.data}
@@ -229,7 +227,7 @@ export function JobListItem(props: Props) {
             <InputRecordType value={'SupportJob'} />
             <input type="hidden" {...getNameProp('id')} value={id} />
             <input type="hidden" {...getNameProp('userId')} value={user.id} />
-            <EditJob fetcher={updateFetcher} accounts={accounts} />
+            <EditJob fetcher={updateFetcher} />
             <div className="flex flex-row items-stretch gap-4">
               {hasFormError(updateFetcher.data) && (
                 <InlineAlert>{updateFetcher.data.formError}</InlineAlert>

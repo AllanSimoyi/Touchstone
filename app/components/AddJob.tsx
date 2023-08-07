@@ -24,15 +24,13 @@ import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 interface Props {
   fetcher: FetcherWithComponents<any>;
   newJobId: number;
-  accounts: { id: number; companyName: string }[];
-  accountId: number;
   cancel: () => void;
 }
 export function AddJob(props: Props) {
-  const { fetcher, newJobId, accounts, accountId, cancel } = props;
+  const { fetcher, newJobId, cancel } = props;
   const currentUser = useUser();
 
-  const accountIdRef = useRef<HTMLSelectElement>(null);
+  const companyRef = useRef<HTMLInputElement>(null);
   const clientStaffNameRef = useRef<HTMLInputElement>(null);
   const supportPersonRef = useRef<HTMLInputElement>(null);
   const supportTypeRef = useRef<HTMLSelectElement>(null);
@@ -46,8 +44,8 @@ export function AddJob(props: Props) {
 
   const refs = useMemo(
     () => [
+      companyRef,
       clientStaffNameRef,
-      accountIdRef,
       clientStaffNameRef,
       supportPersonRef,
       supportTypeRef,
@@ -90,18 +88,10 @@ export function AddJob(props: Props) {
           <ListItemDetail
             subtitle="Company"
             detail={
-              <FormSelect
-                key={accountId}
-                customRef={accountIdRef}
-                defaultValue={accountId}
-                {...getNameProp('accountId')}
-              >
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.companyName}
-                  </option>
-                ))}
-              </FormSelect>
+              <FormTextField
+                customRef={companyRef}
+                {...getNameProp('company')}
+              />
             }
           />
           <ListItemDetail
@@ -141,10 +131,35 @@ export function AddJob(props: Props) {
           />
           <div className="col-span-2 flex flex-col items-stretch">
             <ListItemDetail
+              subtitle="Enquiry"
+              detail={
+                <FormTextArea
+                  rows={2}
+                  customRef={enquiryRef}
+                  {...getNameProp('enquiry')}
+                />
+              }
+            />
+          </div>
+          <div className="col-span-2 flex flex-col items-stretch">
+            <ListItemDetail
               subtitle="Type of Work"
               detail={
                 <SupportTypesMultiSelect
                   name={getNameProp('supportType').name}
+                />
+              }
+            />
+          </div>
+          <div className="col-span-2 flex flex-col items-stretch">
+            <ListItemDetail
+              subtitle="Action Taken"
+              detail={
+                <FormTextArea
+                  rows={2}
+                  required={false}
+                  customRef={actionTakenRef}
+                  {...getNameProp('actionTaken')}
                 />
               }
             />
@@ -172,31 +187,6 @@ export function AddJob(props: Props) {
               />
             }
           />
-          <div className="col-span-2 flex flex-col items-stretch">
-            <ListItemDetail
-              subtitle="Enquiry"
-              detail={
-                <FormTextArea
-                  rows={2}
-                  customRef={enquiryRef}
-                  {...getNameProp('enquiry')}
-                />
-              }
-            />
-          </div>
-          <div className="col-span-2 flex flex-col items-stretch">
-            <ListItemDetail
-              subtitle="Action Taken"
-              detail={
-                <FormTextArea
-                  rows={2}
-                  required={false}
-                  customRef={actionTakenRef}
-                  {...getNameProp('actionTaken')}
-                />
-              }
-            />
-          </div>
           {!!hasFormError(fetcher.data) && (
             <div className="flex flex-col items-start">
               <InlineAlert className="p-2 text-xs">

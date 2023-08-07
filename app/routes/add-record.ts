@@ -223,7 +223,7 @@ export async function action({ request }: ActionArgs) {
       }
       if (result.data.recordType === 'SupportJob') {
         const {
-          accountId,
+          company,
           clientStaffName,
           supportPerson,
           supportType,
@@ -237,7 +237,7 @@ export async function action({ request }: ActionArgs) {
         return prisma.$transaction(async (tx) => {
           const addResult = await tx.supportJob.create({
             data: {
-              accountId,
+              company,
               clientStaffName,
               supportPerson,
               supportType: JSON.stringify(supportType),
@@ -250,7 +250,7 @@ export async function action({ request }: ActionArgs) {
             },
           });
           const details: CreateOrDeleteEventDetails = {
-            accountId,
+            company,
             clientStaffName,
             supportPerson,
             supportType: JSON.stringify(supportType),
