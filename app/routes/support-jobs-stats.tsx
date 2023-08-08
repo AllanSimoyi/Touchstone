@@ -33,7 +33,7 @@ export async function loader({ request }: LoaderArgs) {
         supportType: true,
         supportPerson: true,
         status: true,
-        company: true,
+        account: { select: { id: true, companyName: true } },
       },
     })
     .then((jobs) => {
@@ -69,12 +69,14 @@ export async function loader({ request }: LoaderArgs) {
 
   const companies = jobs
     .reduce((acc, job) => {
-      const alreadyAdded = acc.some((stat) => stat.key === job.company);
+      const alreadyAdded = acc.some(
+        (stat) => stat.key === job.account.companyName
+      );
       if (!alreadyAdded) {
-        return [...acc, { key: job.company, value: 1 }];
+        return [...acc, { key: job.account.companyName, value: 1 }];
       }
       return acc.map((stat) => {
-        if (stat.key !== job.company) {
+        if (stat.key !== job.account.companyName) {
           return stat;
         }
         return { ...stat, value: stat.value + 1 };

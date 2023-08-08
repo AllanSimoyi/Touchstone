@@ -34,12 +34,12 @@ import { UnderLineOnHover } from './UnderLineOnHover';
 interface Props {
   newJobId: number;
   accounts: { id: number; companyName: string }[];
-  jobs: ComponentProps<typeof JobListItem>[];
+  jobs: Omit<ComponentProps<typeof JobListItem>, 'accounts'>[];
 }
 const RecordType: (typeof RECORD_TYPES)[number] = 'SupportJob';
 export function JobList(props: Props) {
   const currentUser = useUser();
-  const { newJobId, jobs } = props;
+  const { newJobId, accounts, jobs } = props;
 
   const [addCardIsOpen, setAddCardIsOpen] = useState(false);
 
@@ -61,7 +61,7 @@ export function JobList(props: Props) {
     AddSupportJobSchema,
     [
       'recordType',
-      'company',
+      'accountId',
       'clientStaffName',
       'supportPerson',
       'supportType',
@@ -97,7 +97,7 @@ export function JobList(props: Props) {
     string
   > = {
     recordType: 'SupportJob',
-    company: faker.company.name(),
+    accountId: accounts[0]?.id.toString() || '',
     clientStaffName: faker.person.fullName(),
     supportPerson: faker.person.fullName(),
     supportType: SUPPORT_JOB_TYPES[1],
@@ -154,6 +154,7 @@ export function JobList(props: Props) {
               <AddJob
                 fetcher={fetcher}
                 newJobId={newJobId}
+                accounts={accounts}
                 cancel={() => setAddCardIsOpen(false)}
               />
             </ActionContextProvider>
@@ -165,7 +166,13 @@ export function JobList(props: Props) {
               <JobListItem
                 {...optimisticItem}
                 id={newJobId}
-                company={optimisticItem.company || ''}
+                account={{
+                  id: Number(optimisticItem.accountId) || 0,
+                  companyName:
+                    accounts.find(
+                      (el) => el.id.toString() === optimisticItem.accountId
+                    )?.companyName || '',
+                }}
                 clientStaffName={optimisticItem.clientStaffName || ''}
                 supportPerson={optimisticItem.supportPerson || ''}
                 supportTypes={[optimisticItem.supportType as SupportJobType]}
@@ -176,10 +183,11 @@ export function JobList(props: Props) {
                 date={optimisticItem.date || ''}
                 user={currentUser}
                 menuIsDisabled
+                accounts={accounts}
               />
             )}
             {jobs.map((job) => (
-              <JobListItem key={job.id} {...job} />
+              <JobListItem key={job.id} {...job} accounts={accounts} />
             ))}
           </div>
         )}

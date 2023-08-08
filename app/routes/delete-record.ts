@@ -340,7 +340,7 @@ export async function action({ request }: ActionArgs) {
           const oldRecord = await tx.supportJob.findUnique({
             where: { id },
             select: {
-              company: true,
+              account: { select: { companyName: true } },
               clientStaffName: true,
               supportPerson: true,
               supportType: true,
@@ -357,7 +357,7 @@ export async function action({ request }: ActionArgs) {
           }
           await tx.supportJob.delete({ where: { id } });
           const details: CreateOrDeleteEventDetails = {
-            company: oldRecord.company,
+            company: oldRecord.account.companyName,
             clientStaffName: oldRecord.clientStaffName,
             supportPerson: oldRecord.supportPerson,
             supportType: oldRecord.supportType,
@@ -366,7 +366,7 @@ export async function action({ request }: ActionArgs) {
             actionTaken: oldRecord.actionTaken,
             charge: oldRecord.charge.toFixed(2),
             date: oldRecord.date,
-            userId: oldRecord.user.username,
+            user: oldRecord.user.username,
           };
           await tx.supportJobEvent.create({
             data: {

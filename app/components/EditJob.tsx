@@ -19,14 +19,15 @@ import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 
 interface Props {
   fetcher: FetcherWithComponents<any>;
+  accounts: { id: number; companyName: string }[];
 }
 export function EditJob(props: Props) {
-  const { fetcher } = props;
+  const { fetcher, accounts } = props;
   const currentUser = useUser();
 
   const { getNameProp } = useForm(fetcher.data, UpdateSupportJobSchema);
 
-  const companyRef = useRef<HTMLInputElement>(null);
+  const accountIdRef = useRef<HTMLSelectElement>(null);
   const clientStaffNameRef = useRef<HTMLInputElement>(null);
   const supportPersonRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLSelectElement>(null);
@@ -40,7 +41,13 @@ export function EditJob(props: Props) {
       <ListItemDetail
         subtitle="Company"
         detail={
-          <FormTextField customRef={companyRef} {...getNameProp('company')} />
+          <FormSelect customRef={accountIdRef} {...getNameProp('accountId')}>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.companyName}
+              </option>
+            ))}
+          </FormSelect>
         }
       />
       <ListItemDetail

@@ -279,13 +279,7 @@ export const AddStatusSchema = z.object({
 });
 export const AddSupportJobSchema = z.object({
   recordType: z.literal('SupportJob'),
-  company: z
-    .string({
-      required_error: "Enter the company's name",
-      invalid_type_error: "Provide valid input for the company's name",
-    })
-    .min(1, "Enter the company's name")
-    .max(100, "Use less than 100 characters for the company's name"),
+  accountId: ComposeRecordIdSchema('account'),
   clientStaffName: z
     .string({
       required_error: "Enter a client staff member's name",
@@ -403,13 +397,7 @@ export const UpdateStatusSchema = z.object({
 export const UpdateSupportJobSchema = z.object({
   recordType: z.literal('SupportJob'),
   id: ComposeRecordIdSchema('support job'),
-  company: z
-    .string({
-      required_error: "Enter the company's name",
-      invalid_type_error: "Provide valid input for the company's name",
-    })
-    .min(1, "Enter the company's name")
-    .max(100, "Use less than 100 characters for the company's name"),
+  accountId: ComposeRecordIdSchema('account'),
   clientStaffName: z
     .string({
       required_error: "Enter a client staff member's name",

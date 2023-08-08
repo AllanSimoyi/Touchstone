@@ -223,7 +223,7 @@ export async function action({ request }: ActionArgs) {
       }
       if (result.data.recordType === 'SupportJob') {
         const {
-          company,
+          accountId,
           clientStaffName,
           supportPerson,
           supportType,
@@ -234,10 +234,26 @@ export async function action({ request }: ActionArgs) {
           date,
           userId,
         } = result.data;
+        const [account, user] = await Promise.all([
+          prisma.account.findUnique({
+            where: { id: accountId },
+            select: { companyName: true },
+          }),
+          prisma.user.findUnique({
+            where: { id: userId },
+            select: { username: true },
+          }),
+        ]);
+        if (!account) {
+          throw new Error('Account record not found');
+        }
+        if (!user) {
+          throw new Error('User record not found');
+        }
         return prisma.$transaction(async (tx) => {
           const addResult = await tx.supportJob.create({
             data: {
-              company,
+              accountId,
               clientStaffName,
               supportPerson,
               supportType: JSON.stringify(supportType),
@@ -250,7 +266,7 @@ export async function action({ request }: ActionArgs) {
             },
           });
           const details: CreateOrDeleteEventDetails = {
-            company,
+            company: account.companyName,
             clientStaffName,
             supportPerson,
             supportType: JSON.stringify(supportType),
@@ -259,7 +275,7 @@ export async function action({ request }: ActionArgs) {
             actionTaken,
             charge,
             date,
-            userId,
+            user: user.username,
           };
           await tx.supportJobEvent.create({
             data: {

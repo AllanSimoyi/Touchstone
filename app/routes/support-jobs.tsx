@@ -22,6 +22,7 @@ import { SearchTermContextProvider } from '~/components/SearchTermContextProvide
 import { Select } from '~/components/Select';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
+import { RecordIdSchema } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { logParseError } from '~/models/logger.server';
 import { pad } from '~/models/strings';
@@ -47,7 +48,7 @@ export async function loader({ request }: LoaderArgs) {
       .findMany({
         select: {
           id: true,
-          company: true,
+          account: { select: { id: true, companyName: true } },
           clientStaffName: true,
           supportPerson: true,
           supportType: true,
@@ -111,7 +112,7 @@ export default function SupportJobs() {
   } = useLoaderData<typeof loader>();
 
   const [jobType, setJobType] = useState<SupportJobType | undefined>(undefined);
-  const [company, setCompany] = useState('');
+  const [accountId, setAccountId] = useState(0);
   const [status, setStatus] = useState<SupportJobStatus | undefined>(undefined);
   const [sortBy, setSortBy] = useState<JobSortByOption>(jobSortByOptions[0]);
   const [sortOrder, setSortOrder] = useState<JobSortOrderOption>(
@@ -128,6 +129,18 @@ export default function SupportJobs() {
         return;
       }
       setJobType(result.data || undefined);
+    },
+    []
+  );
+
+  const onAccountIdChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const Schema = RecordIdSchema.or(z.literal('0').transform((_) => 0));
+      const result = Schema.safeParse(event.currentTarget.value);
+      if (!result.success) {
+        return;
+      }
+      setAccountId(result.data);
     },
     []
   );
@@ -181,14 +194,12 @@ export default function SupportJobs() {
 
   const filterByAccount = useCallback(
     (jobs: typeof suppliedJobs) => {
-      if (!company) {
+      if (!accountId) {
         return jobs;
       }
-      return jobs.filter((job) =>
-        job.company.toLowerCase().includes(company.toLowerCase())
-      );
+      return jobs.filter((job) => job.account.id === accountId);
     },
-    [company]
+    [accountId]
   );
 
   const filterByStatus = useCallback(
@@ -210,7 +221,7 @@ export default function SupportJobs() {
         const lowercaseSearchTerms = searchTerms.toLowerCase();
         const conditions: boolean[] = [
           pad(job.id.toString(), 4, '0').includes(lowercaseSearchTerms),
-          job.company.toLowerCase().includes(lowercaseSearchTerms),
+          job.account.companyName.toLowerCase().includes(lowercaseSearchTerms),
           job.clientStaffName.toLowerCase().includes(lowercaseSearchTerms),
           job.supportPerson.toLowerCase().includes(lowercaseSearchTerms),
           job.supportTypes
@@ -244,9 +255,9 @@ export default function SupportJobs() {
       if (sortBy === 'Company Name') {
         return jobs.sort((a, b) => {
           if (sortOrder === 'A to Z') {
-            return a.company.localeCompare(b.company);
+            return a.account.companyName.localeCompare(b.account.companyName);
           }
-          return b.company.localeCompare(a.company);
+          return b.account.companyName.localeCompare(a.account.companyName);
         });
       }
       if (sortBy === 'Status') {
@@ -302,16 +313,20 @@ export default function SupportJobs() {
               </Select>
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
-              <div className="flex flex-col items-start justify-center">
-                <span className="text-base font-light text-zinc-600">
-                  Company
-                </span>
-              </div>
-              <DebouncedSearch
-                runSearch={setCompany}
-                placeholder="Search by company"
-                noIcon
-              />
+              <Select
+                isRow={false}
+                name="company"
+                label="Company"
+                onChange={onAccountIdChange}
+                defaultValue={accountId}
+              >
+                <option value="">All Companies</option>
+                {accounts.map((account) => (
+                  <option key={account.id} value={account.companyName}>
+                    {account.companyName}
+                  </option>
+                ))}
+              </Select>
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
               <Select

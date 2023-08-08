@@ -284,7 +284,7 @@ export async function action({ request }: ActionArgs) {
     if (result.data.recordType === 'SupportJob') {
       const {
         id,
-        company,
+        accountId,
         clientStaffName,
         supportPerson,
         supportType,
@@ -295,17 +295,45 @@ export async function action({ request }: ActionArgs) {
         date,
         userId,
       } = result.data;
-      await prisma.$transaction(async (tx) => {
-        const oldRecord = await tx.supportJob.findUnique({
+      const [oldRecord, newAccount, newUser] = await Promise.all([
+        prisma.supportJob.findUnique({
           where: { id },
-        });
-        if (!oldRecord) {
-          throw new Error('Record not found');
-        }
-        const updateResult = await prisma.supportJob.update({
+          select: {
+            account: { select: { id: true, companyName: true } },
+            clientStaffName: true,
+            supportPerson: true,
+            supportType: true,
+            status: true,
+            enquiry: true,
+            actionTaken: true,
+            charge: true,
+            date: true,
+            user: { select: { id: true, username: true } },
+          },
+        }),
+        prisma.account.findUnique({
+          where: { id: accountId },
+          select: { companyName: true },
+        }),
+        prisma.user.findUnique({
+          where: { id: userId },
+          select: { username: true },
+        }),
+      ]);
+      if (!oldRecord) {
+        throw new Error('Record not found');
+      }
+      if (!newAccount) {
+        throw new Error('New company record not found');
+      }
+      if (!newUser) {
+        throw new Error('New user record not found');
+      }
+      await prisma.$transaction(async (tx) => {
+        const updateResult = await tx.supportJob.update({
           where: { id },
           data: {
-            company,
+            accountId,
             clientStaffName,
             supportPerson,
             supportType: JSON.stringify(supportType),
@@ -318,7 +346,10 @@ export async function action({ request }: ActionArgs) {
           },
         });
         const details: UpdateEventDetails = {
-          company: { from: oldRecord.company, to: company },
+          company: {
+            from: oldRecord.account.companyName,
+            to: newAccount.companyName,
+          },
           clientStaffName: {
             from: oldRecord.clientStaffName,
             to: clientStaffName,
@@ -333,7 +364,7 @@ export async function action({ request }: ActionArgs) {
           actionTaken: { from: oldRecord.actionTaken, to: actionTaken },
           charge: { from: oldRecord.charge.toNumber(), to: charge },
           date: { from: oldRecord.date, to: date },
-          userId: { from: oldRecord.userId, to: userId },
+          userId: { from: oldRecord.user.username, to: newUser.username },
         };
         await tx.supportJobEvent.create({
           data: {

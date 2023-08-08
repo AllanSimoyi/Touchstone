@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import type { z } from 'zod';
 import type { DeleteRecordSchema } from '~/models/core.validations';
 import type { SupportJobStatus, SupportJobType } from '~/models/support-jobs';
@@ -29,7 +30,7 @@ import { TableDropDownMenu } from './TableDropDownMenu';
 
 interface Props {
   id: number;
-  company: string;
+  account: { id: number; companyName: string };
   clientStaffName: string;
   supportPerson: string;
   supportTypes: SupportJobType[];
@@ -40,11 +41,12 @@ interface Props {
   date: string;
   user: { id: number; username: string };
   menuIsDisabled?: boolean;
+  accounts: ComponentProps<typeof EditJob>['accounts'];
 }
 export function JobListItem(props: Props) {
   const {
     id,
-    company,
+    account,
     clientStaffName,
     supportPerson,
     supportTypes,
@@ -55,6 +57,7 @@ export function JobListItem(props: Props) {
     date,
     user,
     menuIsDisabled,
+    accounts,
   } = props;
 
   const updateFetcher = useFetcher();
@@ -97,7 +100,7 @@ export function JobListItem(props: Props) {
   > = {
     recordType: 'SupportJob',
     id: id.toString(),
-    company,
+    accountId: account.id.toString(),
     clientStaffName,
     supportPerson,
     supportType: JSON.stringify(supportTypes),
@@ -140,7 +143,7 @@ export function JobListItem(props: Props) {
       </div>
       {!editMode && (
         <div className="grid grow grid-cols-1 gap-6 md:grid-cols-4">
-          <ListItemDetail subtitle="Company" detail={company} />
+          <ListItemDetail subtitle="Company" detail={account.companyName} />
           <ListItemDetail
             subtitle="Company Staff Member"
             detail={clientStaffName}
@@ -227,7 +230,7 @@ export function JobListItem(props: Props) {
             <InputRecordType value={'SupportJob'} />
             <input type="hidden" {...getNameProp('id')} value={id} />
             <input type="hidden" {...getNameProp('userId')} value={user.id} />
-            <EditJob fetcher={updateFetcher} />
+            <EditJob fetcher={updateFetcher} accounts={accounts} />
             <div className="flex flex-row items-stretch gap-4">
               {hasFormError(updateFetcher.data) && (
                 <InlineAlert>{updateFetcher.data.formError}</InlineAlert>

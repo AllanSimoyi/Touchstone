@@ -371,11 +371,10 @@ model SupportJob {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  account         Account? @relation(fields: [accountId], references: [id])
-  accountId       Int?
-  company         String   @default("") @db.VarChar(100)
-  clientStaffName String   @db.VarChar(100)
-  supportPerson   String   @db.VarChar(100)
+  account         Account @relation(fields: [accountId], references: [id])
+  accountId       Int
+  clientStaffName String  @db.VarChar(100)
+  supportPerson   String  @db.VarChar(100)
 
   supportType String @db.VarChar(500)
   status      String @db.VarChar(100)
