@@ -44,14 +44,14 @@ import { useUser } from '~/utils';
 export async function loader({ request }: LoaderArgs) {
   await requireUserId(request);
 
-  const [jobs, accounts] = await Promise.all([
+  const [jobs, accounts, users] = await Promise.all([
     prisma.supportJob
       .findMany({
         select: {
           id: true,
           account: { select: { id: true, companyName: true } },
           clientStaffName: true,
-          supportPerson: true,
+          supportPerson: { select: { id: true, username: true } },
           supportType: true,
           status: true,
           enquiry: true,
@@ -87,6 +87,10 @@ export async function loader({ request }: LoaderArgs) {
               ...job,
               date: dayjs(job.date).format(DATE_INPUT_FORMAT),
               charge: job.charge.toFixed(2),
+              supportPerson: job.supportPerson ?? {
+                id: 0,
+                username: '',
+              },
               supportTypes,
               status,
             };
@@ -97,11 +101,14 @@ export async function loader({ request }: LoaderArgs) {
     prisma.account.findMany({
       select: { id: true, companyName: true },
     }),
+    prisma.user.findMany({
+      select: { id: true, username: true },
+    }),
   ]);
 
   const newJobId = jobs.length ? jobs[0].id + 1 : 1;
 
-  return json({ jobs, accounts, newJobId });
+  return json({ jobs, accounts, users, newJobId });
 }
 
 type ReactSelectOption = { value: number; label: string };
@@ -111,6 +118,7 @@ export default function SupportJobs() {
   const {
     jobs: suppliedJobs,
     accounts,
+    users,
     newJobId,
   } = useLoaderData<typeof loader>();
 
@@ -252,7 +260,9 @@ export default function SupportJobs() {
           pad(job.id.toString(), 4, '0').includes(lowercaseSearchTerms),
           job.account.companyName.toLowerCase().includes(lowercaseSearchTerms),
           job.clientStaffName.toLowerCase().includes(lowercaseSearchTerms),
-          job.supportPerson.toLowerCase().includes(lowercaseSearchTerms),
+          job.supportPerson?.username
+            .toLowerCase()
+            .includes(lowercaseSearchTerms) || false,
           job.supportTypes
             .join(', ')
             .toLowerCase()
@@ -430,7 +440,12 @@ export default function SupportJobs() {
             </div>
           </Card>
           <SearchTermContextProvider searchTerms={searchTerms}>
-            <JobList newJobId={newJobId} accounts={accounts} jobs={jobs} />
+            <JobList
+              newJobId={newJobId}
+              accounts={accounts}
+              users={users}
+              jobs={jobs}
+            />
           </SearchTermContextProvider>
         </CenteredView>
       </div>

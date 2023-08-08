@@ -342,7 +342,7 @@ export async function action({ request }: ActionArgs) {
             select: {
               account: { select: { companyName: true } },
               clientStaffName: true,
-              supportPerson: true,
+              supportPerson: { select: { username: true } },
               supportType: true,
               status: true,
               enquiry: true,
@@ -359,7 +359,7 @@ export async function action({ request }: ActionArgs) {
           const details: CreateOrDeleteEventDetails = {
             company: oldRecord.account.companyName,
             clientStaffName: oldRecord.clientStaffName,
-            supportPerson: oldRecord.supportPerson,
+            supportPerson: oldRecord.supportPerson?.username || '',
             supportType: oldRecord.supportType,
             status: oldRecord.status,
             enquiry: oldRecord.enquiry,

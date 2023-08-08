@@ -16,20 +16,21 @@ import { FormTextField } from './FormTextField';
 import { InlineAlert } from './InlineAlert';
 import { ListItemDetail } from './ListItemDetail';
 import { SelectCompany } from './SelectCompany';
+import { SelectSupportPerson } from './SelectSupportPerson';
 import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 
 interface Props {
   fetcher: FetcherWithComponents<any>;
   accounts: { id: number; companyName: string }[];
+  users: { id: number; username: string }[];
 }
 export function EditJob(props: Props) {
-  const { fetcher, accounts } = props;
+  const { fetcher, accounts, users } = props;
   const currentUser = useUser();
 
   const { getNameProp } = useForm(fetcher.data, UpdateSupportJobSchema);
 
   const clientStaffNameRef = useRef<HTMLInputElement>(null);
-  const supportPersonRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLSelectElement>(null);
   const enquiryRef = useRef<HTMLTextAreaElement>(null);
   const actionTakenRef = useRef<HTMLTextAreaElement>(null);
@@ -56,10 +57,10 @@ export function EditJob(props: Props) {
       <ListItemDetail
         subtitle="Support Person"
         detail={
-          <FormTextField
-            defaultValue={currentUser.username}
-            customRef={supportPersonRef}
-            {...getNameProp('supportPerson')}
+          <SelectSupportPerson
+            {...getNameProp('supportPersonId')}
+            users={users}
+            defaultUserId={currentUser.id}
           />
         }
       />

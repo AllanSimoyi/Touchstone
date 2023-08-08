@@ -30,9 +30,9 @@ export async function loader({ request }: LoaderArgs) {
   const jobs = await prisma.supportJob
     .findMany({
       select: {
-        supportType: true,
-        supportPerson: true,
         status: true,
+        supportType: true,
+        supportPerson: { select: { id: true, username: true } },
         account: { select: { id: true, companyName: true } },
       },
     })
@@ -53,12 +53,14 @@ export async function loader({ request }: LoaderArgs) {
 
   const supportPeople = jobs
     .reduce((acc, job) => {
-      const alreadyAdded = acc.some((stat) => stat.key === job.supportPerson);
+      const alreadyAdded = acc.some(
+        (stat) => stat.key === job.supportPerson?.username
+      );
       if (!alreadyAdded) {
-        return [...acc, { key: job.supportPerson, value: 1 }];
+        return [...acc, { key: job.supportPerson?.username || '', value: 1 }];
       }
       return acc.map((stat) => {
-        if (stat.key !== job.supportPerson) {
+        if (stat.key !== job.supportPerson?.username) {
           return stat;
         }
         return { ...stat, value: stat.value + 1 };

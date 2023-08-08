@@ -34,12 +34,13 @@ import { UnderLineOnHover } from './UnderLineOnHover';
 interface Props {
   newJobId: number;
   accounts: { id: number; companyName: string }[];
-  jobs: Omit<ComponentProps<typeof JobListItem>, 'accounts'>[];
+  users: { id: number; username: string }[];
+  jobs: Omit<ComponentProps<typeof JobListItem>, 'accounts' | 'users'>[];
 }
 const RecordType: (typeof RECORD_TYPES)[number] = 'SupportJob';
 export function JobList(props: Props) {
   const currentUser = useUser();
-  const { newJobId, accounts, jobs } = props;
+  const { newJobId, accounts, users, jobs } = props;
 
   const [addCardIsOpen, setAddCardIsOpen] = useState(false);
 
@@ -63,7 +64,7 @@ export function JobList(props: Props) {
       'recordType',
       'accountId',
       'clientStaffName',
-      'supportPerson',
+      'supportPersonId',
       'supportType',
       'status',
       'enquiry',
@@ -99,7 +100,7 @@ export function JobList(props: Props) {
     recordType: 'SupportJob',
     accountId: accounts[0]?.id.toString() || '',
     clientStaffName: faker.person.fullName(),
-    supportPerson: faker.person.fullName(),
+    supportPersonId: users[0]?.id.toString() || '',
     supportType: SUPPORT_JOB_TYPES[1],
     status: SUPPORT_JOB_STATUSES[2],
     enquiry: faker.lorem.sentence(7),
@@ -155,6 +156,7 @@ export function JobList(props: Props) {
                 fetcher={fetcher}
                 newJobId={newJobId}
                 accounts={accounts}
+                users={users}
                 cancel={() => setAddCardIsOpen(false)}
               />
             </ActionContextProvider>
@@ -174,7 +176,14 @@ export function JobList(props: Props) {
                     )?.companyName || '',
                 }}
                 clientStaffName={optimisticItem.clientStaffName || ''}
-                supportPerson={optimisticItem.supportPerson || ''}
+                supportPerson={{
+                  id: Number(optimisticItem.userId) || 0,
+                  username:
+                    users.find(
+                      (user) =>
+                        user.id.toString() === optimisticItem.supportPersonId
+                    )?.username || '',
+                }}
                 supportTypes={[optimisticItem.supportType as SupportJobType]}
                 status={optimisticItem.status as SupportJobStatus}
                 enquiry={optimisticItem.enquiry || ''}
@@ -184,10 +193,16 @@ export function JobList(props: Props) {
                 user={currentUser}
                 menuIsDisabled
                 accounts={accounts}
+                users={users}
               />
             )}
             {jobs.map((job) => (
-              <JobListItem key={job.id} {...job} accounts={accounts} />
+              <JobListItem
+                key={job.id}
+                {...job}
+                accounts={accounts}
+                users={users}
+              />
             ))}
           </div>
         )}

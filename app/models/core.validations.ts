@@ -291,13 +291,7 @@ export const AddSupportJobSchema = z.object({
       100,
       "Use less than 100 characters for the client staff member's name"
     ),
-  supportPerson: z
-    .string({
-      required_error: "Enter the support person's name",
-      invalid_type_error: "Provide valid input for the support person's name",
-    })
-    .min(1, "Enter a support person's name")
-    .max(100, "Use less than 100 characters for the support person's name"),
+  supportPersonId: ComposeRecordIdSchema('support person'),
   supportType: StrSupportJobTypeSchema,
   status: z
     .string({
@@ -409,13 +403,7 @@ export const UpdateSupportJobSchema = z.object({
       100,
       "Use less than 100 characters for the client staff member's name"
     ),
-  supportPerson: z
-    .string({
-      required_error: "Enter the support person's name",
-      invalid_type_error: "Provide valid input for the support person's name",
-    })
-    .min(1, "Enter a support person's name")
-    .max(100, "Use less than 100 characters for the support person's name"),
+  supportPersonId: ComposeRecordIdSchema('support person'),
   supportType: StrSupportJobTypeSchema,
   status: z
     .string({

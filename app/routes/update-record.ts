@@ -286,7 +286,7 @@ export async function action({ request }: ActionArgs) {
         id,
         accountId,
         clientStaffName,
-        supportPerson,
+        supportPersonId,
         supportType,
         status,
         enquiry,
@@ -295,36 +295,44 @@ export async function action({ request }: ActionArgs) {
         date,
         userId,
       } = result.data;
-      const [oldRecord, newAccount, newUser] = await Promise.all([
-        prisma.supportJob.findUnique({
-          where: { id },
-          select: {
-            account: { select: { id: true, companyName: true } },
-            clientStaffName: true,
-            supportPerson: true,
-            supportType: true,
-            status: true,
-            enquiry: true,
-            actionTaken: true,
-            charge: true,
-            date: true,
-            user: { select: { id: true, username: true } },
-          },
-        }),
-        prisma.account.findUnique({
-          where: { id: accountId },
-          select: { companyName: true },
-        }),
-        prisma.user.findUnique({
-          where: { id: userId },
-          select: { username: true },
-        }),
-      ]);
+      const [oldRecord, newAccount, newSupportPerson, newUser] =
+        await Promise.all([
+          prisma.supportJob.findUnique({
+            where: { id },
+            select: {
+              account: { select: { id: true, companyName: true } },
+              clientStaffName: true,
+              supportPerson: { select: { id: true, username: true } },
+              supportType: true,
+              status: true,
+              enquiry: true,
+              actionTaken: true,
+              charge: true,
+              date: true,
+              user: { select: { id: true, username: true } },
+            },
+          }),
+          prisma.account.findUnique({
+            where: { id: accountId },
+            select: { companyName: true },
+          }),
+          prisma.user.findUnique({
+            where: { id: supportPersonId },
+            select: { username: true },
+          }),
+          prisma.user.findUnique({
+            where: { id: userId },
+            select: { username: true },
+          }),
+        ]);
       if (!oldRecord) {
         throw new Error('Record not found');
       }
       if (!newAccount) {
         throw new Error('New company record not found');
+      }
+      if (!newSupportPerson) {
+        throw new Error('New support person record not found');
       }
       if (!newUser) {
         throw new Error('New user record not found');
@@ -335,7 +343,7 @@ export async function action({ request }: ActionArgs) {
           data: {
             accountId,
             clientStaffName,
-            supportPerson,
+            supportPersonId,
             supportType: JSON.stringify(supportType),
             status,
             enquiry,
@@ -354,7 +362,10 @@ export async function action({ request }: ActionArgs) {
             from: oldRecord.clientStaffName,
             to: clientStaffName,
           },
-          supportPerson: { from: oldRecord.supportPerson, to: supportPerson },
+          supportPerson: {
+            from: oldRecord.supportPerson?.username || '',
+            to: newSupportPerson.username,
+          },
           supportType: {
             from: oldRecord.supportType,
             to: JSON.stringify(supportType),

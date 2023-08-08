@@ -225,7 +225,7 @@ export async function action({ request }: ActionArgs) {
         const {
           accountId,
           clientStaffName,
-          supportPerson,
+          supportPersonId,
           supportType,
           status,
           enquiry,
@@ -234,10 +234,14 @@ export async function action({ request }: ActionArgs) {
           date,
           userId,
         } = result.data;
-        const [account, user] = await Promise.all([
+        const [account, supportPerson, user] = await Promise.all([
           prisma.account.findUnique({
             where: { id: accountId },
             select: { companyName: true },
+          }),
+          prisma.user.findUnique({
+            where: { id: supportPersonId },
+            select: { username: true },
           }),
           prisma.user.findUnique({
             where: { id: userId },
@@ -247,6 +251,9 @@ export async function action({ request }: ActionArgs) {
         if (!account) {
           throw new Error('Account record not found');
         }
+        if (!supportPerson) {
+          throw new Error('Support person record not found');
+        }
         if (!user) {
           throw new Error('User record not found');
         }
@@ -255,7 +262,7 @@ export async function action({ request }: ActionArgs) {
             data: {
               accountId,
               clientStaffName,
-              supportPerson,
+              supportPersonId,
               supportType: JSON.stringify(supportType),
               status,
               enquiry,
@@ -268,7 +275,7 @@ export async function action({ request }: ActionArgs) {
           const details: CreateOrDeleteEventDetails = {
             company: account.companyName,
             clientStaffName,
-            supportPerson,
+            supportPerson: supportPerson.username,
             supportType: JSON.stringify(supportType),
             status,
             enquiry,

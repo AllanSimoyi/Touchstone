@@ -20,16 +20,18 @@ import { ListItemDetail } from './ListItemDetail';
 import { PrimaryButton } from './PrimaryButton';
 import { SecondaryButton } from './SecondaryButton';
 import { SelectCompany } from './SelectCompany';
+import { SelectSupportPerson } from './SelectSupportPerson';
 import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 
 interface Props {
   fetcher: FetcherWithComponents<any>;
   newJobId: number;
   accounts: { id: number; companyName: string }[];
+  users: { id: number; username: string }[];
   cancel: () => void;
 }
 export function AddJob(props: Props) {
-  const { fetcher, newJobId, accounts, cancel } = props;
+  const { fetcher, newJobId, accounts, users, cancel } = props;
   const currentUser = useUser();
 
   const accountIdRef = useRef<HTMLSelectElement>(null);
@@ -108,10 +110,10 @@ export function AddJob(props: Props) {
           <ListItemDetail
             subtitle="Support Person"
             detail={
-              <FormTextField
-                defaultValue={currentUser.username}
-                customRef={supportPersonRef}
-                {...getNameProp('supportPerson')}
+              <SelectSupportPerson
+                {...getNameProp('supportPersonId')}
+                users={users}
+                defaultUserId={currentUser.id}
               />
             }
           />

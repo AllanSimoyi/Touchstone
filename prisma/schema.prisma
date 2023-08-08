@@ -374,7 +374,9 @@ model SupportJob {
   account         Account @relation(fields: [accountId], references: [id])
   accountId       Int
   clientStaffName String  @db.VarChar(100)
-  supportPerson   String  @db.VarChar(100)
+
+  supportPersonId Int?
+  supportPerson   User? @relation("support_person", fields: [supportPersonId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   supportType String @db.VarChar(500)
   status      String @db.VarChar(100)
@@ -386,7 +388,7 @@ model SupportJob {
   date   DateTime @default(now())
 
   userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user   User @relation("job_author", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   events SupportJobEvent[]
 
@@ -418,20 +420,21 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  accountEvents       AccountEvent[]
-  areaEvents          AreaEvent[]
-  cityEvents          CityEvent[]
-  databaseEvents      DatabaseEvent[]
-  groupEvents         GroupEvent[]
-  licenseDetailEvents LicenseDetailEvent[]
-  licenseEvents       LicenseEvent[]
-  operatorEvents      OperatorEvent[]
-  sectorEvents        SectorEvent[]
-  statusEvents        StatusEvent[]
-  eventsImposed       UserEvent[]          @relation("record")
-  eventsAuthored      UserEvent[]          @relation("author")
-  supportJobs         SupportJob[]
-  supportJobEvents    SupportJobEvent[]
+  accountEvents        AccountEvent[]
+  areaEvents           AreaEvent[]
+  cityEvents           CityEvent[]
+  databaseEvents       DatabaseEvent[]
+  groupEvents          GroupEvent[]
+  licenseDetailEvents  LicenseDetailEvent[]
+  licenseEvents        LicenseEvent[]
+  operatorEvents       OperatorEvent[]
+  sectorEvents         SectorEvent[]
+  statusEvents         StatusEvent[]
+  eventsImposed        UserEvent[]          @relation("record")
+  eventsAuthored       UserEvent[]          @relation("author")
+  supportJobsAuthored  SupportJob[]         @relation("job_author")
+  supportJobsWorkingOn SupportJob[]         @relation("support_person")
+  supportJobEvents     SupportJobEvent[]
 
   @@map("users")
 }
