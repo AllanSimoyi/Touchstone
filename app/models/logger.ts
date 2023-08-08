@@ -11,5 +11,5 @@ export function customLog(
   message: string,
   meta: Record<string, any>
 ) {
-  console.log(JSON.stringify({ level, message, meta }));
+  console.log('\n', JSON.stringify({ level, message, meta }));
 }

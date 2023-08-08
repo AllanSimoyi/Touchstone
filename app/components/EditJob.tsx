@@ -15,6 +15,7 @@ import { FormTextArea } from './FormTextArea';
 import { FormTextField } from './FormTextField';
 import { InlineAlert } from './InlineAlert';
 import { ListItemDetail } from './ListItemDetail';
+import { SelectCompany } from './SelectCompany';
 import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 
 interface Props {
@@ -27,7 +28,6 @@ export function EditJob(props: Props) {
 
   const { getNameProp } = useForm(fetcher.data, UpdateSupportJobSchema);
 
-  const accountIdRef = useRef<HTMLSelectElement>(null);
   const clientStaffNameRef = useRef<HTMLInputElement>(null);
   const supportPersonRef = useRef<HTMLInputElement>(null);
   const statusRef = useRef<HTMLSelectElement>(null);
@@ -41,13 +41,7 @@ export function EditJob(props: Props) {
       <ListItemDetail
         subtitle="Company"
         detail={
-          <FormSelect customRef={accountIdRef} {...getNameProp('accountId')}>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.companyName}
-              </option>
-            ))}
-          </FormSelect>
+          <SelectCompany {...getNameProp('accountId')} accounts={accounts} />
         }
       />
       <ListItemDetail

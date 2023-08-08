@@ -105,7 +105,7 @@ export async function action({ request }: ActionArgs) {
               accountId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -129,7 +129,7 @@ export async function action({ request }: ActionArgs) {
               areaId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -153,7 +153,7 @@ export async function action({ request }: ActionArgs) {
               cityId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -184,7 +184,7 @@ export async function action({ request }: ActionArgs) {
               databaseId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -208,7 +208,7 @@ export async function action({ request }: ActionArgs) {
               groupId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -232,7 +232,7 @@ export async function action({ request }: ActionArgs) {
               licenseDetailId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -257,7 +257,7 @@ export async function action({ request }: ActionArgs) {
               licenseId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -282,7 +282,7 @@ export async function action({ request }: ActionArgs) {
               operatorId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -306,7 +306,7 @@ export async function action({ request }: ActionArgs) {
               sectorId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -330,7 +330,7 @@ export async function action({ request }: ActionArgs) {
               statusId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -373,7 +373,7 @@ export async function action({ request }: ActionArgs) {
               supportJobId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });
@@ -398,7 +398,7 @@ export async function action({ request }: ActionArgs) {
               recordId: id,
               userId: currentUserId,
               details: JSON.stringify(details),
-              kind: EventKind.Update,
+              kind: EventKind.Delete,
             },
           });
         });

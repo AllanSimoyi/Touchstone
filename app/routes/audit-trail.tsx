@@ -46,7 +46,7 @@ export const loader = async ({ request }: LoaderArgs) => {
   let minDate: Date | undefined = undefined;
 
   const rawQueryParams = getQueryParams(request.url, ['minDate']);
-  const result = z.coerce.date().safeParse(rawQueryParams.minDate);
+  const result = z.coerce.date().optional().safeParse(rawQueryParams.minDate);
   if (!result.success) {
     logParseError(request, result.error, rawQueryParams.minDate);
   } else {
@@ -218,6 +218,22 @@ export const loader = async ({ request }: LoaderArgs) => {
           table: 'Status',
         }))
       ),
+    prisma.supportJobEvent
+      .findMany({
+        select: {
+          id: true,
+          kind: true,
+          details: true,
+          createdAt: true,
+          user: { select: { id: true, username: true } },
+        },
+      })
+      .then((events) =>
+        events.map((event) => ({
+          ...event,
+          table: 'SupportJob',
+        }))
+      ),
     prisma.userEvent
       .findMany({
         select: {
@@ -245,7 +261,7 @@ export const loader = async ({ request }: LoaderArgs) => {
               details: parsedDetails,
             });
             if (!result.success) {
-              logParseError(request, result.error, event);
+              logParseError(request, result.error, { ...event, kind, details });
               return undefined;
             }
             const account = 'account' in event ? event.account : undefined;
@@ -279,6 +295,7 @@ const TABLES = [
   'Sector',
   'Status',
   'User',
+  'SupportJob',
 ] as const;
 
 export default function AuditPage() {

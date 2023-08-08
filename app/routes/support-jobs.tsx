@@ -10,6 +10,7 @@ import { json, type LoaderArgs } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import dayjs from 'dayjs';
 import { useCallback, useMemo, useState } from 'react';
+import ReactSelect from 'react-select';
 import { z } from 'zod';
 
 import { RouteErrorBoundary } from '~/components/Boundaries';
@@ -103,6 +104,8 @@ export async function loader({ request }: LoaderArgs) {
   return json({ jobs, accounts, newJobId });
 }
 
+type ReactSelectOption = { value: number; label: string };
+
 export default function SupportJobs() {
   const user = useUser();
   const {
@@ -112,7 +115,12 @@ export default function SupportJobs() {
   } = useLoaderData<typeof loader>();
 
   const [jobType, setJobType] = useState<SupportJobType | undefined>(undefined);
-  const [accountId, setAccountId] = useState(0);
+
+  // const [accountId, setAccountId] = useState(0);
+  const [accountOption, setAccountOption] = useState<
+    ReactSelectOption | undefined
+  >(undefined);
+
   const [status, setStatus] = useState<SupportJobStatus | undefined>(undefined);
   const [sortBy, setSortBy] = useState<JobSortByOption>(jobSortByOptions[0]);
   const [sortOrder, setSortOrder] = useState<JobSortOrderOption>(
@@ -133,17 +141,28 @@ export default function SupportJobs() {
     []
   );
 
-  const onAccountIdChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      const Schema = RecordIdSchema.or(z.literal('0').transform((_) => 0));
-      const result = Schema.safeParse(event.currentTarget.value);
-      if (!result.success) {
-        return;
-      }
-      setAccountId(result.data);
-    },
-    []
-  );
+  // const onAccountIdChange = useCallback(
+  //   (event: ChangeEvent<HTMLSelectElement>) => {
+  //     const Schema = RecordIdSchema.or(z.literal('0').transform((_) => 0));
+  //     const result = Schema.safeParse(event.currentTarget.value);
+  //     if (!result.success) {
+  //       return;
+  //     }
+  //     setAccountId(result.data);
+  //   },
+  //   []
+  // );
+
+  const onAccountChange = useCallback((newValue: unknown) => {
+    const Schema = z
+      .object({ value: RecordIdSchema, label: z.string() })
+      .nullable();
+    const result = Schema.safeParse(newValue);
+    if (!result.success) {
+      return;
+    }
+    setAccountOption(result.data || undefined);
+  }, []);
 
   const onStatusChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
@@ -192,14 +211,24 @@ export default function SupportJobs() {
     [jobType]
   );
 
+  // const filterByAccount = useCallback(
+  //   (jobs: typeof suppliedJobs) => {
+  //     if (!accountId) {
+  //       return jobs;
+  //     }
+  //     return jobs.filter((job) => job.account.id === accountId);
+  //   },
+  //   [accountId]
+  // );
+
   const filterByAccount = useCallback(
     (jobs: typeof suppliedJobs) => {
-      if (!accountId) {
+      if (!accountOption) {
         return jobs;
       }
-      return jobs.filter((job) => job.account.id === accountId);
+      return jobs.filter((job) => job.account.id === accountOption.value);
     },
-    [accountId]
+    [accountOption]
   );
 
   const filterByStatus = useCallback(
@@ -313,7 +342,28 @@ export default function SupportJobs() {
               </Select>
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
-              <Select
+              <div className="flex flex-col items-start justify-center">
+                <span className="text-base font-light text-zinc-600">
+                  Company
+                </span>
+              </div>
+              <ReactSelect
+                isClearable
+                name="selectCompany"
+                classNamePrefix="select"
+                options={accounts.map((account) => ({
+                  value: account.id,
+                  label: account.companyName,
+                }))}
+                value={accountOption}
+                onChange={onAccountChange}
+                placeholder="Select company"
+                classNames={{
+                  control: () =>
+                    'rounded-md border border-zinc-200 bg-zinc-50 text-base font-light shadow-inner outline-none focus:ring-1 focus:ring-zinc-400',
+                }}
+              />
+              {/* <Select
                 isRow={false}
                 name="company"
                 label="Company"
@@ -326,7 +376,7 @@ export default function SupportJobs() {
                     {account.companyName}
                   </option>
                 ))}
-              </Select>
+              </Select> */}
             </div>
             <div className="flex flex-col items-stretch justify-center p-2">
               <Select

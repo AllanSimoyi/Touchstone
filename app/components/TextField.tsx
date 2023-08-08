@@ -54,7 +54,7 @@ export function TextField(props: Props) {
             disabled={disabled}
             className={twMerge(
               'w-full transition-all duration-150',
-              'rounded-md border border-zinc-200 bg-zinc-50 p-2 text-base font-light shadow-inner outline-none focus:ring-1 focus:ring-zinc-400',
+              'rounded-md border border-zinc-200 p-2 text-base font-light shadow-inner outline-none focus:ring-1 focus:ring-zinc-400',
               'hover:ring-1 hover:ring-zinc-400',
               camouflage &&
                 'border-none bg-transparent shadow-none hover:border hover:bg-white focus:border focus:bg-white',

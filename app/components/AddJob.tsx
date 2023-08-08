@@ -19,6 +19,7 @@ import { InlineAlert } from './InlineAlert';
 import { ListItemDetail } from './ListItemDetail';
 import { PrimaryButton } from './PrimaryButton';
 import { SecondaryButton } from './SecondaryButton';
+import { SelectCompany } from './SelectCompany';
 import { SupportTypesMultiSelect } from './SupportTypesMultiSelect';
 
 interface Props {
@@ -89,16 +90,10 @@ export function AddJob(props: Props) {
           <ListItemDetail
             subtitle="Company"
             detail={
-              <FormSelect
-                customRef={accountIdRef}
+              <SelectCompany
                 {...getNameProp('accountId')}
-              >
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.companyName}
-                  </option>
-                ))}
-              </FormSelect>
+                accounts={accounts}
+              />
             }
           />
           <ListItemDetail
