@@ -16,6 +16,7 @@ import {
 } from '@remix-run/react';
 import { ToastContainer } from 'react-toastify';
 import toastifyCss from 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from 'sonner';
 
 import { getUser } from '~/session.server';
 import stylesheet from '~/tailwind.css';
@@ -50,6 +51,7 @@ export default function App() {
         style={{ fontFamily: '"Poppins", sans-serif !important' }}
       >
         <Outlet />
+        <Toaster />
         <ToastContainer />
         <ScrollRestoration />
         <Scripts />

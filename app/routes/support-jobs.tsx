@@ -124,7 +124,6 @@ export default function SupportJobs() {
 
   const [jobType, setJobType] = useState<SupportJobType | undefined>(undefined);
 
-  // const [accountId, setAccountId] = useState(0);
   const [accountOption, setAccountOption] = useState<
     ReactSelectOption | undefined
   >(undefined);
@@ -148,18 +147,6 @@ export default function SupportJobs() {
     },
     []
   );
-
-  // const onAccountIdChange = useCallback(
-  //   (event: ChangeEvent<HTMLSelectElement>) => {
-  //     const Schema = RecordIdSchema.or(z.literal('0').transform((_) => 0));
-  //     const result = Schema.safeParse(event.currentTarget.value);
-  //     if (!result.success) {
-  //       return;
-  //     }
-  //     setAccountId(result.data);
-  //   },
-  //   []
-  // );
 
   const onAccountChange = useCallback((newValue: unknown) => {
     const Schema = z
@@ -218,16 +205,6 @@ export default function SupportJobs() {
     },
     [jobType]
   );
-
-  // const filterByAccount = useCallback(
-  //   (jobs: typeof suppliedJobs) => {
-  //     if (!accountId) {
-  //       return jobs;
-  //     }
-  //     return jobs.filter((job) => job.account.id === accountId);
-  //   },
-  //   [accountId]
-  // );
 
   const filterByAccount = useCallback(
     (jobs: typeof suppliedJobs) => {

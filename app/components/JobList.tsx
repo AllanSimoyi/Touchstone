@@ -1,34 +1,22 @@
 import type { ComponentProps } from 'react';
 
-import { faker } from '@faker-js/faker';
 import { Link, useFetcher } from '@remix-run/react';
-import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { ChevronRight } from 'tabler-icons-react';
 import { z } from 'zod';
 
 import { useFormData } from '~/hooks/useFormData';
-import {
-  AddSupportJobSchema,
-  hasSuccess,
-  type RECORD_TYPES,
-} from '~/models/core.validations';
-import { DATE_INPUT_FORMAT } from '~/models/dates';
+import { AddSupportJobSchema, hasSuccess } from '~/models/core.validations';
 import { AppLinks } from '~/models/links';
 import {
-  SUPPORT_JOB_STATUSES,
-  SUPPORT_JOB_TYPES,
   type SupportJobStatus,
   type SupportJobType,
 } from '~/models/support-jobs';
-import { showToast } from '~/models/toast';
 import { useUser } from '~/utils';
 
-import { ActionContextProvider, useForm } from './ActionContextProvider';
-import { AddJob } from './AddJob';
-import { InputRecordType } from './InputRecordType';
 import { JobListItem } from './JobListItem';
-import { PrimaryButton } from './PrimaryButton';
+import { PrimaryButtonLink } from './PrimaryButton';
 import { UnderLineOnHover } from './UnderLineOnHover';
 
 interface Props {
@@ -37,23 +25,15 @@ interface Props {
   users: { id: number; username: string }[];
   jobs: Omit<ComponentProps<typeof JobListItem>, 'accounts' | 'users'>[];
 }
-const RecordType: (typeof RECORD_TYPES)[number] = 'SupportJob';
 export function JobList(props: Props) {
   const currentUser = useUser();
   const { newJobId, accounts, users, jobs } = props;
 
-  const [addCardIsOpen, setAddCardIsOpen] = useState(false);
-
   const fetcher = useFetcher();
-  const { getNameProp, isProcessing } = useForm(
-    fetcher.data,
-    AddSupportJobSchema
-  );
 
   useEffect(() => {
     if (hasSuccess(fetcher.data)) {
-      setAddCardIsOpen(false);
-      showToast('success', 'Support job added');
+      toast.success('Support job added');
     }
   }, [fetcher.data]);
 
@@ -93,23 +73,6 @@ export function JobList(props: Props) {
     }
   })();
 
-  const defaultValues: Record<
-    keyof z.infer<typeof AddSupportJobSchema>,
-    string
-  > = {
-    recordType: 'SupportJob',
-    accountId: accounts[0]?.id.toString() || '',
-    clientStaffName: faker.person.fullName(),
-    supportPersonId: users[0]?.id.toString() || '',
-    supportType: SUPPORT_JOB_TYPES[1],
-    status: SUPPORT_JOB_STATUSES[2],
-    enquiry: faker.lorem.sentence(7),
-    actionTaken: faker.lorem.paragraph(2),
-    charge: faker.finance.amount(),
-    date: dayjs(faker.date.past()).format(DATE_INPUT_FORMAT),
-    userId: currentUser.id.toString(),
-  };
-
   return (
     <div className="flex flex-col items-stretch">
       <div className="flex flex-row items-start">
@@ -127,41 +90,11 @@ export function JobList(props: Props) {
           </Link>
         </h2>
         <div className="grow" />
-        {!addCardIsOpen && (
-          <PrimaryButton type="button" onClick={() => setAddCardIsOpen(true)}>
-            Record New Job
-          </PrimaryButton>
-        )}
+        <PrimaryButtonLink to={AppLinks.CreateSupportJob}>
+          Record New Job
+        </PrimaryButtonLink>
       </div>
       <div className="flex flex-col items-stretch justify-center gap-4 py-4">
-        {addCardIsOpen && (
-          <fetcher.Form
-            key={'Add New Job'}
-            method="post"
-            action={AppLinks.AddRecord}
-            className="pb-4"
-          >
-            <ActionContextProvider
-              {...fetcher.data}
-              fields={defaultValues}
-              isSubmitting={isProcessing}
-            >
-              <InputRecordType value={RecordType} />
-              <input
-                type="hidden"
-                {...getNameProp('userId')}
-                value={currentUser.id}
-              />
-              <AddJob
-                fetcher={fetcher}
-                newJobId={newJobId}
-                accounts={accounts}
-                users={users}
-                cancel={() => setAddCardIsOpen(false)}
-              />
-            </ActionContextProvider>
-          </fetcher.Form>
-        )}
         {!!jobs.length && (
           <div className="flex flex-col items-stretch gap-4">
             {!!optimisticItem?.clientStaffName && (
@@ -192,17 +125,10 @@ export function JobList(props: Props) {
                 date={optimisticItem.date || ''}
                 user={currentUser}
                 menuIsDisabled
-                accounts={accounts}
-                users={users}
               />
             )}
             {jobs.map((job) => (
-              <JobListItem
-                key={job.id}
-                {...job}
-                accounts={accounts}
-                users={users}
-              />
+              <JobListItem key={job.id} {...job} />
             ))}
           </div>
         )}

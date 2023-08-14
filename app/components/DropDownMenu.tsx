@@ -1,11 +1,10 @@
 import { Menu, Transition } from '@headlessui/react';
-import { Form } from '@remix-run/react';
+import { Form, Link } from '@remix-run/react';
 import { Fragment, useMemo } from 'react';
 import { DotsVertical } from 'tabler-icons-react';
+import { twMerge } from 'tailwind-merge';
 
 import { AppLinks } from '~/models/links';
-
-import { DropDownMenuItem } from './DropDownMenuItem';
 
 interface Props {
   loggedIn: boolean;
@@ -22,49 +21,9 @@ export function DropDownMenu(props: Props) {
     }
     return [
       [AppLinks.MyAccount, 'My Account'],
-      [AppLinks.Users, 'Users'],
-      [AppLinks.SupportJobs, 'Support Jobs'],
-      [AppLinks.Customers, 'Customers'],
       [AppLinks.PickLists, 'Pick Lists'],
-      [AppLinks.Import, 'Import From Excel'],
-      [AppLinks.Backup, 'Export To Excel'],
-      [AppLinks.AuditTrail, 'Audit Trail'],
     ];
   }, [loggedIn]);
-
-  const children = useMemo(() => {
-    const itemChildren = menuItems.map(([link, caption]) => {
-      return function child(active: boolean) {
-        const isBackup = link === AppLinks.Backup;
-        return (
-          <DropDownMenuItem
-            mode="link"
-            active={active}
-            to={link}
-            target={isBackup ? '_blank' : undefined}
-            rel={isBackup ? 'noopener noreferrer' : undefined}
-          >
-            {caption}
-          </DropDownMenuItem>
-        );
-      };
-    });
-    if (!loggedIn) {
-      return itemChildren;
-    }
-    return [
-      ...itemChildren,
-      function child(active: boolean) {
-        return (
-          <Form action={AppLinks.Logout} method="post">
-            <DropDownMenuItem mode="button" active={active} type="submit">
-              Log Out
-            </DropDownMenuItem>
-          </Form>
-        );
-      },
-    ];
-  }, [loggedIn, menuItems]);
 
   return (
     <div className="relative">
@@ -88,11 +47,44 @@ export function DropDownMenu(props: Props) {
         >
           <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="px-1 py-1">
-              {children.map((child, index) => (
+              {menuItems.map(([link, caption], index) => (
                 <Menu.Item key={index}>
-                  {({ active }) => child(active)}
+                  {({ active }) => {
+                    const isBackup = link === AppLinks.Backup;
+                    const className = twMerge(
+                      'group text-base font-light flex w-full items-center rounded p-2 text-zinc-800 transition-all duration-150',
+                      active && 'bg-zinc-200'
+                    );
+                    return (
+                      <Link
+                        to={link}
+                        className={className}
+                        target={isBackup ? '_blank' : undefined}
+                        rel={isBackup ? 'noopener noreferrer' : undefined}
+                      >
+                        {caption}
+                      </Link>
+                    );
+                  }}
                 </Menu.Item>
               ))}
+              {loggedIn && (
+                <Menu.Item>
+                  {({ active }) => {
+                    const className = twMerge(
+                      'group text-base font-light flex w-full items-center rounded p-2 text-zinc-800 transition-all duration-150',
+                      active && 'bg-zinc-200'
+                    );
+                    return (
+                      <Form action={AppLinks.Logout} method="post">
+                        <button type="submit" className={className}>
+                          Log Out
+                        </button>
+                      </Form>
+                    );
+                  }}
+                </Menu.Item>
+              )}
             </div>
           </Menu.Items>
         </Transition>

@@ -7,8 +7,11 @@ export const AppLinks = {
   PickLists: '/pick-lists',
   AuditTrails: '/audit-trails',
   CustomerCare: '/customer-care',
-  SupportJobs: '/support-jobs',
+
   SupportJobStats: '/support-jobs-stats',
+  SupportJobs: '/support-jobs',
+  CreateSupportJob: '/support-jobs/create',
+  EditSupportJob: (id: number) => `/support-jobs/${id}/edit`,
 
   AddRecord: '/add-record',
   UpdateRecord: '/update-record',

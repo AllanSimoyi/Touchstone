@@ -46,6 +46,7 @@ export function TextField(props: Props) {
         <div className="flex grow flex-col items-stretch">
           <input
             required={required}
+            aria-required={required}
             ref={customRef}
             type="text"
             name={name}

@@ -375,8 +375,8 @@ model SupportJob {
   accountId       Int
   clientStaffName String  @db.VarChar(100)
 
-  supportPersonId Int?
-  supportPerson   User? @relation("support_person", fields: [supportPersonId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  supportPersonId Int
+  supportPerson   User @relation("support_person", fields: [supportPersonId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   supportType String @db.VarChar(500)
   status      String @db.VarChar(100)
