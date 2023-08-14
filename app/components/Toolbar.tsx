@@ -43,7 +43,7 @@ export function Toolbar(props: ToolbarProps) {
             <NavDropDownMenu
               title="Support Jobs"
               items={[
-                [AppLinks.SupportJobs, 'Record New Support Job'],
+                [AppLinks.CreateSupportJob, 'Record New Support Job'],
                 [AppLinks.SupportJobs, 'View Support Jobs'],
               ]}
             />
