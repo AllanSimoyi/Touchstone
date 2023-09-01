@@ -45,16 +45,14 @@ export function NavDropDownMenu(props: Props) {
                       active && 'bg-zinc-200'
                     );
                     return (
-                      <div>
-                        <Link
-                          to={link}
-                          className={className}
-                          target={isBackup ? '_blank' : undefined}
-                          rel={isBackup ? 'noopener noreferrer' : undefined}
-                        >
-                          {caption}
-                        </Link>
-                      </div>
+                      <Link
+                        to={link}
+                        className={className}
+                        target={isBackup ? '_blank' : undefined}
+                        rel={isBackup ? 'noopener noreferrer' : undefined}
+                      >
+                        {caption}
+                      </Link>
                     );
                   }}
                 </Menu.Item>
