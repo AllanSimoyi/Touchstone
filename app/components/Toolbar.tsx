@@ -75,7 +75,7 @@ export function Toolbar(props: ToolbarProps) {
               title="Migration"
               items={[
                 [AppLinks.Import, 'Import From Excel'],
-                [AppLinks.Backup, 'Import From Excel'],
+                [AppLinks.Backup, 'Export To Excel'],
               ]}
             />
             <DropDownMenu loggedIn={!!currentUserName} />

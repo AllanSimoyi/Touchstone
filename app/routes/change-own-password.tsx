@@ -1,11 +1,10 @@
-import { redirect, type ActionArgs } from '@remix-run/node';
+import { json, type ActionArgs } from '@remix-run/node';
 
 import { prisma } from '~/db.server';
 import { createPasswordHash, isValidPassword } from '~/models/auth.server';
 import { badRequest, processBadRequest } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 import { getRawFormFields } from '~/models/forms';
-import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import { customServerLog, logParseError } from '~/models/logger.server';
 import { ChangeOwnPasswordSchema } from '~/models/user.validations';
@@ -43,7 +42,8 @@ export async function action({ request }: ActionArgs) {
       id: currentUser.id,
     });
 
-    return redirect(AppLinks.Customers);
+    return json({ success: true });
+    // return redirect(AppLinks.Customers);
   } catch (error) {
     const formError =
       getErrorMessage(error) ||

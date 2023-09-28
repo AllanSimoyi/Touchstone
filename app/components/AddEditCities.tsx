@@ -1,11 +1,18 @@
+import type { RefObject } from 'react';
+
 import { useFetcher } from '@remix-run/react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 import { useDeleteRecord } from '~/hooks/useDeleteRecord';
 import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import { useFormData } from '~/hooks/useFormData';
 import { useUpdateRecord } from '~/hooks/useUpdateRecord';
-import { AddCitySchema, UpdateCitySchema } from '~/models/core.validations';
+import {
+  AddCitySchema,
+  UpdateCitySchema,
+  hasSuccess,
+} from '~/models/core.validations';
 
 import { AddPickListName } from './AddPickListName';
 import { Card } from './Card';
@@ -24,6 +31,21 @@ export function AddEditCities(props: Props) {
   const newCityRef = useRef<HTMLInputElement>(null);
 
   const addFetcher = useFetcher();
+
+  const clearRef = (
+    ref: RefObject<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(addFetcher.data)) {
+      clearRef(newCityRef);
+      toast.success('City added successfully', { duration: 5_000 });
+    }
+  }, [addFetcher.data]);
 
   const optimisticItem = useFormData(
     addFetcher.submission?.formData,

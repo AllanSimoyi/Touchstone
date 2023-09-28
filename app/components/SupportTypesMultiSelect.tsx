@@ -1,4 +1,4 @@
-import { useCallback, useState, type ComponentProps } from 'react';
+import { useCallback, useState, type ComponentProps, useEffect } from 'react';
 import Select from 'react-select';
 import { z } from 'zod';
 
@@ -9,10 +9,11 @@ import { useField } from './ActionContextProvider';
 type CustomOption = { value: string; label: string };
 
 type Props = ComponentProps<typeof Select> & {
+  clearInput?: boolean;
   name: string;
 };
 export function SupportTypesMultiSelect(props: Props) {
-  const { name, ...restOfProps } = props;
+  const { clearInput, name, ...restOfProps } = props;
   const { value, error: errors } = useField(name);
 
   const getParsedValue = useCallback((data: string | File | undefined) => {
@@ -33,6 +34,12 @@ export function SupportTypesMultiSelect(props: Props) {
   const [supportTypes, setSupportTypes] = useState<CustomOption[]>(
     getParsedValue(value) || []
   );
+
+  useEffect(() => {
+    if (clearInput) {
+      setSupportTypes([]);
+    }
+  }, [clearInput]);
 
   const jobTypeOptions = SUPPORT_JOB_TYPES.map((el) => ({
     value: el,
@@ -55,7 +62,9 @@ export function SupportTypesMultiSelect(props: Props) {
         name="selectSupportTypes"
         classNamePrefix="select"
         options={jobTypeOptions}
-        defaultValue={supportTypes}
+        // defaultValue={supportTypes}
+        key={`my_unique_select_key__${supportTypes.toString()}`}
+        value={supportTypes}
         onChange={handleChange}
         placeholder="Select the types of work"
         classNames={{

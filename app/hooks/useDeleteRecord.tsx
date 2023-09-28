@@ -3,10 +3,11 @@ import type { z } from 'zod';
 import type { RECORD_TYPES } from '~/models/core.validations';
 
 import { useFetcher } from '@remix-run/react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { useForm } from '~/components/ActionContextProvider';
-import { DeleteRecordSchema } from '~/models/core.validations';
+import { DeleteRecordSchema, hasSuccess } from '~/models/core.validations';
 import { AppLinks } from '~/models/links';
 
 import { useActionErrors } from './useActionErrors';
@@ -21,6 +22,12 @@ export function useDeleteRecord(
   const deleteProps = useForm(deleteFetcher.data, DeleteRecordSchema);
 
   const deleteErrors = useActionErrors(deleteFetcher.data);
+
+  useEffect(() => {
+    if (hasSuccess(deleteFetcher.data)) {
+      toast.success('Pick list item deleted successfully', { duration: 5_000 });
+    }
+  }, [deleteFetcher.data]);
 
   const { isOpen, askForConfirmation, closeModal, onConfirmed } = useDelete({
     handleDelete: () => {

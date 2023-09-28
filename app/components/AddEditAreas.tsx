@@ -1,11 +1,16 @@
 import { useFetcher } from '@remix-run/react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 import { useDeleteRecord } from '~/hooks/useDeleteRecord';
 import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import { useFormData } from '~/hooks/useFormData';
 import { useUpdateRecord } from '~/hooks/useUpdateRecord';
-import { AddAreaSchema, UpdateAreaSchema } from '~/models/core.validations';
+import {
+  AddAreaSchema,
+  UpdateAreaSchema,
+  hasSuccess,
+} from '~/models/core.validations';
 
 import { AddPickListName } from './AddPickListName';
 import { Card } from './Card';
@@ -24,6 +29,15 @@ export function AddEditAreas(props: Props) {
   const newAreaRef = useRef<HTMLInputElement>(null);
 
   const addFetcher = useFetcher();
+
+  useEffect(() => {
+    if (hasSuccess(addFetcher.data)) {
+      if (newAreaRef.current) {
+        newAreaRef.current.value = '';
+      }
+      toast.success('Area added successfully', { duration: 5_000 });
+    }
+  }, [addFetcher.data]);
 
   const optimisticItem = useFormData(
     addFetcher.submission?.formData,

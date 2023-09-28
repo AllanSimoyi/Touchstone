@@ -1,11 +1,10 @@
-import { redirect, type ActionArgs } from '@remix-run/node';
+import { json, type ActionArgs } from '@remix-run/node';
 
 import { prisma } from '~/db.server';
 import { createPasswordHash } from '~/models/auth.server';
 import { badRequest, processBadRequest } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 import { getRawFormFields } from '~/models/forms';
-import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import { customServerLog, logParseError } from '~/models/logger.server';
 import { ChangePasswordSchema } from '~/models/user.validations';
@@ -26,7 +25,8 @@ export async function action({ request }: ActionArgs) {
     });
     customLog('info', 'Password changed for user', { id });
 
-    return redirect(AppLinks.Users);
+    return json({ success: true });
+    // return redirect(AppLinks.Users);
   } catch (error) {
     const formError =
       getErrorMessage(error) ||

@@ -1,4 +1,4 @@
-import { useCallback, useState, type ComponentProps } from 'react';
+import { useCallback, useState, type ComponentProps, useEffect } from 'react';
 import Select from 'react-select';
 import { z } from 'zod';
 
@@ -7,12 +7,13 @@ import { RecordIdSchema } from '~/models/core.validations';
 import { useField } from './ActionContextProvider';
 
 type Props = ComponentProps<typeof Select> & {
+  clearInput?: boolean;
   name: string;
   users: { id: number; username: string }[];
   defaultUserId?: number;
 };
 export function SelectSupportPerson(props: Props) {
-  const { name, users, defaultUserId, ...restOfProps } = props;
+  const { clearInput, name, users, defaultUserId, ...restOfProps } = props;
   const { value, error: errors } = useField(name);
 
   const getParsedValue = useCallback(
@@ -33,9 +34,15 @@ export function SelectSupportPerson(props: Props) {
     [users]
   );
 
-  const [userId, setAccountId] = useState(
+  const [userId, setUserId] = useState(
     getParsedValue(value) || getParsedValue(defaultUserId?.toString())
   );
+
+  useEffect(() => {
+    if (clearInput) {
+      setUserId(undefined);
+    }
+  }, [clearInput]);
 
   const userOptions = users.map((user) => ({
     value: user.id,
@@ -48,7 +55,7 @@ export function SelectSupportPerson(props: Props) {
     if (!result.success) {
       return;
     }
-    setAccountId(result.data);
+    setUserId(result.data);
   }, []);
 
   return (
@@ -58,7 +65,8 @@ export function SelectSupportPerson(props: Props) {
         name="selectSupportPerson"
         classNamePrefix="select"
         options={userOptions}
-        defaultValue={userId}
+        key={`my_unique_select_key__${userId}`}
+        value={userId}
         onChange={handleChange}
         placeholder="Select support person"
         classNames={{

@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from 'react';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { z } from 'zod';
 
 import { useLister } from '~/hooks/useLister';
@@ -18,12 +18,13 @@ const Schema = z
 
 interface Props {
   name: string;
+  clearInput?: boolean;
 }
 export function AddEditDatabases(props: Props) {
-  const { name } = props;
+  const { name, clearInput } = props;
   const newDatabaseRef = useRef<HTMLInputElement>(null);
 
-  const { addItem, onKeyDown, ...lister } = useLister({
+  const { addItem, onKeyDown, clear, ...lister } = useLister({
     name,
     Schema,
     isSameItem: (first, second) => first === second,
@@ -33,6 +34,12 @@ export function AddEditDatabases(props: Props) {
       }
     },
   });
+
+  useEffect(() => {
+    if (clearInput) {
+      clear();
+    }
+  }, [clearInput, clear]);
 
   const addDatabase = useCallback(() => {
     if (newDatabaseRef.current) {

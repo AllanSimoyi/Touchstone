@@ -1,11 +1,18 @@
+import type { RefObject } from 'react';
+
 import { useFetcher } from '@remix-run/react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 import { useDeleteRecord } from '~/hooks/useDeleteRecord';
 import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import { useFormData } from '~/hooks/useFormData';
 import { useUpdateRecord } from '~/hooks/useUpdateRecord';
-import { AddStatusSchema, UpdateStatusSchema } from '~/models/core.validations';
+import {
+  AddStatusSchema,
+  UpdateStatusSchema,
+  hasSuccess,
+} from '~/models/core.validations';
 
 import { AddPickListName } from './AddPickListName';
 import { Card } from './Card';
@@ -24,6 +31,21 @@ export function AddEditStatuses(props: Props) {
   const newStatusRef = useRef<HTMLInputElement>(null);
 
   const addFetcher = useFetcher();
+
+  const clearRef = (
+    ref: RefObject<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(addFetcher.data)) {
+      clearRef(newStatusRef);
+      toast.success('Status added successfully', { duration: 5_000 });
+    }
+  }, [addFetcher.data]);
 
   const optimisticItem = useFormData(
     addFetcher.submission?.formData,

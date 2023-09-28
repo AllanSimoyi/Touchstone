@@ -4,7 +4,7 @@ import type { RECORD_TYPES } from '~/models/core.validations';
 import { json, type LoaderArgs } from '@remix-run/node';
 import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
 import dayjs from 'dayjs';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 import {
@@ -25,14 +25,13 @@ import { SelectSupportPerson } from '~/components/SelectSupportPerson';
 import { SupportTypesMultiSelect } from '~/components/SupportTypesMultiSelect';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
-import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import {
   getValidatedId,
   hasSuccess,
   StatusCode,
   UpdateSupportJobSchema,
 } from '~/models/core.validations';
-import { DATE_INPUT_FORMAT, delay } from '~/models/dates';
+import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { hasFields, hasFormError } from '~/models/forms';
 import { AppLinks } from '~/models/links';
 import { pad } from '~/models/strings';
@@ -102,40 +101,37 @@ export default function SupportJobsCreate() {
     UpdateSupportJobSchema
   );
 
-  const accountIdRef = useRef<HTMLSelectElement>(null);
+  // const accountIdRef = useRef<HTMLSelectElement>(null);
   const clientStaffNameRef = useRef<HTMLInputElement>(null);
-  const supportPersonRef = useRef<HTMLInputElement>(null);
-  const supportTypeRef = useRef<HTMLSelectElement>(null);
+  // const supportPersonRef = useRef<HTMLInputElement>(null);
+  // const supportTypeRef = useRef<HTMLSelectElement>(null);
   const statusRef = useRef<HTMLSelectElement>(null);
   const enquiryRef = useRef<HTMLTextAreaElement>(null);
   const actionTakenRef = useRef<HTMLTextAreaElement>(null);
   const chargeRef = useRef<HTMLInputElement>(null);
   const dateRef = useRef<HTMLInputElement>(null);
 
-  const refs = useMemo(
-    () => [
-      accountIdRef,
-      clientStaffNameRef,
-      clientStaffNameRef,
-      supportPersonRef,
-      supportTypeRef,
-      statusRef,
-      enquiryRef,
-      actionTakenRef,
-      chargeRef,
-      dateRef,
-    ],
-    []
-  );
+  // const refs = useMemo(
+  //   () => [
+  //     accountIdRef,
+  //     clientStaffNameRef,
+  //     clientStaffNameRef,
+  //     supportPersonRef,
+  //     supportTypeRef,
+  //     statusRef,
+  //     enquiryRef,
+  //     actionTakenRef,
+  //     chargeRef,
+  //     dateRef,
+  //   ],
+  //   []
+  // );
 
-  useFieldClearOnSuccess(fetcher.data, refs);
+  // useFieldClearOnSuccess(fetcher.data, refs);
 
   useEffect(() => {
     if (hasSuccess(fetcher.data)) {
-      // showToast('success', 'Support job added');
-      toast.success('Support job added');
-      delay(2_000);
-      navigate(AppLinks.SupportJobs);
+      toast.success('Support job updated', { duration: 5_000 });
     }
   }, [fetcher.data, navigate]);
 

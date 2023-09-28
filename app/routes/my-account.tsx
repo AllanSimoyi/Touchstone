@@ -1,13 +1,10 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
+import type { RefObject } from 'react';
 
 import { json } from '@remix-run/node';
-import {
-  Form,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-} from '@remix-run/react';
-import { useMemo } from 'react';
+import { useFetcher, useLoaderData } from '@remix-run/react';
+import { useEffect, useMemo, useRef } from 'react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import {
@@ -25,7 +22,11 @@ import { InlineAlert } from '~/components/InlineAlert';
 import { PrimaryButton } from '~/components/PrimaryButton';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
-import { badRequest, processBadRequest } from '~/models/core.validations';
+import {
+  badRequest,
+  hasSuccess,
+  processBadRequest,
+} from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 import {
   fieldErrorsToArr,
@@ -38,15 +39,11 @@ import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import { logActionData, logParseError } from '~/models/logger.server';
 import {
-  ChangeOwnPasswordSchema,
   AccessLevelSchema,
+  ChangeOwnPasswordSchema,
   accessLevels,
 } from '~/models/user.validations';
-import {
-  createUserSession,
-  requireUser,
-  requireUserId,
-} from '~/session.server';
+import { requireUser, requireUserId } from '~/session.server';
 
 export async function loader({ request }: LoaderArgs) {
   const currentUser = await requireUser(request);
@@ -100,12 +97,13 @@ export const action = async ({ request }: ActionArgs) => {
       username,
     });
 
-    return createUserSession({
-      request,
-      userId: currentUserId,
-      remember: true,
-      redirectTo: AppLinks.Customers,
-    });
+    return json({ success: true });
+    // return createUserSession({
+    //   request,
+    //   userId: currentUserId,
+    //   remember: true,
+    //   redirectTo: AppLinks.Customers,
+    // });
   } catch (error) {
     const formError =
       getErrorMessage(error) ||
@@ -118,14 +116,39 @@ type SchemaKeys = keyof z.infer<typeof Schema>;
 
 export default function MyAccountPage() {
   const { currentUser } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const fetcher = useFetcher<typeof action>();
   const changePasswordFetcher = useFetcher();
 
-  const updateDetailsFormProps = useForm(actionData, Schema);
+  const updateDetailsFormProps = useForm(fetcher.data, Schema);
   const changePasswordFormProps = useForm(
     changePasswordFetcher.data,
     ChangeOwnPasswordSchema
   );
+
+  const currentPasswordRef = useRef<HTMLInputElement>(null);
+  const newPasswordRef = useRef<HTMLInputElement>(null);
+  const reEnteredPasswordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      toast.success('Your details have been updated', { duration: 5_000 });
+    }
+  }, [fetcher.data]);
+
+  const clearRef = (ref: RefObject<HTMLInputElement>) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(changePasswordFetcher.data)) {
+      toast.success('Your password has been changed', { duration: 5_000 });
+      clearRef(currentPasswordRef);
+      clearRef(newPasswordRef);
+      clearRef(reEnteredPasswordRef);
+    }
+  }, [changePasswordFetcher.data]);
 
   const defaultValues: Record<SchemaKeys, string> = {
     accessLevel: currentUser.accessLevel,
@@ -133,8 +156,8 @@ export default function MyAccountPage() {
   };
 
   const updateDetailsFieldErrors = useMemo(
-    () => getFieldErrors(actionData),
-    [actionData]
+    () => getFieldErrors(fetcher.data),
+    [fetcher.data]
   );
 
   const changePasswordFieldErrors = useMemo(
@@ -151,11 +174,14 @@ export default function MyAccountPage() {
             <span className="text-lg font-semibold">My Account</span>
           </div>
           <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
-            <Form method="post" className="flex flex-col items-stretch gap-4">
+            <fetcher.Form
+              method="post"
+              className="flex flex-col items-stretch gap-4"
+            >
               <ActionContextProvider
-                {...actionData}
+                {...fetcher.data}
                 fields={
-                  hasFields(actionData) ? actionData.fields : defaultValues
+                  hasFields(fetcher.data) ? fetcher.data.fields : defaultValues
                 }
                 isSubmitting={updateDetailsFormProps.isProcessing}
               >
@@ -187,8 +213,8 @@ export default function MyAccountPage() {
                     </div>
                   </div>
                   <div className="flex flex-row items-start gap-4">
-                    {hasFormError(actionData) && (
-                      <InlineAlert>{actionData.formError}</InlineAlert>
+                    {hasFormError(fetcher.data) && (
+                      <InlineAlert>{fetcher.data.formError}</InlineAlert>
                     )}
                     {!!updateDetailsFieldErrors && (
                       <InlineAlert>
@@ -206,7 +232,7 @@ export default function MyAccountPage() {
                     : 'Update'}
                 </PrimaryButton>
               </ActionContextProvider>
-            </Form>
+            </fetcher.Form>
             <changePasswordFetcher.Form
               method="post"
               action={AppLinks.ChangeOwnPassword}
@@ -233,6 +259,7 @@ export default function MyAccountPage() {
                         {...changePasswordFormProps.getNameProp(
                           'currentPassword'
                         )}
+                        customRef={currentPasswordRef}
                         type="password"
                       />
                     </div>
@@ -242,6 +269,7 @@ export default function MyAccountPage() {
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
                       <FormTextField
                         {...changePasswordFormProps.getNameProp('newPassword')}
+                        customRef={newPasswordRef}
                         type="password"
                       />
                     </div>
@@ -253,6 +281,7 @@ export default function MyAccountPage() {
                         {...changePasswordFormProps.getNameProp(
                           'reEnteredPassword'
                         )}
+                        customRef={reEnteredPasswordRef}
                         type="password"
                       />
                     </div>

@@ -1,11 +1,18 @@
+import type { RefObject } from 'react';
+
 import { useFetcher } from '@remix-run/react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 import { useDeleteRecord } from '~/hooks/useDeleteRecord';
 import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import { useFormData } from '~/hooks/useFormData';
 import { useUpdateRecord } from '~/hooks/useUpdateRecord';
-import { AddSectorSchema, UpdateSectorSchema } from '~/models/core.validations';
+import {
+  AddSectorSchema,
+  UpdateSectorSchema,
+  hasSuccess,
+} from '~/models/core.validations';
 
 import { AddPickListName } from './AddPickListName';
 import { Card } from './Card';
@@ -24,6 +31,21 @@ export function AddEditSectors(props: Props) {
   const newSectorRef = useRef<HTMLInputElement>(null);
 
   const addFetcher = useFetcher();
+
+  const clearRef = (
+    ref: RefObject<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(addFetcher.data)) {
+      clearRef(newSectorRef);
+      toast.success('Sector added successfully', { duration: 5_000 });
+    }
+  }, [addFetcher.data]);
 
   const optimisticItem = useFormData(
     addFetcher.submission?.formData,

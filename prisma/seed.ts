@@ -10,6 +10,9 @@ const prisma = new PrismaClient();
 const PHONE_NUMBER_FORMAT = '+263#########';
 
 async function seed() {
+  await prisma.supportJob.deleteMany();
+  await prisma.supportJobEvent.deleteMany();
+
   await prisma.account.deleteMany();
   await prisma.accountEvent.deleteMany();
 
@@ -39,9 +42,6 @@ async function seed() {
 
   await prisma.status.deleteMany();
   await prisma.statusEvent.deleteMany();
-
-  await prisma.supportJob.deleteMany();
-  await prisma.supportJobEvent.deleteMany();
 
   await prisma.user.deleteMany();
   await prisma.userEvent.deleteMany();

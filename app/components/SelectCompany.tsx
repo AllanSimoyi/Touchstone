@@ -1,4 +1,4 @@
-import { useCallback, useState, type ComponentProps } from 'react';
+import { useCallback, useState, type ComponentProps, useEffect } from 'react';
 import Select from 'react-select';
 import { z } from 'zod';
 
@@ -7,11 +7,12 @@ import { RecordIdSchema } from '~/models/core.validations';
 import { useField } from './ActionContextProvider';
 
 type Props = ComponentProps<typeof Select> & {
+  clearInput?: boolean;
   name: string;
   accounts: { id: number; companyName: string }[];
 };
 export function SelectCompany(props: Props) {
-  const { name, accounts, ...restOfProps } = props;
+  const { clearInput, name, accounts, ...restOfProps } = props;
   const { value, error: errors } = useField(name);
 
   const getParsedValue = useCallback(
@@ -34,6 +35,12 @@ export function SelectCompany(props: Props) {
 
   const [accountId, setAccountId] = useState(getParsedValue(value));
 
+  useEffect(() => {
+    if (clearInput) {
+      setAccountId(undefined);
+    }
+  }, [clearInput]);
+
   const accountOptions = accounts.map((account) => ({
     value: account.id,
     label: account.companyName,
@@ -55,7 +62,8 @@ export function SelectCompany(props: Props) {
         name="selectCompany"
         classNamePrefix="select"
         options={accountOptions}
-        defaultValue={accountId}
+        key={`my_unique_select_key__${accountId}`}
+        value={accountId}
         onChange={handleChange}
         placeholder="Select company"
         classNames={{

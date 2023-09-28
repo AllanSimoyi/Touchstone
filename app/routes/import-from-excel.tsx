@@ -2,10 +2,11 @@ import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 import type { ChangeEvent } from 'react';
 import type { ParsedExcelRow } from '~/models/excel';
 
-import { json, redirect } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import { useFetcher, useLoaderData } from '@remix-run/react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import readXlsxFile from 'read-excel-file';
+import { toast } from 'sonner';
 import { Check } from 'tabler-icons-react';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
@@ -23,6 +24,7 @@ import { PrimaryButton } from '~/components/PrimaryButton';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
 import {
+  hasSuccess,
   processBadRequest,
   stringifyZodError,
 } from '~/models/core.validations';
@@ -30,7 +32,6 @@ import { calcGross, calcNet, calcVat } from '~/models/customers';
 import { getErrorMessage } from '~/models/errors';
 import { EXCEL_TABLE_COLUMNS, ExcelRowSchema } from '~/models/excel';
 import { getRawFormFields } from '~/models/forms';
-import { AppLinks } from '~/models/links';
 import { logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
@@ -216,7 +217,8 @@ export async function action({ request }: ActionArgs) {
     });
   }
 
-  return redirect(AppLinks.Customers);
+  return json({ success: true });
+  // return redirect(AppLinks.Customers);
 }
 
 export default function UsersPage() {
@@ -225,6 +227,12 @@ export default function UsersPage() {
   const fetcher = useFetcher<typeof action>();
 
   const { getNameProp, isProcessing } = useForm(fetcher.data, Schema);
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      toast.success('Imported successfully', { duration: 5_000 });
+    }
+  }, [fetcher.data]);
 
   const [rows, setRows] = useState<(ParsedExcelRow | Error)[]>([]);
   const [error, setError] = useState('');

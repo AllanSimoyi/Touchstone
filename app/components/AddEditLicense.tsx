@@ -1,8 +1,9 @@
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, RefObject } from 'react';
 import type { RECORD_TYPES } from '~/models/core.validations';
 
 import { useFetcher } from '@remix-run/react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { Plus } from 'tabler-icons-react';
 
 import { useDeleteRecord } from '~/hooks/useDeleteRecord';
@@ -13,6 +14,7 @@ import { useUpdateRecord } from '~/hooks/useUpdateRecord';
 import {
   AddLicenseSchema,
   UpdateLicenseSchema,
+  hasSuccess,
 } from '~/models/core.validations';
 import { hasFormError } from '~/models/forms';
 import { AppLinks } from '~/models/links';
@@ -39,6 +41,22 @@ export function AddEditLicenses(props: Props) {
 
   const fetcher = useFetcher();
   const { getNameProp, isProcessing } = useForm(fetcher.data, AddLicenseSchema);
+
+  const clearRef = (
+    ref: RefObject<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      clearRef(identifierRef);
+      clearRef(basicUsdRef);
+      toast.success('License added successfully', { duration: 5_000 });
+    }
+  }, [fetcher.data]);
 
   const optimisticItem = useFormData(
     fetcher.submission?.formData,
@@ -116,6 +134,12 @@ function LicenseChip(item: {
 
   const formRef = useRef<HTMLFormElement>(null);
   const { onEnterPressed } = useKeyDown();
+
+  useEffect(() => {
+    if (hasSuccess(updateFetcher.data)) {
+      toast.success('License updated successfully', { duration: 5_000 });
+    }
+  }, [updateFetcher.data]);
 
   const handleUpdateSubmit = useCallback(() => {
     if (formRef.current) {

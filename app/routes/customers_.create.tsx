@@ -1,9 +1,12 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
+import type { RefObject } from 'react';
 import type { CreateOrDeleteEventDetails } from '~/models/events';
 
-import { json, redirect } from '@remix-run/node';
-import { Form, useActionData, useLoaderData } from '@remix-run/react';
+import { json } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
 import dayjs from 'dayjs';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import {
@@ -27,6 +30,7 @@ import { prisma } from '~/db.server';
 import {
   ComposeRecordIdSchema,
   badRequest,
+  hasSuccess,
   processBadRequest,
 } from '~/models/core.validations';
 import { calcGross, calcNet, calcVat } from '~/models/customers';
@@ -34,7 +38,6 @@ import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { getErrorMessage } from '~/models/errors';
 import { EventKind } from '~/models/events';
 import { getRawFormFields, hasFormError } from '~/models/forms';
-import { AppLinks } from '~/models/links';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
@@ -394,9 +397,10 @@ export const action = async ({ request }: ActionArgs) => {
       return badRequest({ formError: creationResult.formError });
     }
 
-    return redirect(
-      `${AppLinks.Customer(creationResult.id)}?message=Customer_added`
-    );
+    return json({ success: true });
+    // return redirect(
+    //   `${AppLinks.Customer(creationResult.id)}?message=Customer_added`
+    // );
   } catch (error) {
     const formError =
       getErrorMessage(error) ||
@@ -409,9 +413,96 @@ export default function CreateCustomerPage() {
   const user = useUser();
   const { cities, statuses, groups, areas, sectors, licenses, licenseDetails } =
     useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const fetcher = useFetcher<typeof action>();
 
-  const { getNameProp, isProcessing } = useForm(actionData, Schema);
+  const { getNameProp, isProcessing } = useForm(fetcher.data, Schema);
+
+  const companyNameRef = useRef<HTMLInputElement>(null);
+  const accountNumberRef = useRef<HTMLInputElement>(null);
+  const tradingAsRef = useRef<HTMLInputElement>(null);
+  const formerlyRef = useRef<HTMLInputElement>(null);
+  const ceoNameRef = useRef<HTMLInputElement>(null);
+  const ceoEmailRef = useRef<HTMLInputElement>(null);
+  const ceoPhoneRef = useRef<HTMLInputElement>(null);
+  const ceoFaxRef = useRef<HTMLInputElement>(null);
+  const addrRef = useRef<HTMLInputElement>(null);
+  const telRef = useRef<HTMLInputElement>(null);
+  const faxRef = useRef<HTMLInputElement>(null);
+  const cellRef = useRef<HTMLInputElement>(null);
+  const licenseIdRef = useRef<HTMLSelectElement>(null);
+  const licenseDetailIdRef = useRef<HTMLSelectElement>(null);
+  const addedPercentageRef = useRef<HTMLInputElement>(null);
+  const contractNumberRef = useRef<HTMLInputElement>(null);
+  const dateOfContractRef = useRef<HTMLInputElement>(null);
+  const accountantNameRef = useRef<HTMLInputElement>(null);
+  const accountantEmailRef = useRef<HTMLInputElement>(null);
+  const groupIdRef = useRef<HTMLSelectElement>(null);
+  const areaIdRef = useRef<HTMLSelectElement>(null);
+  const sectorIdRef = useRef<HTMLSelectElement>(null);
+  const vatNumberRef = useRef<HTMLInputElement>(null);
+  const otherNamesRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const actualRef = useRef<HTMLInputElement>(null);
+  const reasonRef = useRef<HTMLInputElement>(null);
+  const statusIdRef = useRef<HTMLSelectElement>(null);
+  const commentRef = useRef<HTMLTextAreaElement>(null);
+  const boxCityIdRef = useRef<HTMLSelectElement>(null);
+  const boxNumberRef = useRef<HTMLInputElement>(null);
+  const boxAreaRef = useRef<HTMLInputElement>(null);
+  const deliveryCityIdRef = useRef<HTMLSelectElement>(null);
+  const deliverySuburbRef = useRef<HTMLInputElement>(null);
+  const deliveryAddressRef = useRef<HTMLInputElement>(null);
+
+  const clearRef = (
+    ref: RefObject<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      toast.success('Customer record created successfully!', {
+        duration: 5_000,
+      });
+      clearRef(companyNameRef);
+      clearRef(accountNumberRef);
+      clearRef(tradingAsRef);
+      clearRef(formerlyRef);
+      clearRef(ceoNameRef);
+      clearRef(ceoEmailRef);
+      clearRef(ceoPhoneRef);
+      clearRef(ceoFaxRef);
+      clearRef(addrRef);
+      clearRef(telRef);
+      clearRef(faxRef);
+      clearRef(cellRef);
+      clearRef(licenseIdRef);
+      clearRef(licenseDetailIdRef);
+      clearRef(addedPercentageRef);
+      clearRef(contractNumberRef);
+      clearRef(dateOfContractRef);
+      clearRef(accountantNameRef);
+      clearRef(accountantEmailRef);
+      clearRef(groupIdRef);
+      clearRef(areaIdRef);
+      clearRef(sectorIdRef);
+      clearRef(vatNumberRef);
+      clearRef(otherNamesRef);
+      clearRef(descriptionRef);
+      clearRef(actualRef);
+      clearRef(reasonRef);
+      clearRef(statusIdRef);
+      clearRef(commentRef);
+      clearRef(boxCityIdRef);
+      clearRef(boxNumberRef);
+      clearRef(boxAreaRef);
+      clearRef(deliveryCityIdRef);
+      clearRef(deliverySuburbRef);
+      clearRef(deliveryAddressRef);
+    }
+  }, [fetcher.data]);
 
   const defaultValues = {
     companyName: 'Allan',
@@ -457,14 +548,20 @@ export default function CreateCustomerPage() {
   return (
     <div className="flex min-h-full flex-col items-stretch">
       <Toolbar currentUserName={user.username} />
-      {hasFormError(actionData) && (
-        <div className="fixed bottom-0 left-0 flex flex-col items-center justify-center p-2">
-          <InlineAlert>{actionData.formError}</InlineAlert>
+      {hasFormError(fetcher.data) && (
+        <div
+          role="status"
+          className="fixed bottom-0 left-0 flex flex-col items-center justify-center p-2"
+        >
+          <InlineAlert>{fetcher.data.formError}</InlineAlert>
         </div>
       )}
-      <Form method="post" className="flex grow flex-col items-stretch py-6">
+      <fetcher.Form
+        method="post"
+        className="flex grow flex-col items-stretch py-6"
+      >
         <ActionContextProvider
-          {...actionData}
+          {...fetcher.data}
           fields={defaultValues}
           isSubmitting={isProcessing}
         >
@@ -480,25 +577,37 @@ export default function CreateCustomerPage() {
                     <span>Company</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('companyName')} />
+                    <FormTextField
+                      {...getNameProp('companyName')}
+                      customRef={companyNameRef}
+                    />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>Account #</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('accountNumber')} />
+                    <FormTextField
+                      {...getNameProp('accountNumber')}
+                      customRef={accountNumberRef}
+                    />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>Trading As</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('tradingAs')} />
+                    <FormTextField
+                      {...getNameProp('tradingAs')}
+                      customRef={tradingAsRef}
+                    />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>Formerly</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('formerly')} />
+                    <FormTextField
+                      {...getNameProp('formerly')}
+                      customRef={formerlyRef}
+                    />
                   </div>
                 </div>
               </Card>
@@ -509,25 +618,37 @@ export default function CreateCustomerPage() {
                     <span>CEO's Name</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('ceoName')} />
+                    <FormTextField
+                      {...getNameProp('ceoName')}
+                      customRef={ceoNameRef}
+                    />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>CEO's Email</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('ceoEmail')} />
+                    <FormTextField
+                      {...getNameProp('ceoEmail')}
+                      customRef={ceoEmailRef}
+                    />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>CEO's Phone</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('ceoPhone')} />
+                    <FormTextField
+                      {...getNameProp('ceoPhone')}
+                      customRef={ceoPhoneRef}
+                    />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>CEO's Fax #</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('ceoFax')} />
+                    <FormTextField
+                      {...getNameProp('ceoFax')}
+                      customRef={ceoFaxRef}
+                    />
                   </div>
                 </div>
               </Card>
@@ -538,25 +659,31 @@ export default function CreateCustomerPage() {
                     <span>Address</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('addr')} />
+                    <FormTextField
+                      {...getNameProp('addr')}
+                      customRef={addrRef}
+                    />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>Telephone</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('tel')} />
+                    <FormTextField {...getNameProp('tel')} customRef={telRef} />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>Fax Number</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('fax')} />
+                    <FormTextField {...getNameProp('fax')} customRef={faxRef} />
                   </div>
                   <div className="flex flex-col items-start justify-center p-2">
                     <span>Cellphone</span>
                   </div>
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
-                    <FormTextField {...getNameProp('cell')} />
+                    <FormTextField
+                      {...getNameProp('cell')}
+                      customRef={cellRef}
+                    />
                   </div>
                 </div>
               </Card>
@@ -568,7 +695,10 @@ export default function CreateCustomerPage() {
                       <span>License</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('licenseId')}>
+                      <FormSelect
+                        {...getNameProp('licenseId')}
+                        customRef={licenseIdRef}
+                      >
                         <option value="">NONE</option>
                         {licenses.map((license) => (
                           <option key={license.id} value={license.id}>
@@ -582,7 +712,10 @@ export default function CreateCustomerPage() {
                       <span>License Detail</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('licenseDetailId')}>
+                      <FormSelect
+                        {...getNameProp('licenseDetailId')}
+                        customRef={licenseDetailIdRef}
+                      >
                         <option value="">NONE</option>
                         {licenseDetails.map((licenseDetail) => (
                           <option
@@ -600,6 +733,7 @@ export default function CreateCustomerPage() {
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
                       <FormTextField
                         {...getNameProp('addedPercentage')}
+                        customRef={addedPercentageRef}
                         type="number"
                       />
                     </div>
@@ -612,7 +746,10 @@ export default function CreateCustomerPage() {
                       <span>Contract #</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('contractNumber')} />
+                      <FormTextField
+                        {...getNameProp('contractNumber')}
+                        customRef={contractNumberRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Date of Contract</span>
@@ -620,6 +757,7 @@ export default function CreateCustomerPage() {
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
                       <FormTextField
                         {...getNameProp('dateOfContract')}
+                        customRef={dateOfContractRef}
                         type="date"
                       />
                     </div>
@@ -632,13 +770,19 @@ export default function CreateCustomerPage() {
                       <span>Accountant Name</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('accountantName')} />
+                      <FormTextField
+                        {...getNameProp('accountantName')}
+                        customRef={accountantNameRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Accountant Email</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('accountantEmail')} />
+                      <FormTextField
+                        {...getNameProp('accountantEmail')}
+                        customRef={accountantEmailRef}
+                      />
                     </div>
                   </div>
                 </Card>
@@ -651,7 +795,10 @@ export default function CreateCustomerPage() {
                       <span>Group</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('groupId')}>
+                      <FormSelect
+                        {...getNameProp('groupId')}
+                        customRef={groupIdRef}
+                      >
                         <option value="">NONE</option>
                         {groups.map((group) => (
                           <option key={group.id} value={group.id}>
@@ -664,7 +811,10 @@ export default function CreateCustomerPage() {
                       <span>Area</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('areaId')}>
+                      <FormSelect
+                        {...getNameProp('areaId')}
+                        customRef={areaIdRef}
+                      >
                         <option value="">NONE</option>
                         {areas.map((area) => (
                           <option key={area.id} value={area.id}>
@@ -677,7 +827,10 @@ export default function CreateCustomerPage() {
                       <span>Sector</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('sectorId')}>
+                      <FormSelect
+                        {...getNameProp('sectorId')}
+                        customRef={sectorIdRef}
+                      >
                         <option value="">NONE</option>
                         {sectors.map((sector) => (
                           <option key={sector.id} value={sector.id}>
@@ -690,37 +843,55 @@ export default function CreateCustomerPage() {
                       <span>VAT #</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('vatNumber')} />
+                      <FormTextField
+                        {...getNameProp('vatNumber')}
+                        customRef={vatNumberRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Other Names On Cheques</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('otherNames')} />
+                      <FormTextField
+                        {...getNameProp('otherNames')}
+                        customRef={otherNamesRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Description</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextArea {...getNameProp('description')} />
+                      <FormTextArea
+                        {...getNameProp('description')}
+                        customRef={descriptionRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Actual</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('actual')} />
+                      <FormTextField
+                        {...getNameProp('actual')}
+                        customRef={actualRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Reason</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('reason')} />
+                      <FormTextField
+                        {...getNameProp('reason')}
+                        customRef={reasonRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Status</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('statusId')}>
+                      <FormSelect
+                        {...getNameProp('statusId')}
+                        customRef={statusIdRef}
+                      >
                         <option value="">NONE</option>
                         {statuses.map((status) => (
                           <option key={status.id} value={status.id}>
@@ -733,7 +904,10 @@ export default function CreateCustomerPage() {
                       <span>Comment</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextArea {...getNameProp('comment')} />
+                      <FormTextArea
+                        {...getNameProp('comment')}
+                        customRef={commentRef}
+                      />
                     </div>
                   </div>
                 </Card>
@@ -746,7 +920,10 @@ export default function CreateCustomerPage() {
                       <span>City</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('boxCityId')}>
+                      <FormSelect
+                        {...getNameProp('boxCityId')}
+                        customRef={boxCityIdRef}
+                      >
                         <option value="">NONE</option>
                         {cities.map((city) => (
                           <option key={city.id} value={city.id}>
@@ -759,13 +936,19 @@ export default function CreateCustomerPage() {
                       <span>Box Number</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('boxNumber')} />
+                      <FormTextField
+                        {...getNameProp('boxNumber')}
+                        customRef={boxNumberRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Box Area</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('boxArea')} />
+                      <FormTextField
+                        {...getNameProp('boxArea')}
+                        customRef={boxAreaRef}
+                      />
                     </div>
                   </div>
                 </Card>
@@ -776,7 +959,10 @@ export default function CreateCustomerPage() {
                       <span>Delivery City</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('deliveryCityId')}>
+                      <FormSelect
+                        {...getNameProp('deliveryCityId')}
+                        customRef={deliveryCityIdRef}
+                      >
                         <option value="">NONE</option>
                         {cities.map((city) => (
                           <option key={city.id} value={city.id}>
@@ -789,23 +975,35 @@ export default function CreateCustomerPage() {
                       <span>Delivery Suburb</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('deliverySuburb')} />
+                      <FormTextField
+                        {...getNameProp('deliverySuburb')}
+                        customRef={deliverySuburbRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Delivery Address</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('deliveryAddress')} />
+                      <FormTextField
+                        {...getNameProp('deliveryAddress')}
+                        customRef={deliveryAddressRef}
+                      />
                     </div>
                   </div>
                 </Card>
                 <Card className="grow">
                   <CardHeader>Databases</CardHeader>
-                  <AddEditDatabases {...getNameProp('databases')} />
+                  <AddEditDatabases
+                    {...getNameProp('databases')}
+                    clearInput={hasSuccess(fetcher.data)}
+                  />
                 </Card>
                 <Card className="grow">
                   <CardHeader>Operators</CardHeader>
-                  <AddEditOperators {...getNameProp('operators')} />
+                  <AddEditOperators
+                    {...getNameProp('operators')}
+                    clearInput={hasSuccess(fetcher.data)}
+                  />
                 </Card>
               </div>
             </div>
@@ -818,7 +1016,7 @@ export default function CreateCustomerPage() {
             </div>
           </CenteredView>
         </ActionContextProvider>
-      </Form>
+      </fetcher.Form>
       <Footer />
     </div>
   );

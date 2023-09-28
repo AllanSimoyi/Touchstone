@@ -1,8 +1,11 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
+import type { RefObject } from 'react';
 import type { CreateOrDeleteEventDetails } from '~/models/events';
 
-import { json, redirect } from '@remix-run/node';
-import { Form, useActionData, useLoaderData } from '@remix-run/react';
+import { json } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import {
@@ -20,11 +23,14 @@ import { InlineAlert } from '~/components/InlineAlert';
 import { PrimaryButton } from '~/components/PrimaryButton';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
-import { badRequest, processBadRequest } from '~/models/core.validations';
+import {
+  badRequest,
+  hasSuccess,
+  processBadRequest,
+} from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
 import { EventKind } from '~/models/events';
 import { getRawFormFields, hasFormError } from '~/models/forms';
-import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import {
   customServerLog,
@@ -106,7 +112,8 @@ export const action = async ({ request }: ActionArgs) => {
     });
     customLog('info', 'New user created', { accessLevel, username });
 
-    return redirect(AppLinks.Users);
+    return json({ success: true });
+    // return redirect(AppLinks.Users);
   } catch (error) {
     const formError =
       getErrorMessage(error) ||
@@ -119,9 +126,30 @@ export const action = async ({ request }: ActionArgs) => {
 export default function CreateUserPage() {
   const user = useUser();
   useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const fetcher = useFetcher<typeof action>();
 
-  const { getNameProp, isProcessing } = useForm(actionData, Schema);
+  const { getNameProp, isProcessing } = useForm(fetcher.data, Schema);
+
+  const accessLevelRef = useRef<HTMLSelectElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const reEnteredPasswordRef = useRef<HTMLInputElement>(null);
+
+  const clearRef = (ref: RefObject<HTMLInputElement | HTMLSelectElement>) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      toast.success('User created successfully', { duration: 5_000 });
+      clearRef(accessLevelRef);
+      clearRef(usernameRef);
+      clearRef(passwordRef);
+      clearRef(reEnteredPasswordRef);
+    }
+  }, [fetcher.data]);
 
   // const defaultValues: Record<keyof z.infer<typeof Schema>, string> = {
   //   accessLevel: accessLevels[0],
@@ -133,14 +161,17 @@ export default function CreateUserPage() {
   return (
     <div className="flex min-h-full flex-col items-stretch">
       <Toolbar currentUserName={user.username} />
-      {hasFormError(actionData) && (
+      {hasFormError(fetcher.data) && (
         <div className="fixed bottom-0 left-0 flex flex-col items-center justify-center p-2">
-          <InlineAlert>{actionData.formError}</InlineAlert>
+          <InlineAlert>{fetcher.data.formError}</InlineAlert>
         </div>
       )}
-      <Form method="post" className="flex grow flex-col items-stretch py-6">
+      <fetcher.Form
+        method="post"
+        className="flex grow flex-col items-stretch py-6"
+      >
         <ActionContextProvider
-          {...actionData}
+          {...fetcher.data}
           // fields={defaultValues}
           isSubmitting={isProcessing}
         >
@@ -154,7 +185,10 @@ export default function CreateUserPage() {
                       <span>Access Level</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormSelect {...getNameProp('accessLevel')}>
+                      <FormSelect
+                        {...getNameProp('accessLevel')}
+                        customRef={accessLevelRef}
+                      >
                         {accessLevels.map((accessLevel) => (
                           <option key={accessLevel} value={accessLevel}>
                             {accessLevel}
@@ -166,7 +200,10 @@ export default function CreateUserPage() {
                       <span>Username</span>
                     </div>
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
-                      <FormTextField {...getNameProp('username')} />
+                      <FormTextField
+                        {...getNameProp('username')}
+                        customRef={usernameRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Password</span>
@@ -174,6 +211,7 @@ export default function CreateUserPage() {
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
                       <FormTextField
                         {...getNameProp('password')}
+                        customRef={passwordRef}
                         type="password"
                       />
                     </div>
@@ -183,6 +221,7 @@ export default function CreateUserPage() {
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
                       <FormTextField
                         {...getNameProp('reEnteredPassword')}
+                        customRef={reEnteredPasswordRef}
                         type="password"
                       />
                     </div>
@@ -197,7 +236,7 @@ export default function CreateUserPage() {
             </div>
           </CenteredView>
         </ActionContextProvider>
-      </Form>
+      </fetcher.Form>
       <Footer />
     </div>
   );

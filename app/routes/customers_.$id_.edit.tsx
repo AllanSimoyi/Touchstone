@@ -1,9 +1,10 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
 
-import { Response, json, redirect } from '@remix-run/node';
-import { Form, useActionData, useLoaderData } from '@remix-run/react';
+import { Response, json } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
 import dayjs from 'dayjs';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import {
@@ -30,6 +31,7 @@ import {
   StatusCode,
   badRequest,
   getValidatedId,
+  hasSuccess,
   processBadRequest,
 } from '~/models/core.validations';
 import { calcGross, calcNet, calcVat } from '~/models/customers';
@@ -47,7 +49,6 @@ import {
   hasFields,
   hasFormError,
 } from '~/models/forms';
-import { AppLinks } from '~/models/links';
 import { logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
@@ -645,7 +646,8 @@ export const action = async ({ request }: ActionArgs) => {
       return updatedAccount;
     });
 
-    return redirect(`${AppLinks.Customer(id)}?message=Customer_updated`);
+    return json({ success: true });
+    // return redirect(`${AppLinks.Customer(id)}?message=Customer_updated`);
   } catch (error) {
     const formError =
       getErrorMessage(error) ||
@@ -666,9 +668,17 @@ export default function EditCustomerPage() {
     licenses,
     licenseDetails,
   } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const fetcher = useFetcher<typeof action>();
 
-  const { getNameProp, isProcessing } = useForm(actionData, Schema);
+  const { getNameProp, isProcessing } = useForm(fetcher.data, Schema);
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      toast.success('Customer record updated successfully!', {
+        duration: 5_000,
+      });
+    }
+  }, [fetcher.data]);
 
   const defaultValues: Record<keyof z.infer<typeof Schema>, string> = {
     id: account.id.toString(),
@@ -718,15 +728,21 @@ export default function EditCustomerPage() {
     ),
   };
 
-  const fieldErrors = useMemo(() => getFieldErrors(actionData), [actionData]);
+  const fieldErrors = useMemo(
+    () => getFieldErrors(fetcher.data),
+    [fetcher.data]
+  );
 
   return (
     <div className="flex min-h-full flex-col items-stretch">
       <Toolbar currentUserName={user.username} />
-      <Form method="post" className="flex grow flex-col items-stretch py-6">
+      <fetcher.Form
+        method="post"
+        className="flex grow flex-col items-stretch py-6"
+      >
         <ActionContextProvider
-          {...actionData}
-          fields={hasFields(actionData) ? actionData.fields : defaultValues}
+          {...fetcher.data}
+          fields={hasFields(fetcher.data) ? fetcher.data.fields : defaultValues}
           isSubmitting={isProcessing}
         >
           <CenteredView className="w-full gap-4 px-2">
@@ -1073,8 +1089,8 @@ export default function EditCustomerPage() {
               </div>
             </div>
             <div className="flex flex-row items-start gap-4">
-              {hasFormError(actionData) && (
-                <InlineAlert>{actionData.formError}</InlineAlert>
+              {hasFormError(fetcher.data) && (
+                <InlineAlert>{fetcher.data.formError}</InlineAlert>
               )}
               {!!fieldErrors && (
                 <InlineAlert>{fieldErrorsToArr(fieldErrors)}</InlineAlert>
@@ -1089,7 +1105,7 @@ export default function EditCustomerPage() {
             </div>
           </CenteredView>
         </ActionContextProvider>
-      </Form>
+      </fetcher.Form>
       <Footer />
     </div>
   );

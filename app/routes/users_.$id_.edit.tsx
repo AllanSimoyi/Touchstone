@@ -1,14 +1,11 @@
 import type { ActionArgs, LoaderArgs } from '@remix-run/node';
+import type { RefObject } from 'react';
 import type { UpdateEventDetails } from '~/models/events';
 
-import { Response, json, redirect } from '@remix-run/node';
-import {
-  Form,
-  useActionData,
-  useFetcher,
-  useLoaderData,
-} from '@remix-run/react';
-import { useMemo } from 'react';
+import { Response, json } from '@remix-run/node';
+import { useFetcher, useLoaderData } from '@remix-run/react';
+import { useEffect, useMemo, useRef } from 'react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import {
@@ -30,6 +27,7 @@ import {
   StatusCode,
   badRequest,
   getValidatedId,
+  hasSuccess,
   processBadRequest,
 } from '~/models/core.validations';
 import { getErrorMessage } from '~/models/errors';
@@ -45,8 +43,8 @@ import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import { logActionData, logParseError } from '~/models/logger.server';
 import {
-  ChangePasswordSchema,
   AccessLevelSchema,
+  ChangePasswordSchema,
   INVALID_ACCESS_LEVEL_ERR_MESSAGE,
   accessLevels,
   getValidatedAccessLevel,
@@ -144,7 +142,8 @@ export const action = async ({ request, params }: ActionArgs) => {
     });
     customLog('info', 'User updated', { id, accessLevel, username });
 
-    return redirect(AppLinks.Users);
+    return json({ success: true });
+    // return redirect(AppLinks.Users);
   } catch (error) {
     const formError =
       getErrorMessage(error) ||
@@ -158,14 +157,43 @@ type SchemaKeys = keyof z.infer<typeof Schema>;
 export default function EditUserPage() {
   const currentUser = useUser();
   const { user } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const fetcher = useFetcher<typeof action>();
   const changePasswordFetcher = useFetcher();
 
-  const updateDetailsFormProps = useForm(actionData, Schema);
+  const updateDetailsFormProps = useForm(fetcher.data, Schema);
   const changePasswordFormProps = useForm(
     changePasswordFetcher.data,
     ChangePasswordSchema
   );
+
+  const accessLevelRef = useRef<HTMLSelectElement>(null);
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const reEnteredPasswordRef = useRef<HTMLInputElement>(null);
+
+  const clearRef = (
+    ref: RefObject<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+  };
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      toast.success('User updated successfully', { duration: 5_000 });
+      // clearRef(accessLevelRef);
+      // clearRef(usernameRef);
+    }
+  }, [fetcher.data]);
+
+  useEffect(() => {
+    if (hasSuccess(changePasswordFetcher.data)) {
+      toast.success('Password updated successfully', { duration: 5_000 });
+      clearRef(passwordRef);
+      clearRef(reEnteredPasswordRef);
+    }
+  }, [changePasswordFetcher.data]);
 
   const defaultValues: Record<SchemaKeys, string> = {
     accessLevel: user.accessLevel,
@@ -173,8 +201,8 @@ export default function EditUserPage() {
   };
 
   const updateDetailsFieldErrors = useMemo(
-    () => getFieldErrors(actionData),
-    [actionData]
+    () => getFieldErrors(fetcher.data),
+    [fetcher.data]
   );
 
   const changePasswordFieldErrors = useMemo(
@@ -193,11 +221,14 @@ export default function EditUserPage() {
             </span>
           </div>
           <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
-            <Form method="post" className="flex flex-col items-stretch gap-4">
+            <fetcher.Form
+              method="post"
+              className="flex flex-col items-stretch gap-4"
+            >
               <ActionContextProvider
-                {...actionData}
+                {...fetcher.data}
                 fields={
-                  hasFields(actionData) ? actionData.fields : defaultValues
+                  hasFields(fetcher.data) ? fetcher.data.fields : defaultValues
                 }
                 isSubmitting={updateDetailsFormProps.isProcessing}
               >
@@ -210,6 +241,7 @@ export default function EditUserPage() {
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
                       <FormSelect
                         {...updateDetailsFormProps.getNameProp('accessLevel')}
+                        customRef={accessLevelRef}
                       >
                         {accessLevels.map((accessLevel) => (
                           <option key={accessLevel} value={accessLevel}>
@@ -224,12 +256,13 @@ export default function EditUserPage() {
                     <div className="col-span-2 flex flex-col items-stretch justify-center">
                       <FormTextField
                         {...updateDetailsFormProps.getNameProp('username')}
+                        customRef={usernameRef}
                       />
                     </div>
                   </div>
                   <div className="flex flex-row items-start gap-4">
-                    {hasFormError(actionData) && (
-                      <InlineAlert>{actionData.formError}</InlineAlert>
+                    {hasFormError(fetcher.data) && (
+                      <InlineAlert>{fetcher.data.formError}</InlineAlert>
                     )}
                     {!!updateDetailsFieldErrors && (
                       <InlineAlert>
@@ -247,7 +280,7 @@ export default function EditUserPage() {
                     : 'Update'}
                 </PrimaryButton>
               </ActionContextProvider>
-            </Form>
+            </fetcher.Form>
             <changePasswordFetcher.Form
               method="post"
               action={AppLinks.ChangePassword}
@@ -263,6 +296,7 @@ export default function EditUserPage() {
                   <div className="col-span-2 flex flex-col items-stretch justify-center">
                     <FormTextField
                       {...changePasswordFormProps.getNameProp('password')}
+                      customRef={passwordRef}
                       type="password"
                     />
                   </div>
@@ -274,6 +308,7 @@ export default function EditUserPage() {
                       {...changePasswordFormProps.getNameProp(
                         'reEnteredPassword'
                       )}
+                      customRef={reEnteredPasswordRef}
                       type="password"
                     />
                   </div>

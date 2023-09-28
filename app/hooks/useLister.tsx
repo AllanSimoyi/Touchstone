@@ -56,6 +56,8 @@ export function useLister<SchemaType extends ZodTypeAny>(
     [isSameItem]
   );
 
+  const clear = () => setItems([]);
+
   const addItem = useCallback(
     (input: unknown) => {
       const result = Schema.safeParse(input);
@@ -87,5 +89,5 @@ export function useLister<SchemaType extends ZodTypeAny>(
     [addItem]
   );
 
-  return { items, error, addItem, removeItem, onKeyDown };
+  return { items, error, addItem, removeItem, onKeyDown, clear };
 }

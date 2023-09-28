@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from 'react';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { z } from 'zod';
 
 import { useLister } from '~/hooks/useLister';
@@ -26,14 +26,15 @@ const Schema = z.object({
 
 interface Props {
   name: string;
+  clearInput?: boolean;
 }
 export function AddEditOperators(props: Props) {
-  const { name } = props;
+  const { name, clearInput } = props;
 
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
 
-  const { addItem, onKeyDown, ...lister } = useLister({
+  const { addItem, onKeyDown, clear, ...lister } = useLister({
     name,
     Schema,
     isSameItem: (first, second) => first.name === second.name,
@@ -45,6 +46,12 @@ export function AddEditOperators(props: Props) {
       }
     },
   });
+
+  useEffect(() => {
+    if (clearInput) {
+      clear();
+    }
+  }, [clearInput, clear]);
 
   const addOperator = useCallback(() => {
     if (!nameRef.current || !emailRef.current) {

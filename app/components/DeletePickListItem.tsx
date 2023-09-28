@@ -1,9 +1,10 @@
 import type { FetcherWithComponents } from '@remix-run/react';
-import type { ComponentProps, FormEvent } from 'react';
-import type { RECORD_TYPES } from '~/models/core.validations';
 
+import { useEffect, type ComponentProps, type FormEvent } from 'react';
+import { toast } from 'sonner';
 import { X } from 'tabler-icons-react';
 
+import { hasSuccess, type RECORD_TYPES } from '~/models/core.validations';
 import { AppLinks } from '~/models/links';
 
 import { ActionContextProvider } from './ActionContextProvider';
@@ -29,6 +30,12 @@ export function DeletePickListItem(props: Props) {
     closeModal,
     handleDelete,
   } = props;
+
+  useEffect(() => {
+    if (hasSuccess(fetcher.data)) {
+      toast.success('Pick list item deleted successfully', { duration: 5_000 });
+    }
+  }, [fetcher.data]);
 
   return (
     <fetcher.Form

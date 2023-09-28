@@ -26,7 +26,7 @@ import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
 import { useFieldClearOnSuccess } from '~/hooks/useFieldClearOnSuccess';
 import { AddSupportJobSchema, hasSuccess } from '~/models/core.validations';
-import { DATE_INPUT_FORMAT, delay } from '~/models/dates';
+import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { hasFormError } from '~/models/forms';
 import { AppLinks } from '~/models/links';
 import { pad } from '~/models/strings';
@@ -98,9 +98,7 @@ export default function SupportJobsCreate() {
 
   useEffect(() => {
     if (hasSuccess(fetcher.data)) {
-      toast.success('Support job added');
-      delay(2_000);
-      navigate(AppLinks.SupportJobs);
+      toast.success('Support job added', { duration: 5_000 });
     }
   }, [fetcher.data, navigate]);
 
@@ -159,6 +157,7 @@ export default function SupportJobsCreate() {
                       detail={
                         <SelectCompany
                           {...getNameProp('accountId')}
+                          clearInput={hasSuccess(fetcher.data)}
                           accounts={accounts}
                         />
                       }
@@ -178,6 +177,7 @@ export default function SupportJobsCreate() {
                         <SelectSupportPerson
                           {...getNameProp('supportPersonId')}
                           users={users}
+                          clearInput={hasSuccess(fetcher.data)}
                           defaultUserId={currentUser.id}
                         />
                       }
@@ -215,6 +215,7 @@ export default function SupportJobsCreate() {
                         subtitle="Type of Work"
                         detail={
                           <SupportTypesMultiSelect
+                            clearInput={hasSuccess(fetcher.data)}
                             name={getNameProp('supportType').name}
                           />
                         }

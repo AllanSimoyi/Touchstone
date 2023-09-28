@@ -150,8 +150,11 @@ export const BooleanSchema = z.preprocess(
   })
 );
 
-export function hasSuccess(data: unknown): data is { success: boolean } {
-  return typeof data === 'object' && data !== null && 'success' in data;
+const SuccessSchema = z.object({ success: z.literal(true) });
+export function hasSuccess(
+  data: unknown
+): data is z.infer<typeof SuccessSchema> {
+  return SuccessSchema.safeParse(data).success;
 }
 
 export type Result<Ok, Err> =

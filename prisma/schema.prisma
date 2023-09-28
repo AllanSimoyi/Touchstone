@@ -8,6 +8,52 @@ datasource db {
   relationMode = "prisma"
 }
 
+model SupportJob {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account         Account @relation(fields: [accountId], references: [id])
+  accountId       Int
+  clientStaffName String  @db.VarChar(100)
+
+  supportPersonId Int
+  supportPerson   User @relation("support_person", fields: [supportPersonId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  supportType String @db.VarChar(500)
+  status      String @db.VarChar(100)
+
+  enquiry     String @db.Text
+  actionTaken String @db.Text
+
+  charge Decimal  @db.Decimal(19, 2)
+  date   DateTime @default(now())
+
+  userId Int
+  user   User @relation("job_author", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  events SupportJobEvent[]
+
+  @@map("support_job")
+}
+
+model SupportJobEvent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  supportJobId Int
+  supportJob   SupportJob @relation(fields: [supportJobId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  details String @db.Text
+  kind    String @db.VarChar(20)
+
+  @@map("support_job_event")
+}
+
 model Account {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -282,7 +328,7 @@ model Operator {
   accountId Int
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  operatorName  String          @unique @db.VarChar(30)
+  operatorName  String          @db.VarChar(30)
   operatorEmail String          @db.VarChar(50)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -364,52 +410,6 @@ model StatusEvent {
   kind    String @db.VarChar(20)
 
   @@map("status_event")
-}
-
-model SupportJob {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  account         Account @relation(fields: [accountId], references: [id])
-  accountId       Int
-  clientStaffName String  @db.VarChar(100)
-
-  supportPersonId Int
-  supportPerson   User @relation("support_person", fields: [supportPersonId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  supportType String @db.VarChar(500)
-  status      String @db.VarChar(100)
-
-  enquiry     String @db.Text
-  actionTaken String @db.Text
-
-  charge Decimal  @db.Decimal(19, 2)
-  date   DateTime @default(now())
-
-  userId Int
-  user   User @relation("job_author", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  events SupportJobEvent[]
-
-  @@map("support_job")
-}
-
-model SupportJobEvent {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  supportJobId Int
-  supportJob   SupportJob @relation(fields: [supportJobId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  details String @db.Text
-  kind    String @db.VarChar(20)
-
-  @@map("support_job_event")
 }
 
 model User {
