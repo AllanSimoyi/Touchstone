@@ -48,7 +48,7 @@ export default function App() {
       </head>
       <body
         className="h-full"
-        style={{ fontFamily: '"Poppins", sans-serif !important' }}
+        style={{ fontFamily: '"Poppins", sans-serif !important' }} // look into collapsing onto tailwind
       >
         <Outlet />
         <Toaster />
