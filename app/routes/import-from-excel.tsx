@@ -117,7 +117,7 @@ export async function action({ request }: ActionArgs) {
 
     const gross = calcGross({
       basicUsd,
-      addedPercentage,
+      addedPercentage: addedPercentage || 0,
       numDatabases: databases.length,
     });
 
@@ -126,8 +126,8 @@ export async function action({ request }: ActionArgs) {
       data: {
         accountNumber,
         companyName,
-        tradingAs,
-        formerly,
+        tradingAs: tradingAs || '',
+        formerly: formerly || '',
         group: {
           connectOrCreate: {
             where: { identifier: group },
@@ -146,11 +146,11 @@ export async function action({ request }: ActionArgs) {
             create: { identifier: sector },
           },
         },
-        vatNumber,
-        otherNames,
+        vatNumber: vatNumber || '',
+        otherNames: otherNames || '',
         description,
         actual,
-        reason,
+        reason: reason || '',
         status: {
           connectOrCreate: {
             where: { identifier: status },
@@ -159,23 +159,25 @@ export async function action({ request }: ActionArgs) {
         },
         contractNumber,
         dateOfContract,
-        license: {
-          connectOrCreate: {
-            where: { identifier: license },
-            create: { identifier: license, basicUsd },
-          },
-        },
+        license: license
+          ? {
+              connectOrCreate: {
+                where: { identifier: license },
+                create: { identifier: license, basicUsd },
+              },
+            }
+          : undefined,
         licenseDetail: {
           connectOrCreate: {
             where: { identifier: licenseDetail },
             create: { identifier: licenseDetail },
           },
         },
-        addedPercentage,
+        addedPercentage: addedPercentage || 0,
         gross,
         net: calcNet(gross),
         vat: calcVat(gross),
-        comment,
+        comment: comment || '',
         accountantName,
         accountantEmail,
         boxCity: {
@@ -189,7 +191,7 @@ export async function action({ request }: ActionArgs) {
         ceoName,
         ceoEmail,
         ceoPhone,
-        ceoFax,
+        ceoFax: ceoFax || '',
         physicalAddress: addr,
         telephoneNumber: tel,
         faxNumber: fax,
@@ -207,12 +209,15 @@ export async function action({ request }: ActionArgs) {
             databaseName,
           })),
         },
-        operators: {
-          create: {
-            operatorName: operatorName,
-            operatorEmail: operatorEmail,
-          },
-        },
+        operators:
+          operatorName && operatorEmail
+            ? {
+                create: {
+                  operatorName: operatorName,
+                  operatorEmail: operatorEmail,
+                },
+              }
+            : undefined,
       },
     });
   }
@@ -264,7 +269,7 @@ export default function UsersPage() {
         });
         const orderedRows = dataRows.map((row) => {
           return namedColumns.map((namedColumn) => {
-            if (!namedColumn.index) {
+            if (namedColumn.index === undefined) {
               return undefined;
             }
             const match = row[namedColumn.index];

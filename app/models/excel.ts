@@ -29,19 +29,21 @@ export function parseRowCell<T extends ZodTypeAny>(
 }
 
 const CompanyNameSchema = z
-  .string()
+  .string({ required_error: "Enter the company's name" })
   .min(1, "Enter the company's name")
   .max(50, "Use less than 50 characters for the company's name");
 const AccountNumberSchema = z
-  .string()
+  .string({ required_error: 'Enter the account number' })
   .min(1, 'Enter the account number')
   .max(20, 'Use less than 20 characters for the account number');
 const TradingAsSchema = z
   .string()
-  .max(50, 'Use less than 50 characters for the name');
+  .max(50, 'Use less than 50 characters for the name')
+  .or(z.undefined());
 const FormerlySchema = z
   .string()
-  .max(50, "Use less than 50 characters for the company's former name");
+  .max(50, "Use less than 50 characters for the company's former name")
+  .or(z.undefined());
 const CeoNameSchema = z
   .string()
   .max(50, "Use less than 50 characters for the CEO's name");
@@ -51,10 +53,12 @@ const CeoEmailSchema = z
   .max(50, "Use less than 50 characters for the CEO's email");
 const CeoPhoneSchema = z
   .string()
-  .max(20, "Use less than 20 characters for the CEO's phone number");
+  .max(20, "Use less than 20 characters for the CEO's phone number")
+  .or(z.number().transform(String));
 const CeoFaxSchema = z
   .string()
-  .max(50, "Use less than 50 characters for the CEO's fax number");
+  .max(50, "Use less than 50 characters for the CEO's fax number")
+  .or(z.undefined());
 const AddrSchema = z
   .string()
   .max(500, 'Use less than 500 characters for the physical address');
@@ -67,34 +71,59 @@ const FaxSchema = z
 const CellSchema = z
   .string()
   .max(20, 'Use less than 20 characters for the cellphone number');
-const LicenseSchema = ComposeIdentifierSchema('license');
+const LicenseSchema = z.preprocess((arg) => {
+  try {
+    const result = z.coerce.string().safeParse(arg);
+    if (!result.success) {
+      throw new Error();
+    }
+    return result.data;
+  } catch (error) {
+    return undefined;
+  }
+}, ComposeIdentifierSchema('license').or(z.undefined()));
 const LicenseDetailSchema = ComposeIdentifierSchema('license detail');
 const AddedPercentageSchema = z.coerce
   .number()
   .int('Enter an integer for the added percentage')
-  .max(100, 'Enter an added percentage less than 100');
+  .max(100, 'Enter an added percentage less than 100')
+  .or(z.undefined());
 const ContractNumberSchema = z
   .string()
   .max(30, 'Use less than 30 characters for the contract number');
-const DateOfContractSchema = z.coerce
-  .date()
-  .or(z.literal('').transform((arg) => undefined));
+const DateOfContractSchema = z.preprocess((arg) => {
+  try {
+    const result = z.coerce.date().safeParse(arg);
+    if (!result.success) {
+      throw new Error();
+    }
+    return result.data;
+  } catch (error) {
+    return undefined;
+  }
+}, z.date().or(z.undefined()));
+// const DateOfContractSchema = z.coerce
+// .date()
+// .or(z.undefined())
+// .or(z.literal('').transform((arg) => undefined));
 const AccountantNameSchema = z
   .string()
   .max(50, "Use less than 20 characters for the accountant's name");
 const AccountantEmailSchema = z
   .string()
-  .email('Enter a valid email for the accountant')
+  // .email('Enter a valid email for the accountant')
   .max(50, "Use less than 50 characters for the accountant's email");
 const GroupSchema = ComposeIdentifierSchema('group');
 const AreaSchema = ComposeIdentifierSchema('area');
 const SectorSchema = ComposeIdentifierSchema('sector');
 const VatNumberSchema = z
   .string()
-  .max(20, 'Use less than 20 characters for the VAT number');
+  .max(20, 'Use less than 20 characters for the VAT number')
+  .or(z.undefined());
 const OtherNamesSchema = z
   .string()
-  .max(200, 'Use less than 200 characters for the other names used on cheques');
+  .max(200, 'Use less than 200 characters for the other names used on cheques')
+  .or(z.undefined());
 const DescriptionSchema = z
   .string()
   .max(1600, 'Use less than 1600 characters for the description');
@@ -104,11 +133,13 @@ const ActualSchema = z.coerce
   .or(z.literal('').transform((_) => 0));
 const ReasonSchema = z
   .string()
-  .max(500, 'Use less than 500 characters for the reason');
+  .max(500, 'Use less than 500 characters for the reason')
+  .or(z.undefined());
 const StatusSchema = ComposeIdentifierSchema('status');
 const CommentSchema = z
   .string()
-  .max(1600, 'Use less than 1600 characters for the comment');
+  .max(1600, 'Use less than 1600 characters for the comment')
+  .or(z.undefined());
 const BoxCitySchema = ComposeIdentifierSchema('box city');
 const BoxNumberSchema = z
   .string()
@@ -136,7 +167,8 @@ const OperatorNameSchema = z
     invalid_type_error: "Provide valid input for the operator's name",
   })
   .min(1, "Enter the operator's name")
-  .max(50, "Use less than 50 characters for operator's name");
+  .max(50, "Use less than 50 characters for operator's name")
+  .or(z.undefined());
 const OperatorEmailSchema = z
   .string({
     required_error: "Provide the operator's email",
@@ -144,8 +176,8 @@ const OperatorEmailSchema = z
   })
   .email({ message: 'Provide a valid email for the operator' })
   .min(1, "Enter the operator's email")
-  .max(50, "Use less than 50 characters for operator's email");
-
+  .max(50, "Use less than 50 characters for operator's email")
+  .or(z.undefined());
 export const ExcelRowSchema = z.tuple(
   [
     AccountNumberSchema,
@@ -188,9 +220,7 @@ export const ExcelRowSchema = z.tuple(
     OperatorNameSchema,
     OperatorEmailSchema,
   ],
-  {
-    required_error: 'Please provide row data',
-  }
+  { required_error: 'Please provide row data' }
 );
 export type ParsedExcelRow = z.infer<typeof ExcelRowSchema>;
 
@@ -235,3 +265,13 @@ export const EXCEL_TABLE_COLUMNS = [
   ['Operator', OperatorNameSchema] as const,
   ['Operator Email', OperatorEmailSchema] as const,
 ] as const;
+
+// 3 undefined
+// 7 undefined
+// 8 undefined
+// 11 undefined
+// 18 undefined
+// 19 undefined
+// 23 undefined
+// 37 undefined
+// 38 undefined
