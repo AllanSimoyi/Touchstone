@@ -144,6 +144,7 @@ const Schema = z.object({
   groupId: ComposeRecordIdSchema('group', 'optional'),
   areaId: ComposeRecordIdSchema('area', 'optional'),
   sectorId: ComposeRecordIdSchema('sector', 'optional'),
+  tin: z.string().max(20, 'Use less than 20 characters for the TIN'),
   vatNumber: z
     .string()
     .max(20, 'Use less than 20 characters for the VAT number'),
@@ -214,7 +215,8 @@ export const action = async ({ request }: ActionArgs) => {
     }
     const { accountNumber, contractNumber, companyName, tradingAs, formerly } =
       result.data;
-    const { groupId, areaId, sectorId, vatNumber, otherNames } = result.data;
+    const { groupId, areaId, sectorId, tin, vatNumber, otherNames } =
+      result.data;
     const { description, actual, reason, statusId } = result.data;
     const { dateOfContract, licenseId, licenseDetailId } = result.data;
     const { addedPercentage, comment } = result.data;
@@ -289,6 +291,7 @@ export const action = async ({ request }: ActionArgs) => {
           groupId,
           areaId,
           sectorId,
+          tin,
           vatNumber,
           otherNames,
           description,
@@ -440,6 +443,7 @@ export default function CreateCustomerPage() {
   const areaIdRef = useRef<HTMLSelectElement>(null);
   const sectorIdRef = useRef<HTMLSelectElement>(null);
   const vatNumberRef = useRef<HTMLInputElement>(null);
+  const tinRef = useRef<HTMLInputElement>(null);
   const otherNamesRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const actualRef = useRef<HTMLInputElement>(null);
@@ -488,6 +492,7 @@ export default function CreateCustomerPage() {
       clearRef(groupIdRef);
       clearRef(areaIdRef);
       clearRef(sectorIdRef);
+      clearRef(tinRef);
       clearRef(vatNumberRef);
       clearRef(otherNamesRef);
       clearRef(descriptionRef);
@@ -527,6 +532,7 @@ export default function CreateCustomerPage() {
     groupId: groups[0].id.toString(),
     areaId: areas[0].id.toString(),
     sectorId: sectors[0].id.toString(),
+    tin: '12345',
     vatNumber: '12345',
     otherNames: 'Bach',
     description: 'Description goes here...',
@@ -838,6 +844,15 @@ export default function CreateCustomerPage() {
                           </option>
                         ))}
                       </FormSelect>
+                    </div>
+                    <div className="flex flex-col items-start justify-center p-2">
+                      <span>TaxPayer Identification Number (TIN)</span>
+                    </div>
+                    <div className="col-span-2 flex flex-col items-stretch justify-center">
+                      <FormTextField
+                        {...getNameProp('tin')}
+                        customRef={tinRef}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>VAT #</span>

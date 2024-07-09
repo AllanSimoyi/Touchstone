@@ -8,10 +8,11 @@ interface Props {
   group: string;
   area: string;
   sector: string;
+  tin: string;
   vatNumber: string;
 }
 export function MiscDetails(props: Props) {
-  const { group, area, sector, vatNumber } = props;
+  const { group, area, sector, tin, vatNumber } = props;
 
   const values = Object.keys(props).map((key) => props[key as keyof Props]);
   if (values.every((value) => !value)) {
@@ -23,6 +24,7 @@ export function MiscDetails(props: Props) {
       ['Group', group],
       ['Area', area],
       ['Sector', sector],
+      ['TIN', tin],
       ['VAT #', vatNumber],
     ] as const
   ).filter(([_, value]) => Boolean(value));

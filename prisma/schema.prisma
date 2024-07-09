@@ -78,6 +78,7 @@ model Account {
   sectorId Int?
   sector   Sector? @relation(fields: [sectorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  tin         String @default("") @db.VarChar(200)
   vatNumber   String @db.VarChar(200)
   otherNames  String @db.VarChar(200)
   description String @db.VarChar(1600)

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `accounts` ADD COLUMN `tin` VARCHAR(200) NOT NULL DEFAULT '';

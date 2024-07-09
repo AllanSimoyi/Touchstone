@@ -80,6 +80,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
         addedPercentage: true,
         gross: true,
         net: true,
+        tin: true,
         vatNumber: true,
         accountantName: true,
         accountantEmail: true,
@@ -233,6 +234,7 @@ export default function CustomerPage() {
               group={customer.group?.identifier || '-'}
               area={customer.area?.identifier || '-'}
               sector={customer.sector?.identifier || '-'}
+              tin={customer.tin}
               vatNumber={customer.vatNumber}
             />
             <LicenseDetails
