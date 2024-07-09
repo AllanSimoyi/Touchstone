@@ -103,9 +103,13 @@ const Schema = z.object({
     .max(50, "Use less than 50 characters for the company's former name"),
   ceoName: z.string().max(50, "Use less than 50 characters for the CEO's name"),
   ceoEmail: z
-    .string()
-    .email('Enter a valid email for CEO')
-    .max(50, "Use less than 50 characters for the CEO's email"),
+    .literal('')
+    .or(
+      z
+        .string()
+        .email('Enter a valid email for CEO')
+        .max(50, "Use less than 50 characters for the CEO's email")
+    ),
   ceoPhone: z
     .string()
     .max(20, "Use less than 20 characters for the CEO's phone number"),
@@ -126,8 +130,7 @@ const Schema = z.object({
   licenseDetailId: ComposeRecordIdSchema('license detail record', 'optional'),
   addedPercentage: z.coerce
     .number()
-    .int('Enter an integer for the added percentage')
-    .max(100, 'Enter an added percentage less than 100'),
+    .int('Enter an integer for the added percentage'),
   contractNumber: z
     .string()
     .max(30, 'Use less than 30 characters for the contract number'),

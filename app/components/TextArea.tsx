@@ -15,6 +15,7 @@ export function TextArea(props: Props) {
     name,
     label,
     className,
+    required,
     errors,
     rows,
     disabled,
@@ -28,7 +29,8 @@ export function TextArea(props: Props) {
         <span className="text-base font-light text-zinc-600">{label}</span>
       )}
       <textarea
-        required
+        required={required}
+        aria-required={required}
         ref={customRef}
         name={name}
         aria-invalid={!!errors?.length}
