@@ -16,6 +16,7 @@ import {
 import { AddEditDatabases } from '~/components/AddEditDatabases';
 import { AddEditOperators } from '~/components/AddEditOperators';
 import { RouteErrorBoundary } from '~/components/Boundaries';
+import { Breadcrumb } from '~/components/Breadcrumb';
 import { Card } from '~/components/Card';
 import { CardHeader } from '~/components/CardHeader';
 import { CenteredView } from '~/components/CenteredView';
@@ -38,6 +39,7 @@ import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { getErrorMessage } from '~/models/errors';
 import { EventKind } from '~/models/events';
 import { getRawFormFields, hasFormError } from '~/models/forms';
+import { AppLinks } from '~/models/links';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
@@ -141,9 +143,13 @@ const Schema = z.object({
     .string()
     .max(20, "Use less than 20 characters for the accountant's name"),
   accountantEmail: z
-    .string()
-    .email('Enter a valid email for the accountant')
-    .max(50, "Use less than 50 characters for the accountant's email"),
+    .literal('')
+    .or(
+      z
+        .string()
+        .email('Enter a valid email for the accountant')
+        .max(50, "Use less than 50 characters for the accountant's email")
+    ),
   groupId: ComposeRecordIdSchema('group', 'optional'),
   areaId: ComposeRecordIdSchema('area', 'optional'),
   sectorId: ComposeRecordIdSchema('sector', 'optional'),
@@ -513,46 +519,86 @@ export default function CreateCustomerPage() {
   }, [fetcher.data]);
 
   const defaultValues = {
-    companyName: 'Allan',
-    accountNumber: '1234567',
-    tradingAs: 'Allan',
-    formerly: 'Allan',
-    ceoName: 'Allan Simoyi',
-    ceoEmail: 'bach@gmail.com',
-    ceoPhone: '+263779528194',
-    ceoFax: '12345',
-    addr: '123 Place, Bigger Place',
-    tel: '+263779528194',
-    fax: '12345',
-    cell: '+263779528194',
+    companyName: '',
+    accountNumber: '',
+    tradingAs: '',
+    formerly: '',
+    ceoName: '',
+    ceoEmail: '',
+    ceoPhone: '',
+    ceoFax: '',
+    addr: '',
+    tel: '',
+    fax: '',
+    cell: '',
     licenseId: licenses[0].id.toString(),
     licenseDetailId: licenseDetails[0].id.toString(),
-    addedPercentage: '15',
-    contractNumber: '12345',
+    addedPercentage: '',
+    contractNumber: '',
     dateOfContract: dayjs().format(DATE_INPUT_FORMAT),
-    accountantName: 'Tatenda',
-    accountantEmail: 'tatenda@gmail.com',
+    accountantName: '',
+    accountantEmail: '',
     groupId: groups[0].id.toString(),
     areaId: areas[0].id.toString(),
     sectorId: sectors[0].id.toString(),
-    tin: '12345',
-    vatNumber: '12345',
-    otherNames: 'Bach',
-    description: 'Description goes here...',
-    actual: '1',
-    reason: 'Reason goes here...',
+    tin: '',
+    vatNumber: '',
+    otherNames: '',
+    description: '',
+    actual: '',
+    reason: '',
     statusId: statuses[0].id.toString(),
-    comment: 'Comment goes here...',
+    comment: '',
     boxCityId: cities[0].id.toString(),
-    boxNumber: '12345',
-    boxArea: 'Area23',
+    boxNumber: '',
+    boxArea: '',
     deliveryCityId: cities[0].id.toString(),
-    deliverySuburb: 'Plce',
-    deliveryAddress: '123 Another Place, Bigger Place',
-    databases: '["Database one", "Database two"]',
-    operators:
-      '[{"name": "Allan", "email": "allan@gmail.com"}, {"name": "Tatenda", "email": "tatenda@gmail.com"}]',
+    deliverySuburb: '',
+    deliveryAddress: '',
+    databases: '[]',
+    operators: '[]',
   };
+  // const defaultValues = {
+  //   companyName: 'Allan',
+  //   accountNumber: '1234567',
+  //   tradingAs: 'Allan',
+  //   formerly: 'Allan',
+  //   ceoName: 'Allan Simoyi',
+  //   ceoEmail: 'bach@gmail.com',
+  //   ceoPhone: '+263779528194',
+  //   ceoFax: '12345',
+  //   addr: '123 Place, Bigger Place',
+  //   tel: '+263779528194',
+  //   fax: '12345',
+  //   cell: '+263779528194',
+  //   licenseId: licenses[0].id.toString(),
+  //   licenseDetailId: licenseDetails[0].id.toString(),
+  //   addedPercentage: '15',
+  //   contractNumber: '12345',
+  //   dateOfContract: dayjs().format(DATE_INPUT_FORMAT),
+  //   accountantName: 'Tatenda',
+  //   accountantEmail: 'tatenda@gmail.com',
+  //   groupId: groups[0].id.toString(),
+  //   areaId: areas[0].id.toString(),
+  //   sectorId: sectors[0].id.toString(),
+  //   tin: '12345',
+  //   vatNumber: '12345',
+  //   otherNames: 'Bach',
+  //   description: 'Description goes here...',
+  //   actual: '1',
+  //   reason: 'Reason goes here...',
+  //   statusId: statuses[0].id.toString(),
+  //   comment: 'Comment goes here...',
+  //   boxCityId: cities[0].id.toString(),
+  //   boxNumber: '12345',
+  //   boxArea: 'Area23',
+  //   deliveryCityId: cities[0].id.toString(),
+  //   deliverySuburb: 'Plce',
+  //   deliveryAddress: '123 Another Place, Bigger Place',
+  //   databases: '["Database one", "Database two"]',
+  //   operators:
+  //     '[{"name": "Allan", "email": "allan@gmail.com"}, {"name": "Tatenda", "email": "tatenda@gmail.com"}]',
+  // };
 
   return (
     <div className="flex min-h-full flex-col items-stretch">
@@ -574,10 +620,17 @@ export default function CreateCustomerPage() {
           fields={defaultValues}
           isSubmitting={isProcessing}
         >
-          <CenteredView className="w-full gap-4 px-2">
-            <div className="flex flex-col items-start justify-center pt-2">
-              <span className="text-lg font-semibold">Record New Customer</span>
-            </div>
+          <CenteredView className="w-full gap-4 p-2">
+            <Breadcrumb
+              items={[[AppLinks.Customers, 'Customers'], 'Record New Customer']}
+            />
+            {/* <div className="flex flex-row items-center gap-2">
+              <div className="flex flex-col items-start justify-center pt-2">
+                <span className="text-lg font-semibold">
+                  Record New Customer
+                </span>
+              </div>
+            </div> */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>Identification Details</CardHeader>
@@ -1017,7 +1070,7 @@ export default function CreateCustomerPage() {
                   />
                 </Card>
                 <Card className="grow">
-                  <CardHeader>Operators</CardHeader>
+                  <CardHeader>Payroll Operators</CardHeader>
                   <AddEditOperators
                     {...getNameProp('operators')}
                     clearInput={hasSuccess(fetcher.data)}

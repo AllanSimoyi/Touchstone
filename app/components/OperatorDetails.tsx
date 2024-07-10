@@ -11,7 +11,7 @@ export function OperatorDetails(props: Props) {
   return (
     <div className="flex flex-col items-stretch">
       <Card>
-        <CardHeader>Operators</CardHeader>
+        <CardHeader>Payroll Operators</CardHeader>
         <div className="flex flex-col items-stretch gap-2 p-2">
           {operators.map((operator) => (
             <Chip key={operator.name}>

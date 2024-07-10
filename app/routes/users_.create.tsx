@@ -13,8 +13,8 @@ import {
   useForm,
 } from '~/components/ActionContextProvider';
 import { RouteErrorBoundary } from '~/components/Boundaries';
+import { Breadcrumb } from '~/components/Breadcrumb';
 import { Card } from '~/components/Card';
-import { CardHeader } from '~/components/CardHeader';
 import { CenteredView } from '~/components/CenteredView';
 import { Footer } from '~/components/Footer';
 import { FormSelect } from '~/components/FormSelect';
@@ -31,6 +31,7 @@ import {
 import { getErrorMessage } from '~/models/errors';
 import { EventKind } from '~/models/events';
 import { getRawFormFields, hasFormError } from '~/models/forms';
+import { AppLinks } from '~/models/links';
 import { customLog } from '~/models/logger';
 import {
   customServerLog,
@@ -177,9 +178,11 @@ export default function CreateUserPage() {
         >
           <CenteredView className="w-full gap-4 px-2">
             <div className="flex flex-col items-center justify-center">
-              <div className="flex min-w-[40%] flex-col items-stretch">
+              <div className="flex min-w-[40%] flex-col items-stretch gap-6">
+                <Breadcrumb
+                  items={[[AppLinks.SupportJobs, 'Users'], 'Create New User']}
+                />
                 <Card>
-                  <CardHeader>Create New User</CardHeader>
                   <div className="grid grid-cols-3 gap-6 px-2 py-6 font-light">
                     <div className="flex flex-col items-start justify-center p-2">
                       <span>Access Level</span>

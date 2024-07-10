@@ -11,6 +11,7 @@ import {
   ActionContextProvider,
   useForm,
 } from '~/components/ActionContextProvider';
+import { Breadcrumb } from '~/components/Breadcrumb';
 import { Card } from '~/components/Card';
 import { CenteredView } from '~/components/CenteredView';
 import { FormSelect } from '~/components/FormSelect';
@@ -26,10 +27,10 @@ import { SupportTypesMultiSelect } from '~/components/SupportTypesMultiSelect';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
 import {
-  getValidatedId,
-  hasSuccess,
   StatusCode,
   UpdateSupportJobSchema,
+  getValidatedId,
+  hasSuccess,
 } from '~/models/core.validations';
 import { DATE_INPUT_FORMAT } from '~/models/dates';
 import { hasFields, hasFormError } from '~/models/forms';
@@ -173,10 +174,13 @@ export default function SupportJobsCreate() {
                 {...getNameProp('userId')}
                 value={currentUser.id}
               />
-              <div className="flex flex-col items-start py-6">
-                <span className="text-lg font-semibold">
-                  Update Support Job
-                </span>
+              <div className="flex flex-col items-stretch py-6">
+                <Breadcrumb
+                  items={[
+                    [AppLinks.SupportJobs, 'Support Jobs'],
+                    'Edit Support Job',
+                  ]}
+                />
               </div>
               <Card className="gap-6 p-4">
                 <div className="flex flex-row items-stretch justify-start gap-10">

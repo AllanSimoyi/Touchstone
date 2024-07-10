@@ -3,13 +3,13 @@ import type { z } from 'zod';
 import type { DeleteRecordSchema } from '~/models/core.validations';
 
 import { Response, json } from '@remix-run/node';
-import { Link, useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
+import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react';
 import dayjs from 'dayjs';
 import { useEffect } from 'react';
-import { ChevronRight } from 'tabler-icons-react';
 
 import { AccountantDetails } from '~/components/AccountantDetails';
 import { RouteErrorBoundary } from '~/components/Boundaries';
+import { Breadcrumb } from '~/components/Breadcrumb';
 import { CenteredView } from '~/components/CenteredView';
 import { CeoDetails } from '~/components/CeoDetails';
 import { Chip } from '~/components/Chip';
@@ -26,7 +26,6 @@ import { MiscDetails3 } from '~/components/MiscDetails3';
 import { OperatorDetails } from '~/components/OperatorDetails';
 import { PrimaryButtonLink } from '~/components/PrimaryButton';
 import { Toolbar } from '~/components/Toolbar';
-import { UnderLineOnHover } from '~/components/UnderLineOnHover';
 import { prisma } from '~/db.server';
 import { useDelete } from '~/hooks/useDelete';
 import {
@@ -161,19 +160,12 @@ export default function CustomerPage() {
         <CenteredView className="gap-6 px-2">
           <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
             <div className="flex flex-col items-start gap-2">
-              <h2 className="flex flex-row items-stretch gap-2 text-2xl font-semibold">
-                <Link to={AppLinks.Customers}>
-                  <UnderLineOnHover>
-                    <span className="text-zinc-400 transition-all duration-150 hover:text-zinc-800">
-                      Customers
-                    </span>
-                  </UnderLineOnHover>
-                </Link>
-                <div className="flex flex-col items-center justify-center">
-                  <ChevronRight className="text-zinc-400" />
-                </div>
-                <span className="text-zinc-800">{customer.companyName}</span>
-              </h2>
+              <Breadcrumb
+                items={[
+                  [AppLinks.Customers, 'Customers'],
+                  customer.companyName,
+                ]}
+              />
               <div className="flex flex-wrap items-center gap-2">
                 <Chip className="bg-zinc-200 py-1">
                   <span className="font-zinc-600 text-base font-light">

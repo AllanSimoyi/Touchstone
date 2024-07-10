@@ -30,6 +30,7 @@ export function useLister<SchemaType extends ZodTypeAny>(
   const [error, setErrors] = useState(errorsFromServer?.join(', ') || '');
 
   useEffect(() => {
+    console.log('value', value);
     try {
       if (typeof value !== 'string') {
         return;
@@ -40,6 +41,11 @@ export function useLister<SchemaType extends ZodTypeAny>(
           throw new Error(result.error.message);
         }
         setItems(result.data);
+        // const parsedItems = JSON.parse(value) as typeof items;
+        // if (typeof parsedItems !== 'object' || !Array.isArray(parsedItems)) {
+        //   throw new Error('Invalid input');
+        // }
+        // setItems(parsedItems);
       } catch (error) {
         return;
       }
@@ -47,6 +53,7 @@ export function useLister<SchemaType extends ZodTypeAny>(
       console.error(getErrorMessage(error));
       setErrors(INVALID_VALUES_FROM_SERVER);
     }
+    // }, [value]);
   }, [value, Schema]);
 
   const removeItem = useCallback(
@@ -56,7 +63,7 @@ export function useLister<SchemaType extends ZodTypeAny>(
     [isSameItem]
   );
 
-  const clear = () => setItems([]);
+  const clear = useCallback(() => setItems([]), []);
 
   const addItem = useCallback(
     (input: unknown) => {

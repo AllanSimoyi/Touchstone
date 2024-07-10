@@ -14,6 +14,7 @@ import {
 import { AddEditDatabases } from '~/components/AddEditDatabases';
 import { AddEditOperators } from '~/components/AddEditOperators';
 import { RouteErrorBoundary } from '~/components/Boundaries';
+import { Breadcrumb } from '~/components/Breadcrumb';
 import { Card } from '~/components/Card';
 import { CardHeader } from '~/components/CardHeader';
 import { CenteredView } from '~/components/CenteredView';
@@ -49,6 +50,7 @@ import {
   hasFields,
   hasFormError,
 } from '~/models/forms';
+import { AppLinks } from '~/models/links';
 import { logParseError } from '~/models/logger.server';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
@@ -753,13 +755,14 @@ export default function EditCustomerPage() {
           fields={hasFields(fetcher.data) ? fetcher.data.fields : defaultValues}
           isSubmitting={isProcessing}
         >
-          <CenteredView className="w-full gap-4 px-2">
+          <CenteredView className="w-full gap-4 p-2">
             <input type="hidden" name="id" value={account.id} />
-            <div className="flex flex-col items-start justify-center pt-2">
-              <span className="text-lg font-semibold">
-                Update Customer Details
-              </span>
-            </div>
+            <Breadcrumb
+              items={[
+                [AppLinks.Customers, 'Customers'],
+                'Update Customer Details',
+              ]}
+            />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>Identification Details</CardHeader>
@@ -1097,7 +1100,7 @@ export default function EditCustomerPage() {
                   <AddEditDatabases {...getNameProp('databases')} />
                 </Card>
                 <Card className="grow">
-                  <CardHeader>Operators</CardHeader>
+                  <CardHeader>Payroll Operators</CardHeader>
                   <AddEditOperators {...getNameProp('operators')} />
                 </Card>
               </div>

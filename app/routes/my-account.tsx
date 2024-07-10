@@ -12,6 +12,7 @@ import {
   useForm,
 } from '~/components/ActionContextProvider';
 import { RouteErrorBoundary } from '~/components/Boundaries';
+import { Breadcrumb } from '~/components/Breadcrumb';
 import { Card } from '~/components/Card';
 import { CardHeader } from '~/components/CardHeader';
 import { CenteredView } from '~/components/CenteredView';
@@ -170,8 +171,8 @@ export default function MyAccountPage() {
       <Toolbar currentUserName={currentUser.username} />
       <div className="flex grow flex-col items-stretch py-6">
         <CenteredView className="w-full grow gap-4 px-2">
-          <div className="flex flex-col items-start justify-center pt-6">
-            <span className="text-lg font-semibold">My Account</span>
+          <div className="flex flex-col items-stretch py-4">
+            <Breadcrumb items={[[AppLinks.Home, 'Home'], 'My Account']} />
           </div>
           <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
             <fetcher.Form

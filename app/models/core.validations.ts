@@ -289,7 +289,7 @@ export const AddSupportJobSchema = z.object({
       invalid_type_error:
         "Provide valid input for the client staff member's name",
     })
-    .min(1, "Enter a client staff member's name")
+    // .min(1, "Enter a client staff member's name")
     .max(
       100,
       "Use less than 100 characters for the client staff member's name"
@@ -308,7 +308,7 @@ export const AddSupportJobSchema = z.object({
       required_error: 'Enter the support job enquiry',
       invalid_type_error: 'Provide valid input for the support job enquiry',
     })
-    .min(1, 'Enter the support job enquiry')
+    // .min(1, 'Enter the support job enquiry')
     .max(2400, 'Use less than 2400 characters for the support job enquiry'),
   actionTaken: z
     .string({
@@ -401,7 +401,7 @@ export const UpdateSupportJobSchema = z.object({
       invalid_type_error:
         "Provide valid input for the client staff member's name",
     })
-    .min(1, "Enter a client staff member's name")
+    // .min(1, "Enter a client staff member's name")
     .max(
       100,
       "Use less than 100 characters for the client staff member's name"
@@ -420,7 +420,7 @@ export const UpdateSupportJobSchema = z.object({
       required_error: 'Enter the support job enquiry',
       invalid_type_error: 'Provide valid input for the support job enquiry',
     })
-    .min(1, 'Enter the support job enquiry')
+    // .min(1, 'Enter the support job enquiry')
     .max(2400, 'Use less than 2400 characters for the support job enquiry'),
   actionTaken: z
     .string({

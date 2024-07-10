@@ -11,10 +11,12 @@ import { AddEditLicenseDetails } from '~/components/AddEditLicenseDetail';
 import { AddEditSectors } from '~/components/AddEditSectors';
 import { AddEditStatuses } from '~/components/AddEditStatuses';
 import { RouteErrorBoundary } from '~/components/Boundaries';
+import { Breadcrumb } from '~/components/Breadcrumb';
 import { CenteredView } from '~/components/CenteredView';
 import { Footer } from '~/components/Footer';
 import { Toolbar } from '~/components/Toolbar';
 import { prisma } from '~/db.server';
+import { AppLinks } from '~/models/links';
 import { requireUserId } from '~/session.server';
 import { useUser } from '~/utils';
 
@@ -79,11 +81,9 @@ export default function PickListsPage() {
       <Toolbar currentUserName={user.username} />
       <div className="flex grow flex-col items-stretch py-6">
         <CenteredView className="gap-6 px-2">
-          <div className="flex flex-col items-start justify-center pt-2">
-            <span className="text-lg font-semibold">Pick Lists</span>
+          <div className="flex flex-col items-stretch py-4">
+            <Breadcrumb items={[[AppLinks.Home, 'Home'], 'Pick Lists']} />
           </div>
-          {/* <div className="masonry sm:masonry-sm md:masonry-md gap-6"> */}
-          {/* <div className="break-inside flex flex-col items-stretch pb-6"> */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <AddEditAreas
               items={areas.map((area) => ({
