@@ -179,9 +179,15 @@ export default function CreateUserPage() {
           <CenteredView className="w-full gap-4 px-2">
             <div className="flex flex-col items-center justify-center">
               <div className="flex min-w-[40%] flex-col items-stretch gap-6">
-                <Breadcrumb
-                  items={[[AppLinks.SupportJobs, 'Users'], 'Create New User']}
-                />
+                <div className="flex flex-row items-center gap-2">
+                  <Breadcrumb
+                    items={[[AppLinks.SupportJobs, 'Users'], 'Create New User']}
+                  />
+                  <div className="grow" />
+                  <PrimaryButton type="submit" disabled={isProcessing}>
+                    {isProcessing ? 'Creating New User...' : 'Submit'}
+                  </PrimaryButton>
+                </div>
                 <Card>
                   <div className="grid grid-cols-3 gap-6 px-2 py-6 font-light">
                     <div className="flex flex-col items-start justify-center p-2">

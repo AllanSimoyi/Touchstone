@@ -621,9 +621,18 @@ export default function CreateCustomerPage() {
           isSubmitting={isProcessing}
         >
           <CenteredView className="w-full gap-4 p-2">
-            <Breadcrumb
-              items={[[AppLinks.Customers, 'Customers'], 'Record New Customer']}
-            />
+            <div className="flex flex-row items-center gap-2">
+              <Breadcrumb
+                items={[
+                  [AppLinks.Customers, 'Customers'],
+                  'Record New Customer',
+                ]}
+              />
+              <div className="grow" />
+              <PrimaryButton type="submit" disabled={isProcessing}>
+                {isProcessing ? 'Recording New Customer...' : 'Submit'}
+              </PrimaryButton>
+            </div>
             {/* <div className="flex flex-row items-center gap-2">
               <div className="flex flex-col items-start justify-center pt-2">
                 <span className="text-lg font-semibold">

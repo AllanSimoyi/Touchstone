@@ -142,12 +142,16 @@ export default function SupportJobsCreate() {
                 value={currentUser.id}
               />
               <div className="flex flex-col items-stretch py-6">
-                <Breadcrumb
-                  items={[
-                    [AppLinks.SupportJobs, 'Support Jobs'],
-                    'Add New Job',
-                  ]}
-                />
+                <div className="flex flex-row items-center gap-2">
+                  <Breadcrumb
+                    items={[
+                      [AppLinks.SupportJobs, 'Support Jobs'],
+                      'Add New Job',
+                    ]}
+                  />
+                  <div className="grow" />
+                  <PrimaryButton type="submit">Record</PrimaryButton>
+                </div>
               </div>
               <Card className="gap-6 p-4">
                 <div className="flex flex-row items-stretch justify-start gap-10">
