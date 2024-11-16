@@ -24,7 +24,7 @@ function ContactSupport({ preFilledMessage }: { preFilledMessage: string }) {
       target="_blank"
       rel="noopener noreferrer"
     >
-      contact me via email
+      contact us via email
     </a>
   );
 }
@@ -181,7 +181,7 @@ function RouteCatchBoundary(props: RouterCatchBoundaryProps) {
       );
     }
     default: {
-      throw new Error(`Unhandled error: ${error.status}, ${error.statusText}`);
+      throw new Error(`${error.data}`);
     }
   }
 }
