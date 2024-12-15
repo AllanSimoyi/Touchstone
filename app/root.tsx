@@ -22,7 +22,6 @@ import { getUser } from '~/session.server';
 import stylesheet from '~/tailwind.css';
 
 import { RouteErrorBoundary } from './components/Boundaries';
-import { delay } from './models/dates';
 
 export const meta: V2_MetaFunction = () => [{ title: 'Touchstone' }];
 
@@ -37,13 +36,6 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader = async ({ request }: LoaderArgs) => {
-  await delay(2_500);
-  const now = new Date().getTime();
-  if (now % 2 === 0) {
-    throw new Response(
-      'Out of memory: Unable to allocate memory for thread (16384 bytes). Consider upgrading dyno and node version.'
-    );
-  }
   return json({ user: await getUser(request) });
 };
 
