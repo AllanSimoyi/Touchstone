@@ -1,6 +1,6 @@
 import type { ActionArgs, LoaderArgs, V2_MetaFunction } from '@remix-run/node';
 
-import { json, redirect } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import {
   Form,
   useActionData,
@@ -19,12 +19,12 @@ import { PrimaryButton } from '~/components/PrimaryButton';
 import { badRequest, processBadRequest } from '~/models/core.validations';
 import { getRawFormFields, hasFormError } from '~/models/forms';
 import { verifyLogin } from '~/models/user.server';
-import { createUserSession, getUserId } from '~/session.server';
+import { createUserSession } from '~/session.server';
 import { safeRedirect } from '~/utils';
 
 export const loader = async ({ request }: LoaderArgs) => {
-  const userId = await getUserId(request);
-  if (userId) return redirect('/');
+  // const userId = await getUserId(request);
+  // if (userId) return redirect('/');
   return json({});
 };
 
